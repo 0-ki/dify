@@ -18,7 +18,9 @@ import { useWorkflowRunEvent } from '@/app/components/workflow/hooks/use-workflo
 import { useWorkflowUpdate } from '@/app/components/workflow/hooks/use-workflow-update'
 import { useWorkflowStore } from '@/app/components/workflow/store'
 import { usePathname } from '@/next/navigation'
+import { ApiError } from '@/service/api-error'
 import { ssePost } from '@/service/base'
+import { StreamError } from '@/service/stream-error'
 import { useInvalidAllLastRun, useInvalidateWorkflowRunHistory } from '@/service/use-workflow'
 import { stopWorkflowRun } from '@/service/workflow'
 import { AppModeEnum } from '@/types/app'
@@ -350,19 +352,10 @@ const useWorkflowRunBase = (doSyncWorkflowDraft: DoSyncWorkflowDraft) => {
 
       const getWorkflowRunningData = () => workflowStore.getState().workflowRunningData
 
-      const trackWorkflowRunFailed = (eventParams: unknown, workflowData: unknown) => {
+      const trackWorkflowRunFailed = (error: Error, workflowData: unknown) => {
         const payload =
-          typeof eventParams === 'object' && eventParams !== null
-            ? (eventParams as Record<string, unknown>)
-            : undefined
-        const reason =
-          typeof eventParams === 'string'
-            ? eventParams
-            : eventParams instanceof Error
-              ? eventParams.message
-              : typeof payload?.error === 'string'
-                ? payload.error
-                : undefined
+          error instanceof ApiError || error instanceof StreamError ? error.data : undefined
+        const reason = error.message
         const nodeType = typeof payload?.node_type === 'string' ? payload.node_type : undefined
         const workflowDataTrackingProperties = buildWorkflowDataTrackingProperties(workflowData)
 
