@@ -25,7 +25,7 @@ from core.trigger.constants import is_trigger_node_type
 from enums import DeploymentEdition, QuotaType
 from extensions.otel import AppGenerateHandler, trace_span
 from models.model import Account, App, AppMode, EndUser
-from models.workflow import Workflow, WorkflowRun
+from models.workflow import Workflow
 from services.errors.app import (
     QuotaExceededError,
     TriggerWorkflowServiceModeUnavailableError,
@@ -266,10 +266,9 @@ class AppGenerateService:
                         workflow_based_app_execution_task.delay(payload_json)
 
                     on_subscribe = cls._build_streaming_task_on_subscribe(on_subscribe)
-                    generator = AdvancedChatAppGenerator(execution_driver=WorkflowRunAgg.run)
                     return rate_limit.generate(
-                        generator.convert_to_event_stream(
-                            generator.retrieve_events(
+                        AdvancedChatAppGenerator.convert_to_event_stream(
+                            AdvancedChatAppGenerator.retrieve_events(
                                 AppMode.ADVANCED_CHAT,
                                 payload.workflow_run_id,
                                 on_subscribe=on_subscribe,
@@ -553,19 +552,3 @@ class AppGenerateService:
                 raise ValueError("Workflow not published")
 
         return workflow
-
-    @classmethod
-    def get_response_generator(
-        cls,
-        app_model: App,
-        workflow_run: WorkflowRun,
-    ):
-        if workflow_run.status.is_ended():
-            # TODO(QuantumGhost): handled the ended scenario.
-            pass
-
-        generator = AdvancedChatAppGenerator(execution_driver=WorkflowRunAgg.run)
-
-        return generator.convert_to_event_stream(
-            generator.retrieve_events(AppMode(app_model.mode), workflow_run.id),
-        )
