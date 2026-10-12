@@ -1,4 +1,5 @@
 import inspect
+from collections.abc import Callable
 from datetime import datetime
 from types import SimpleNamespace
 from unittest.mock import MagicMock, PropertyMock, patch
@@ -7,7 +8,7 @@ from uuid import NAMESPACE_URL, uuid5
 import pytest
 from flask import Flask
 from jsonschema import Draft202012Validator
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 from werkzeug.exceptions import NotFound, UnprocessableEntity
 
 from controllers.console import console_ns
@@ -59,6 +60,7 @@ from controllers.console.workspace.error import (
 from machinery.context import RequestContext
 from models import Account, Tenant, TenantAccountJoin
 from models.account import AccountStatus, TenantAccountRole
+from repositories.account.repository import SQLAlchemyAccountRepository
 from services.account_errors import (
     AccountAlreadyInitializedError,
     AccountDeletionRateLimitError,
@@ -72,7 +74,10 @@ from services.account_errors import (
     InvalidChangeEmailCodeError,
     MissingInvitationCodeError,
 )
+from services.account_password_hasher import DefaultAccountPasswordHasher
+from services.account_password_service import AccountPasswordService
 from services.entities.account_entities import AccountIntegrationStatus, AccountProfileChanges
+from tests.unit_tests.account_domain import FakeAccountSessions
 from tests.unit_tests.config_override import config_overrides_context
 
 
@@ -467,41 +472,61 @@ class TestConvertedPostDecorator:
 
 
 class TestAccountPasswordApi:
-    def test_password_success(self, app: Flask):
+    @pytest.mark.parametrize("presents_refresh_cookie", [False, True])
+    def test_password_success_replaces_only_the_callers_session(
+        self,
+        app: Flask,
+        sqlite_session: Session,
+        sqlite_session_factory: sessionmaker[Session],
+        config_overrides: Callable[..., None],
+        presents_refresh_cookie: bool,
+    ) -> None:
+        config_overrides(CONSOLE_WEB_URL="", CONSOLE_API_URL="", COOKIE_DOMAIN="")
         api = AccountPasswordApi()
         method = inspect.unwrap(api.post)
-
         payload = {
-            "password": "old",
-            "new_password": "new123",
-            "repeat_new_password": "new123",
+            "password": "OldPassword1",
+            "new_password": "NewPassword1",
+            "repeat_new_password": "NewPassword1",
         }
-
-        user = make_account()
+        passwords = DefaultAccountPasswordHasher()
+        user, _tenant = persist_account_with_tenant(sqlite_session)
+        digest = passwords.hash("OldPassword1")
+        user.password = digest.password_hash
+        user.password_salt = digest.password_salt
+        sqlite_session.commit()
+        sessions = FakeAccountSessions()
+        caller = sessions.issue(user.id)
+        other_device = sessions.issue(user.id)
+        service = AccountPasswordService(
+            accounts=SQLAlchemyAccountRepository(sqlite_session_factory), passwords=passwords, sessions=sessions
+        )
         request_context = RequestContext(
             request_id="request-1",
             trace_id=None,
             account_id=user.id,
             active_workspace_id="workspace-1",
         )
-        password = MagicMock()
-        password.change.return_value = user
+        headers: dict[str, str] = {"Cookie": f"refresh_token={caller.refresh_token}"} if presents_refresh_cookie else {}
 
         with (
-            app.test_request_context("/", json=payload),
+            app.test_request_context("/", json=payload, headers=headers),
             patch(
                 "controllers.console.workspace.account.application_services",
-                return_value=SimpleNamespace(accounts=SimpleNamespace(password=password)),
+                return_value=SimpleNamespace(accounts=SimpleNamespace(password=service)),
             ),
         ):
-            result = method(api, AccountPasswordPayload.model_validate(payload), request_context)
+            response = method(api, AccountPasswordPayload.model_validate(payload), request_context)
 
-        assert result["id"] == user.id
-        password.change.assert_called_once_with(
-            request_context,
-            current_password="old",
-            new_password="new123",
-        )
+        assert response.json["id"] == user.id
+        assert sessions.resolve_refresh_token(caller.refresh_token) is None
+        assert sessions.resolve_refresh_token(other_device.refresh_token) is None
+        cookies = dict(header.split(";", 1)[0].split("=", 1) for header in response.headers.getlist("Set-Cookie"))
+        if presents_refresh_cookie:
+            assert set(cookies) == {"access_token", "refresh_token", "csrf_token"}
+            assert sessions.resolve_refresh_token(cookies["refresh_token"]) == user.id
+        else:
+            assert cookies == {}
 
     def test_password_wrong_current(self, app: Flask):
         api = AccountPasswordApi()

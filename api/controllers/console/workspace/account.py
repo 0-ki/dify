@@ -4,7 +4,7 @@ from datetime import datetime
 from http import HTTPStatus
 from typing import Annotated, Literal
 
-from flask import request
+from flask import make_response, request
 from flask_restx import Resource
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic.json_schema import SkipJsonSchema
@@ -51,6 +51,12 @@ from extensions.ext_application_services import application_services
 from fields.base import ResponseModel
 from fields.member_fields import AccountResponse
 from libs.helper import EmailStr, dump_response, extract_remote_ip, timezone, to_timestamp
+from libs.token import (
+    extract_refresh_token,
+    set_access_token_to_cookie,
+    set_csrf_token_to_cookie,
+    set_refresh_token_to_cookie,
+)
 from machinery.context import RequestContext
 from services import account_errors
 from services.account_education_service import EDUCATION_EDITIONS
@@ -433,10 +439,11 @@ class AccountPasswordApi(Resource):
     def post(self, args: AccountPasswordPayload, request_context: RequestContext):
         try:
             assert args.password is not None
-            account = application_services().accounts.password.change(
+            result = application_services().accounts.password.change(
                 request_context,
                 current_password=args.password,
                 new_password=args.new_password,
+                refresh_token=extract_refresh_token(request),
             )
         except account_errors.CurrentAccountPasswordIncorrectError as error:
             raise CurrentPasswordIncorrectError() from error
@@ -445,7 +452,14 @@ class AccountPasswordApi(Resource):
         except account_errors.AccountNotFoundError as error:
             raise AccountNotFound() from error
 
-        return dump_response(AccountResponse, account)
+        # response-contract:ignore cookie-bearing Flask response
+        response = make_response(dump_response(AccountResponse, result.account))
+        if result.session is not None:
+            # The change revoked this client's session too; keep it signed in with the replacement.
+            set_access_token_to_cookie(request, response, result.session.access_token)
+            set_refresh_token_to_cookie(request, response, result.session.refresh_token)
+            set_csrf_token_to_cookie(request, response, result.session.csrf_token)
+        return response
 
 
 @console_ns.route("/account/integrates")
