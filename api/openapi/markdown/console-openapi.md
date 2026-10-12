@@ -7109,19 +7109,6 @@ Requires an Origin matching the Console web URL or API origin. Same-host proxy s
 | 200 | Success | **application/json**: [SimpleResultResponse](#simpleresultresponse)<br> |
 | 403 | Missing or untrusted Origin |  |
 
-### [POST] /logout-all
-**Revoke refresh sessions on every device for the authenticated account**
-
-Requires an Origin matching the Console web URL or API origin. Same-host proxy scheme/port changes additionally require a signed X-CSRF-Token matching the CSRF cookie.
-
-#### Responses
-
-| Code | Description | Schema |
-| ---- | ----------- | ------ |
-| 200 | Success | **application/json**: [SimpleResultResponse](#simpleresultresponse)<br> |
-| 401 | Unauthorized |  |
-| 403 | Missing or untrusted Origin |  |
-
 ### [GET] /mcp/oauth/callback
 #### Parameters
 
