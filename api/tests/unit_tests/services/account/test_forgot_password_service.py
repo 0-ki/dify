@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Generator
+from contextlib import contextmanager
 from datetime import datetime
 from typing import cast
 
@@ -148,12 +150,12 @@ class FakeSendLimiter:
         self.checked: list[str] = []
         self.recorded: list[str] = []
 
-    def is_limited(self, email: str) -> bool:
+    @contextmanager
+    def reserve(self, email: str) -> Generator[bool]:
         self.checked.append(email)
-        return self.limited
-
-    def record(self, email: str) -> None:
-        self.recorded.append(email)
+        yield not self.limited
+        if not self.limited:
+            self.recorded.append(email)
 
 
 class FakeSecurity:
@@ -543,3 +545,27 @@ def test_reset_revokes_sessions_before_and_after_password_commit(fail_on_call: i
 
     assert dependencies.sessions.account_ids == ["account-1"] * fail_on_call
     assert (dependencies.accounts.updated is None) is (fail_on_call == 1)
+
+
+@pytest.mark.parametrize("failure_stage", ["token", "notification"])
+def test_send_code_propagates_failures_and_releases_reservation(
+    monkeypatch: pytest.MonkeyPatch, failure_stage: str
+) -> None:
+    dependencies = Dependencies(_account())
+
+    def fail(*_args: object, **_kwargs: object) -> None:
+        raise RuntimeError("temporary failure")
+
+    target, method = (
+        (dependencies.tokens, "issue") if failure_stage == "token" else (dependencies.notifications, "send")
+    )
+    with monkeypatch.context() as patcher:
+        patcher.setattr(target, method, fail)
+        with pytest.raises(RuntimeError, match="temporary failure"):
+            dependencies.service.send_code(email="User@Example.com", language="en-US", ip_address="127.0.0.1")
+
+    assert dependencies.send_limits.checked == ["User@Example.com"]
+    assert dependencies.send_limits.recorded == []
+    dependencies.service.send_code(email="User@Example.com", language="en-US", ip_address="127.0.0.1")
+    assert dependencies.send_limits.recorded == ["User@Example.com"]
+    assert len(dependencies.notifications.sent) == 1
