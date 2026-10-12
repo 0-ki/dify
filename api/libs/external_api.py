@@ -35,7 +35,10 @@ def register_external_error_handlers(api: Api, body_formatter: ErrorBodyFormatte
         # RESTX abort attaches validation details to e.data and handle_error
         # prefers that attribute over the registered handler's return value.
         # Preserve domain fields while making the actual HTTP status authoritative.
-        attached_data = getattr(e, "data", None)
+        try:
+            attached_data = e.data  # type: ignore[attr-defined]
+        except AttributeError:
+            attached_data = None
         wire = {**data, **attached_data} if isinstance(attached_data, Mapping) else dict(data)
         for field in ("code", "message"):
             value = wire.get(field)
