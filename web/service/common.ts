@@ -49,10 +49,6 @@ export const setup = ({ body }: { body: Record<string, any> }): Promise<CommonRe
   return post<CommonResponse>('/setup', { body })
 }
 
-export const initValidate = ({ body }: { body: Record<string, any> }): Promise<CommonResponse> => {
-  return post<CommonResponse>('/init', { body })
-}
-
 export const fetchInitValidateStatus = (): Promise<InitValidateStatusResponse> => {
   return get<InitValidateStatusResponse>('/init')
 }
