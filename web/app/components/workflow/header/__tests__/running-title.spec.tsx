@@ -9,7 +9,6 @@ vi.mock('../../hooks/use-workflow', () => ({
 
 describe('RunningTitle', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
     mockIsChatMode = false
   })
 
