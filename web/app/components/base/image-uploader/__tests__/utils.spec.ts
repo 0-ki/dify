@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next'
 import { waitFor } from '@testing-library/react'
+import { ApiError } from '@/service/api-error'
 import { upload } from '@/service/base'
 import { withSelectorKey } from '@/test/i18n-mock'
 import { getImageUploadErrorMessage, imageUpload } from '../utils'
@@ -19,7 +20,10 @@ describe('image-uploader utils', () => {
       const t = withSelectorKey(translate) as unknown as TFunction<['common']>
 
       const result = getImageUploadErrorMessage(
-        { response: { code: 'forbidden', message: 'Forbidden by policy' } },
+        new ApiError(new Response(null, { status: 400 }), {
+          code: 'forbidden',
+          message: 'Forbidden by policy',
+        }),
         'Default error',
         t,
       )
@@ -33,7 +37,7 @@ describe('image-uploader utils', () => {
       const t = withSelectorKey(translate) as unknown as TFunction<['common']>
 
       const result = getImageUploadErrorMessage(
-        { response: { code: 'file_extension_blocked' } },
+        new ApiError(new Response(null, { status: 400 }), { code: 'file_extension_blocked' }),
         'Default error',
         t,
       )
@@ -47,7 +51,7 @@ describe('image-uploader utils', () => {
       const t = withSelectorKey(translate) as unknown as TFunction<['common']>
 
       const result = getImageUploadErrorMessage(
-        { response: { code: 'unexpected_error' } },
+        new ApiError(new Response(null, { status: 400 }), { code: 'unexpected_error' }),
         'Default error',
         t,
       )

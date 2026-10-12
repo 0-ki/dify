@@ -2,6 +2,7 @@ import type { ReactElement } from 'react'
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DSLImportMode, DSLImportStatus } from '@/models/app'
+import { ApiError } from '@/service/api-error'
 import { renderWithConsoleQuery } from '@/test/console/query-data'
 import { AppModeEnum } from '@/types/app'
 import CreateFromDSLModal from '../index'
@@ -954,7 +955,9 @@ describe('CreateFromDSLModal', () => {
       error: 'Invalid YAML format',
     })
     mockImportDSL.mockRejectedValueOnce(
-      Response.json({ message: 'Package checksum mismatch' }, { status: 400 }),
+      await ApiError.fromResponse(
+        Response.json({ message: 'Package checksum mismatch' }, { status: 400 }),
+      ),
     )
 
     const { rerender } = render(
@@ -999,7 +1002,7 @@ describe('CreateFromDSLModal', () => {
       () => Response.json({ error: 'Import confirmation expired' }, { status: 400 }),
       'Import confirmation expired',
     ],
-    ['empty', () => new Response(null, { status: 500 }), undefined],
+    ['empty', () => new Response(null, { status: 500 }), 'HTTP 500'],
   ] as const)(
     'reports a %s HTTP failure when confirming an import',
     async (_, response, description) => {
@@ -1010,7 +1013,7 @@ describe('CreateFromDSLModal', () => {
         imported_dsl_version: '1.0.0',
         current_dsl_version: '2.0.0',
       })
-      mockImportDSLConfirm.mockRejectedValueOnce(response())
+      mockImportDSLConfirm.mockRejectedValueOnce(await ApiError.fromResponse(response()))
       const onClose = vi.fn()
       render(
         <CreateFromDSLModal

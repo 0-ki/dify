@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { ApiError } from '@/service/api-error'
 import { get } from '../base'
 import { useDatasetDetail, useDatasetRelatedApps } from './use-dataset'
 
@@ -46,8 +47,8 @@ describe('knowledge dataset hooks', () => {
       const retry = getRetryFn()
 
       // Assert
-      expect(retry(0, new Response(null, { status: 403 }))).toBe(false)
-      expect(retry(0, new Response(null, { status: 404 }))).toBe(false)
+      expect(retry(0, new ApiError(new Response(null, { status: 403 })))).toBe(false)
+      expect(retry(0, new ApiError(new Response(null, { status: 404 })))).toBe(false)
     })
 
     it('should retry other dataset detail errors fewer than three times', () => {

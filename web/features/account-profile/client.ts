@@ -1,6 +1,7 @@
 import type { GetAccountProfileResponse } from '@dify/contracts/api/console/account/types.gen'
 import { queryOptions } from '@tanstack/react-query'
 import { IS_DEV } from '@/config'
+import { ApiError } from '@/service/api-error'
 // oxlint-disable-next-line no-restricted-imports
 import { get } from '@/service/base'
 import { consoleQuery } from '@/service/console'
@@ -14,7 +15,7 @@ export type UserProfileWithMeta = {
 }
 
 export const isLegacyBase401 = (err: unknown): boolean =>
-  err instanceof Response && err.status === 401
+  err instanceof ApiError && err.status === 401
 
 export const userProfileQueryOptions = () =>
   queryOptions<UserProfileWithMeta>({

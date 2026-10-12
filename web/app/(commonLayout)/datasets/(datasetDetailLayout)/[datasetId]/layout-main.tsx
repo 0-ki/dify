@@ -18,6 +18,7 @@ import { userProfileQueryOptions } from '@/features/account-profile/client'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import useDocumentTitle from '@/hooks/use-document-title'
 import { usePathname, useRouter } from '@/next/navigation'
+import { ApiError } from '@/service/api-error'
 import { useDatasetDetail } from '@/service/knowledge/use-dataset'
 import { getDatasetACLCapabilities } from '@/utils/permission'
 
@@ -27,7 +28,7 @@ type IAppDetailLayoutProps = {
 }
 
 const getResponseStatus = (error: unknown) => {
-  if (error instanceof Response) return error.status
+  if (error instanceof ApiError) return error.status
 
   if (typeof error === 'object' && error && 'status' in error && typeof error.status === 'number')
     return error.status

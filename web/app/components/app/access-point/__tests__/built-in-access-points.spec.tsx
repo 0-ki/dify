@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import type { AppModeEnum } from '@/types/app'
 import { screen } from '@testing-library/react'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import { createQueryClientWrapper } from '@/test/console/query-client'
 import { render as renderWithConsole } from '@/test/console/render'
@@ -285,8 +286,8 @@ describe('BuiltInAccessPoints', () => {
       retry: (failureCount: number, error: unknown) => boolean
     }
 
-    expect(options.retry(0, new Response(null, { status: 403 }))).toBe(false)
-    expect(options.retry(0, new Response(null, { status: 500 }))).toBe(true)
-    expect(options.retry(3, new Response(null, { status: 500 }))).toBe(false)
+    expect(options.retry(0, new ApiError(new Response(null, { status: 403 })))).toBe(false)
+    expect(options.retry(0, new ApiError(new Response(null, { status: 500 })))).toBe(true)
+    expect(options.retry(3, new ApiError(new Response(null, { status: 500 })))).toBe(false)
   })
 })

@@ -11,23 +11,12 @@ import { useStoreApi } from 'reactflow'
 import { useNodesReadOnlyByCanEdit } from '@/app/components/workflow/hooks/use-workflow'
 import { useWorkflowStore } from '@/app/components/workflow/store'
 import { API_PREFIX } from '@/config'
+import { ApiError } from '@/service/api-error'
 import { consoleClient } from '@/service/console'
 // oxlint-disable-next-line no-restricted-imports
 import { postWithKeepalive } from '@/service/fetch'
 import { useSnippetDraftStore } from '../draft-store'
 import { useSnippetRefreshDraft } from './use-snippet-refresh-draft'
-
-const isSyncConflictError = (
-  error: unknown,
-): error is { bodyUsed: boolean; json: () => Promise<{ code?: string }> } => {
-  return (
-    !!error &&
-    typeof error === 'object' &&
-    'bodyUsed' in error &&
-    'json' in error &&
-    typeof error.json === 'function'
-  )
-}
 
 type SyncInputFieldsDraftCallback = SyncDraftCallback & {
   onRefresh?: (inputFields: SnippetInputField[]) => void
@@ -129,12 +118,12 @@ export const useNodesSyncDraft = (snippetId: string) => {
         callback?.onSuccess?.()
         return response
       } catch (error: unknown) {
-        if (isSyncConflictError(error) && !error.bodyUsed) {
-          error.json().then((err) => {
-            if (err.code === 'draft_workflow_not_sync' && !notRefreshWhenSyncError)
-              handleRefreshWorkflowDraft(onRefresh)
-          })
-        }
+        if (
+          error instanceof ApiError &&
+          error.code === 'draft_workflow_not_sync' &&
+          !notRefreshWhenSyncError
+        )
+          handleRefreshWorkflowDraft(onRefresh)
         callback?.onError?.()
         return undefined
       } finally {

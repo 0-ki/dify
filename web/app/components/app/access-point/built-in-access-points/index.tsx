@@ -1,5 +1,4 @@
 'use client'
-
 import type { AccessPoint } from '@/app/components/app/deploy/utils/access-point'
 import { Button, buttonVariants } from '@langgenius/dify-ui/button'
 import { cn } from '@langgenius/dify-ui/cn'
@@ -9,6 +8,7 @@ import { LoadingPlaceholder } from '@/app/components/base/loading-placeholder'
 import { useDocLink } from '@/context/i18n'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import Link from '@/next/link'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import { useAppWorkflow } from '@/service/use-workflow'
 import { useAccessPointActions } from '../shared/use-access-point-actions'
@@ -46,7 +46,7 @@ export function BuiltInAccessPoints({
     isPending: workflowLoading,
   } = useAppWorkflow(shouldFetchWorkflow ? appId : '', {
     retry: (failureCount, error) => {
-      if (error instanceof Response && error.status === 403) return false
+      if (error instanceof ApiError && error.status === 403) return false
 
       return failureCount < 3
     },

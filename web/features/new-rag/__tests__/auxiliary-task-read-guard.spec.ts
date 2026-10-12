@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react'
+import { ApiError } from '@/service/api-error'
 import {
   createAuxiliaryTaskReadGuard,
   useAuxiliaryTaskReadGuard,
@@ -75,7 +76,7 @@ describe('createAuxiliaryTaskReadGuard', () => {
   it('clears local denial and version blocks after document permission returns', async () => {
     const refetchDocuments = vi
       .fn()
-      .mockResolvedValue({ error: new Response(null, { status: 403 }) })
+      .mockResolvedValue({ error: new ApiError(new Response(null, { status: 403 })) })
     const { result, rerender } = renderHook(
       ({ documentPermissionDenied }) =>
         useAuxiliaryTaskReadGuard({ documentPermissionDenied, refetchDocuments }),

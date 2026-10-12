@@ -9,6 +9,7 @@ import {
 } from '@/app/components/workflow/hooks/use-workflow'
 import { useWorkflowStore } from '@/app/components/workflow/store'
 import { API_PREFIX } from '@/config'
+import { ApiError } from '@/service/api-error'
 import { postWithKeepalive } from '@/service/fetch'
 import { syncWorkflowDraft } from '@/service/workflow'
 import { usePipelineRefreshDraft } from './use-pipeline-refresh-draft'
@@ -92,12 +93,12 @@ const useNodesSyncDraftBase = (getNodesReadOnly: () => boolean) => {
         setDraftUpdatedAt(res.updated_at)
         callback?.onSuccess?.()
       } catch (error: any) {
-        if (error && error.json && !error.bodyUsed) {
-          error.json().then((err: any) => {
-            if (err.code === 'draft_workflow_not_sync' && !notRefreshWhenSyncError)
-              handleRefreshWorkflowDraft()
-          })
-        }
+        if (
+          error instanceof ApiError &&
+          error.code === 'draft_workflow_not_sync' &&
+          !notRefreshWhenSyncError
+        )
+          handleRefreshWorkflowDraft()
         callback?.onError?.()
       } finally {
         callback?.onSettled?.()

@@ -1,6 +1,7 @@
 import { waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { BlockEnum } from '@/app/components/workflow/types'
+import { ApiError } from '@/service/api-error'
 import { createAccountProfileQueryWrapper } from '@/test/console/account-profile'
 import { renderHook as renderHookWithConsoleState } from '@/test/console/render'
 import { AppACLPermission } from '@/utils/permission'
@@ -92,10 +93,8 @@ vi.mock('@/service/workflow', () => ({
   fetchNodesDefaultConfigs: (...args: unknown[]) => mockFetchNodesDefaultConfigs(...args),
 }))
 
-const notExistError = () => ({
-  json: vi.fn().mockResolvedValue({ code: 'draft_workflow_not_exist' }),
-  bodyUsed: false,
-})
+const notExistError = () =>
+  new ApiError(new Response(null, { status: 400 }), { code: 'draft_workflow_not_exist' })
 
 const draftResponse = {
   id: 'draft-id',

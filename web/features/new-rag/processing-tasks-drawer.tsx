@@ -1,5 +1,4 @@
 'use client'
-
 import type {
   DocumentProcessingTask,
   LogicalDocument,
@@ -24,6 +23,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalS
 import { useTranslation } from 'react-i18next'
 import { LoadingPlaceholder } from '@/app/components/base/loading-placeholder'
 import { useFormatTimeFromNow } from '@/hooks/use-format-time-from-now'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import { taskCanRetry, taskIsActive, taskVersionIsAfter } from './document-model'
 
@@ -41,7 +41,7 @@ function taskLifecycle(task: DocumentProcessingTask) {
 }
 
 function responseStatus(error: unknown): number | undefined {
-  if (error instanceof Response) return error.status
+  if (error instanceof ApiError) return error.status
   if (error && typeof error === 'object' && 'status' in error)
     return typeof error.status === 'number' ? error.status : undefined
   if (error && typeof error === 'object' && 'data' in error) {

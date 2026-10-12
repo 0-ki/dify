@@ -14,6 +14,7 @@ import type {
 } from '@/models/datasets'
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query'
 import qs from 'qs'
+import { ApiError } from '@/service/api-error'
 import { get, post } from '../base'
 import { useInvalid } from '../use-base'
 
@@ -103,7 +104,7 @@ export const useDatasetDetail = (datasetId: string) => {
     queryFn: () => get<DataSet>(`/datasets/${datasetId}`),
     enabled: !!datasetId,
     retry: (failureCount, error) => {
-      if (error instanceof Response && [403, 404].includes(error.status)) return false
+      if (error instanceof ApiError && [403, 404].includes(error.status)) return false
 
       return failureCount < 3
     },

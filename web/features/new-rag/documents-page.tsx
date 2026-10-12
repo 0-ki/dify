@@ -1,5 +1,4 @@
 'use client'
-
 import type { DocumentProcessingTask } from '@dify/contracts/knowledge-fs/types.gen'
 import type {
   ProcessingTaskEvent,
@@ -23,6 +22,7 @@ import {
   workspacePermissionKeysFetchingAtom,
   workspacePermissionKeysLoadingAtom,
 } from '@/context/permission-state'
+import { ApiError } from '@/service/api-error'
 import { consoleClient, consoleQuery } from '@/service/console'
 import { DatasetACLPermission, hasPermission } from '@/utils/permission'
 import { useAuxiliaryTaskReadGuard } from './auxiliary-task-read-guard'
@@ -110,7 +110,7 @@ function recoveryQueryMaskForPermissionDenials(permissionDenialMask: number) {
 }
 
 function responseStatus(error: unknown): number | undefined {
-  if (error instanceof Response) return error.status
+  if (error instanceof ApiError) return error.status
   if (error && typeof error === 'object' && 'status' in error)
     return typeof error.status === 'number' ? error.status : undefined
   if (error && typeof error === 'object' && 'data' in error) {

@@ -9,6 +9,7 @@ import type {
 } from '@/app/components/header/account-setting/model-provider-page/declarations'
 // oxlint-disable-next-line no-restricted-imports
 import type { IOnCompleted, IOnData, IOnError } from '@/service/base'
+import { ApiError } from '@/service/api-error'
 // oxlint-disable-next-line no-restricted-imports
 import { get, post, ssePost, upload } from '@/service/base'
 
@@ -49,18 +50,6 @@ function readSkillUploadErrorMessage(
   if (typeof message === 'string' && message.trim()) return parseSkillUploadErrorMessage(message)
 
   return undefined
-}
-
-async function getSkillUploadResponseErrorMessage(response: Response) {
-  try {
-    const data: unknown = await response.clone().json()
-    return readSkillUploadErrorMessage(data)
-  } catch {
-    try {
-      const text = await response.clone().text()
-      if (text.trim()) return parseSkillUploadErrorMessage(text)
-    } catch {}
-  }
 }
 
 export async function uploadSkillFile(
@@ -104,10 +93,8 @@ export async function uploadSkillFile(
       },
     )
   } catch (error) {
-    const message =
-      error instanceof Response
-        ? await getSkillUploadResponseErrorMessage(error)
-        : readSkillUploadErrorMessage(error)
+    if (error instanceof ApiError) throw error
+    const message = readSkillUploadErrorMessage(error)
 
     if (message) {
       const normalizedError = new Error(message)

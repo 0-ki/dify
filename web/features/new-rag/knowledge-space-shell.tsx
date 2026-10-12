@@ -1,5 +1,4 @@
 'use client'
-
 import type { ReactNode } from 'react'
 import {
   Breadcrumb,
@@ -17,11 +16,12 @@ import { toast } from '@/app/notifications'
 import useDocumentTitle from '@/hooks/use-document-title'
 import Link from '@/next/link'
 import { usePathname } from '@/next/navigation'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import { newKnowledgeDetailPath, newKnowledgeDocumentsPath, newKnowledgeListPath } from './routes'
 
 function responseStatus(error: unknown) {
-  if (error instanceof Response) return error.status
+  if (error instanceof ApiError) return error.status
   if (error && typeof error === 'object' && 'status' in error) return error.status
   if (error && typeof error === 'object' && 'data' in error) {
     const data = error.data

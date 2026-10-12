@@ -1,5 +1,4 @@
 'use client'
-
 import type { AgentSoulConfig } from '@dify/contracts/api/console/agent/types.gen'
 import type {
   AgentBuildDraftChangedKey,
@@ -17,10 +16,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { agentSoulConfigToFormState } from '@/features/agent-v2/agent-composer/conversions'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import { usePrepareAgentBuildDraftBeforeRun } from './use-agent-build-draft-run'
 
-const isNotFoundResponse = (error: unknown) => error instanceof Response && error.status === 404
+const isNotFoundResponse = (error: unknown) => error instanceof ApiError && error.status === 404
 const BUILD_NOTE_FILE_ID = '__agent_config_build_note__'
 const BUILD_NOTE_FILE_NAME = 'build_note.md'
 

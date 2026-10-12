@@ -6,6 +6,7 @@ import { ScopeProvider } from 'jotai-scope'
 import { useState } from 'react'
 import { AgentPermission } from '@/features/agent-v2/acl'
 import { AgentScope } from '@/features/agent-v2/analytics'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import { renderWithNuqs as render } from '@/test/nuqs-testing'
 import { AgentConfigureComposerScope } from '../components/composer-session'
@@ -1913,7 +1914,7 @@ describe('AgentConfigurePage', () => {
       mocks.queryState.buildDraft = {
         data: undefined as unknown,
         dataUpdatedAt: 0,
-        error: new Response(null, { status: 404 }),
+        error: new ApiError(new Response(null, { status: 404 })),
         isFetching: false,
         isError: true,
         isPending: false,
@@ -2287,7 +2288,7 @@ describe('AgentConfigurePage', () => {
       mocks.queryState.buildDraft = {
         data: undefined as unknown,
         dataUpdatedAt: 0,
-        error: new Response(null, { status: 404 }),
+        error: new ApiError(new Response(null, { status: 404 })),
         isFetching: false,
         isError: true,
         isPending: false,
@@ -2359,7 +2360,7 @@ describe('AgentConfigurePage', () => {
       mocks.queryState.buildDraft = {
         data: undefined as unknown,
         dataUpdatedAt: 0,
-        error: new Response(null, { status: 404 }),
+        error: new ApiError(new Response(null, { status: 404 })),
         isFetching: false,
         isError: true,
         isPending: false,

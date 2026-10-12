@@ -1,4 +1,4 @@
-import type { FetchOptionType, ResponseError } from './fetch'
+import type { FetchOptionType } from './fetch'
 import type { MessageEnd, MessageReplace, ThoughtItem } from '@/app/components/base/chat/chat/type'
 import type { VisionFile } from '@/types/app'
 import type {
@@ -43,6 +43,7 @@ import { asyncRunSafe } from '@/utils'
 import { isClient } from '@/utils/client'
 import { resolveLoginRedirectTarget } from '@/utils/login-redirect'
 import { basePath } from '@/utils/var'
+import { ApiError } from './api-error'
 import { base, ContentType, getBaseOptions } from './fetch'
 import { refreshAccessTokenOrReLogin } from './refresh-token'
 import { getWebAppPublicApiPath, resolveWebAppAddress } from './webapp-address'
@@ -625,8 +626,8 @@ export const upload = async (
     xhr.withCredentials = true
     xhr.responseType = 'json'
     xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 201) resolve(xhr.response)
+      if (xhr.readyState === 4 && xhr.status !== 0) {
+        if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response)
         else {
           if (
             isPublicAPI &&
@@ -635,10 +636,24 @@ export const upload = async (
             xhr.response !== null
           )
             handleWebAppAuthorizationError(xhr.response)
-          reject(xhr)
+          const headers = new Headers()
+          for (const line of xhr
+            .getAllResponseHeaders()
+            .trim()
+            .split(/[\r\n]+/)) {
+            const separator = line.indexOf(':')
+            if (separator > 0)
+              headers.append(line.slice(0, separator), line.slice(separator + 1).trim())
+          }
+          reject(
+            new ApiError({ status: xhr.status, statusText: xhr.statusText, headers }, xhr.response),
+          )
         }
       }
     }
+    xhr.onerror = () => reject(new TypeError('Failed to fetch'))
+    xhr.onabort = () => reject(new DOMException('The operation was aborted.', 'AbortError'))
+    xhr.ontimeout = () => reject(new DOMException('The operation timed out.', 'TimeoutError'))
     if (mergedOptions.onprogress) xhr.upload.onprogress = mergedOptions.onprogress
     xhr.send(mergedOptions.data)
   })
@@ -1079,19 +1094,18 @@ export const request = async <T>(url: string, options = {}, otherOptions?: IOthe
         completeWebAppAuthorizationRecovery(address)
       return resp
     }
-    const errResp: Response = err as any
-    if (errResp.status === 401 || (errResp.status === 403 && isPublicAPI)) {
+    if (err instanceof ApiError && (err.status === 401 || (err.status === 403 && isPublicAPI))) {
       if (!isClient) return Promise.reject(err)
 
-      const [parseErr, errRespData] = await asyncRunSafe<ResponseError>(errResp.json())
-      if (parseErr) {
-        if (errResp.status === 401) {
+      const errRespData = err
+      if (!err.data) {
+        if (err.status === 401) {
           discardRegistrationStateForConsoleAuthBoundary(otherOptionsForBaseFetch)
           window.location.href = buildSigninUrlWithRedirect()
         }
         return Promise.reject(err)
       }
-      if (/\/login/.test(url)) return Promise.reject(errRespData)
+      if (/\/login/.test(url)) return Promise.reject(err)
       if (handleWebAppAuthorizationError(errRespData, url)) return Promise.reject(err)
       // special code
       const { code, message } = errRespData
@@ -1099,7 +1113,7 @@ export const request = async <T>(url: string, options = {}, otherOptions?: IOthe
         requiredWebSSOLogin()
         return Promise.reject(err)
       }
-      if (errResp.status === 403) return Promise.reject(err)
+      if (err.status === 403) return Promise.reject(err)
       if (code === 'unauthorized_and_force_logout') {
         // Cookies will be cleared by the backend
         discardRegistrationStateForConsoleAuthBoundary(otherOptionsForBaseFetch)

@@ -545,7 +545,8 @@ describe('consoleQuery agent query defaults', () => {
     })
     const retry = getRetryFn(queryOptions)
 
-    expect(retry(0, new Response(null, { status: 404 }))).toBe(false)
+    const { ApiError } = await import('@/service/api-error')
+    expect(retry(0, new ApiError(new Response(null, { status: 404 })))).toBe(false)
   })
 
   it('should retry other agent detail errors fewer than three times', async () => {

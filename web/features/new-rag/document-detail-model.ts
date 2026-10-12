@@ -3,6 +3,7 @@ import type {
   LogicalDocument,
   LogicalDocumentRevision,
 } from '@dify/contracts/knowledge-fs/types.gen'
+import { ApiError } from '@/service/api-error'
 
 export type DocumentChunkTreeNode = {
   children: DocumentChunkTreeNode[]
@@ -15,7 +16,7 @@ export type DocumentChunkTree = {
 }
 
 export function responseStatus(error: unknown): number | undefined {
-  if (error instanceof Response) return error.status
+  if (error instanceof ApiError) return error.status
   if (error && typeof error === 'object' && 'status' in error)
     return typeof error.status === 'number' ? error.status : undefined
   if (error && typeof error === 'object' && 'data' in error) {

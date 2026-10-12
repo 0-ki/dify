@@ -58,7 +58,7 @@ import { downloadBlob } from '@/utils/download'
 import { formatFileSize } from '@/utils/format'
 import { fetchSkillArchiveBlob } from './client'
 import { SkillReferencesList, SkillReferencesListSkeleton } from './detail/skill-metadata'
-import { getSkillErrorCode, getSkillErrorDetailString, normalizeSkillError } from './error'
+import { getSkillErrorCode, getSkillErrorDetailString } from './error'
 import { useSkillPermissions } from './permissions'
 import { skillKeywordQueryParser, skillQueryParamNames, skillTagQueryParser } from './query-params'
 import { SkillListTagManagementModal } from './skill-list-tag-management-modal'
@@ -1057,7 +1057,7 @@ export default function SkillsPage() {
           router.push(`/skills/${skill.id}`)
         },
         onError: async (error) => {
-          const normalizedError = await normalizeSkillError(error)
+          const normalizedError = error
           toast.error(
             getSkillErrorCode(normalizedError) === 'skill_limit_exceeded'
               ? t(($) => $['skillManagement.errors.workspaceLimit'])
@@ -1084,7 +1084,7 @@ export default function SkillsPage() {
           router.push(`/skills/${skill.id}`)
         },
         onError: async (error) => {
-          const normalizedError = await normalizeSkillError(error)
+          const normalizedError = error
           const errorCode = getSkillErrorCode(normalizedError)
           if (errorCode === 'skill_name_conflict') {
             toast.error(

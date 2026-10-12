@@ -1,6 +1,7 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+import { ApiError } from '@/service/api-error'
 import {
   createSkillDetail,
   getLiveMarkdownEditor,
@@ -184,20 +185,22 @@ describe('SkillDetailPage autosave', () => {
   it('uses conflict details from response errors without retrying autosave', async () => {
     const user = userEvent.setup()
     mocks.saveDraftFileMutationFn.mockRejectedValueOnce(
-      new Response(
-        JSON.stringify({
-          code: 'skill_conflict',
-          message: 'skill has been modified by another user',
-          details: {
-            current_file_hash: 'hash-2',
-            current_updated_at: 1784638499,
-            expected_updated_at: 1784638487,
+      await ApiError.fromResponse(
+        new Response(
+          JSON.stringify({
+            code: 'skill_conflict',
+            message: 'skill has been modified by another user',
+            details: {
+              current_file_hash: 'hash-2',
+              current_updated_at: 1784638499,
+              expected_updated_at: 1784638487,
+            },
+          }),
+          {
+            status: 409,
+            headers: { 'Content-Type': 'application/json' },
           },
-        }),
-        {
-          status: 409,
-          headers: { 'Content-Type': 'application/json' },
-        },
+        ),
       ),
     )
     renderSkillDetailPage()

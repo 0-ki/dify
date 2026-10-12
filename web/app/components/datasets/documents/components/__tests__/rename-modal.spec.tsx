@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+import { ApiError } from '@/service/api-error'
 // Import after mock
 import { renameDocumentName } from '@/service/datasets'
 import RenameModal from '../rename-modal'
@@ -159,7 +160,7 @@ describe('RenameModal', () => {
 
   describe('Error Handling', () => {
     it('should handle API error gracefully', async () => {
-      const error = new Error('API Error')
+      const error = new ApiError(new Response(null, { status: 500 }), { message: 'API Error' })
       mockRenameDocumentName.mockRejectedValueOnce(error)
       const handleSaved = vi.fn()
       const handleClose = vi.fn()
@@ -173,7 +174,7 @@ describe('RenameModal', () => {
         // onSaved and onClose should not be called on error
         expect(handleSaved).not.toHaveBeenCalled()
         expect(handleClose).not.toHaveBeenCalled()
-        expect(mockToastError).toHaveBeenCalledWith('Error: API Error')
+        expect(mockToastError).toHaveBeenCalledWith('API Error')
       })
     })
   })

@@ -12,6 +12,7 @@ import { LoadingPlaceholder } from '@/app/components/base/loading-placeholder'
 import { useWebAppStore } from '@/context/web-app-context'
 import { AccessMode } from '@/models/access-control'
 import { usePathname, useRouter, useSearchParams } from '@/next/navigation'
+import { ApiError } from '@/service/api-error'
 import { fetchAccessToken } from '@/service/share'
 import { resolveWebAppAddress } from '@/service/webapp-address'
 import {
@@ -121,13 +122,13 @@ function Splash({ children }: PropsWithChildren) {
           setWebAppPassport(address, access_token)
           redirectOrFinish()
         } catch (error) {
-          if (error instanceof Response && error.status === 404) {
+          if (error instanceof ApiError && error.status === 404) {
             setUnavailableShareCode(effectiveShareCode)
             await webAppLogout(address)
             return
           }
           await webAppLogout(address)
-          proceedToAuth(error instanceof Response && error.status === 401)
+          proceedToAuth(error instanceof ApiError && error.status === 401)
         }
       }
     })()

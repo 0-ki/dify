@@ -1,6 +1,7 @@
 import type { GetAccountProfileResponse } from '@dify/contracts/api/console/account/types.gen'
 import type { UserProfileWithMeta } from './client'
 import { queryOptions } from '@tanstack/react-query'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import {
   getServerConsoleRequestHeaders,
@@ -22,7 +23,7 @@ export const serverUserProfileQueryOptions = () =>
         cache: 'no-store',
       })
 
-      if (!response.ok) throw response
+      if (!response.ok) throw await ApiError.fromResponse(response)
 
       const profile: GetAccountProfileResponse = await response.clone().json()
       return {

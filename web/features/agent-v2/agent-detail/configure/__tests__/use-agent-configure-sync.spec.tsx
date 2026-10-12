@@ -17,6 +17,7 @@ import {
 import { agentComposerFilesAtom } from '@/features/agent-v2/agent-composer/store-modules/files'
 import { agentComposerPromptAtom } from '@/features/agent-v2/agent-composer/store-modules/prompt'
 import { agentComposerSkillsAtom } from '@/features/agent-v2/agent-composer/store-modules/skills'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import { createAgentFixture } from '@/test/fixtures/agent'
 import { useAgentConfigureSync } from '../use-agent-configure-sync'
@@ -1397,12 +1398,13 @@ describe('useAgentConfigureSync', () => {
         statusText: 'Bad Request',
       },
     )
-    publishAgentMutationFn.mockRejectedValueOnce(responseError)
+    const apiError = await ApiError.fromResponse(responseError)
+    publishAgentMutationFn.mockRejectedValueOnce(apiError)
     const { result } = renderUseAgentConfigureSync({
       currentModel: configuredModel,
     })
 
-    await expect(result.current.publishDraft()).rejects.toBe(responseError)
+    await expect(result.current.publishDraft()).rejects.toBe(apiError)
 
     expect(toastMock.error).toHaveBeenCalledWith('Model credential validation failed')
   })

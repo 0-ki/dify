@@ -6,6 +6,7 @@ import type {
 import { hashKey } from '@tanstack/react-query'
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { ApiError } from '@/service/api-error'
 import { renderWithNuqs as render } from '@/test/nuqs-testing'
 import { DocumentsPage } from '../documents-page'
 import { TaskEventObserver } from '../task-event-observer'
@@ -2470,7 +2471,7 @@ describe('DocumentsPage', () => {
     const user = userEvent.setup()
     documentsQuery.data = { pages: [{ items: [document({})] }] }
     tasksQuery.data = { pages: [{ items: [task({ id: 'listed-terminal-error' })] }] }
-    getTaskSnapshot.mockRejectedValue(new Response(null, { status: 403 }))
+    getTaskSnapshot.mockRejectedValue(new ApiError(new Response(null, { status: 403 })))
     streamFailedTaskThenWait('listed-terminal-error')
 
     const rendered = render(<DocumentsPage knowledgeSpaceId="space-1" />)
@@ -2518,7 +2519,7 @@ describe('DocumentsPage', () => {
         }),
     )
     tasksQuery.data = { pages: [{ items: [task({ id: 'forbidden-reconciliation' })] }] }
-    getTaskSnapshot.mockRejectedValue(new Response(null, { status: 403 }))
+    getTaskSnapshot.mockRejectedValue(new ApiError(new Response(null, { status: 403 })))
     streamProcessingTaskEvents.mockImplementation(async function* () {
       await streamGate
       yield {
@@ -2567,7 +2568,7 @@ describe('DocumentsPage', () => {
     vi.useFakeTimers()
     documentsQuery.data = { pages: [{ items: [document()] }] }
     tasksQuery.data = { pages: [{ items: [task({ id: 'denied-terminal-version' })] }] }
-    getTaskSnapshot.mockRejectedValue(new Response(null, { status: 403 }))
+    getTaskSnapshot.mockRejectedValue(new ApiError(new Response(null, { status: 403 })))
     streamFailedTaskThenWait('denied-terminal-version')
 
     const rendered = render(<DocumentsPage knowledgeSpaceId="space-1" />)
@@ -2587,7 +2588,7 @@ describe('DocumentsPage', () => {
     const user = userEvent.setup()
     let rejectStream!: () => void
     const streamGate = new Promise<void>((_resolve, reject) => {
-      rejectStream = () => reject(new Response(null, { status: 403 }))
+      rejectStream = () => reject(new ApiError(new Response(null, { status: 403 })))
     })
     let resolveDocumentsRefetch!: (result: { error: null }) => void
     documentsQuery.data = { pages: [{ items: [document()] }] }
@@ -2653,7 +2654,7 @@ describe('DocumentsPage', () => {
         event: 'progress' as const,
         id: 'lagging-denied-stream:version-2',
       }
-      throw new Response(null, { status: 403 })
+      throw new ApiError(new Response(null, { status: 403 }))
     })
 
     render(<DocumentsPage knowledgeSpaceId="space-1" />)
@@ -2702,7 +2703,7 @@ describe('DocumentsPage', () => {
           event: 'progress' as const,
           id: 'same-version-terminal-retry:version-2',
         }
-        throw new Response(null, { status: 403 })
+        throw new ApiError(new Response(null, { status: 403 }))
       }
       await new Promise<void>(() => {})
     })
@@ -2784,7 +2785,7 @@ describe('DocumentsPage', () => {
     let streamCount = 0
     streamProcessingTaskEvents.mockImplementation(async function* () {
       streamCount += 1
-      if (streamCount === 1) throw new Response(null, { status: 403 })
+      if (streamCount === 1) throw new ApiError(new Response(null, { status: 403 }))
       await new Promise<void>(() => {})
     })
 
@@ -2839,7 +2840,7 @@ describe('DocumentsPage', () => {
           event: 'progress' as const,
           id: 'recovering-stream:version-2',
         }
-        throw new Response(null, { status: 403 })
+        throw new ApiError(new Response(null, { status: 403 }))
       }
       await new Promise<void>(() => {})
     })
@@ -2910,7 +2911,7 @@ describe('DocumentsPage', () => {
       .mockImplementationOnce(() => new Promise(() => {}))
     tasksQuery.data = { pages: [{ items: [task({ id: 'retry-document-denial' })] }] }
     streamProcessingTaskEvents.mockImplementation(async function* () {
-      throw new Response(null, { status: 403 })
+      throw new ApiError(new Response(null, { status: 403 }))
     })
 
     const rendered = render(<DocumentsPage knowledgeSpaceId="space-1" />)
@@ -4194,7 +4195,7 @@ describe('DocumentsPage', () => {
         }
         return
       }
-      throw new Response(null, { status: 403 })
+      throw new ApiError(new Response(null, { status: 403 }))
     })
     const onPermissionDenied = vi.fn()
     const rendered = render(
@@ -4240,7 +4241,7 @@ describe('DocumentsPage', () => {
         }
         return
       }
-      throw new Response(null, { status: 403 })
+      throw new ApiError(new Response(null, { status: 403 }))
     })
     const onPermissionDenied = vi.fn()
     const rendered = render(
@@ -4272,7 +4273,7 @@ describe('DocumentsPage', () => {
     streamProcessingTaskEvents.mockImplementation(async function* () {
       streamCount += 1
       if (streamCount === 1) return
-      throw new Response(null, { status: 403 })
+      throw new ApiError(new Response(null, { status: 403 }))
     })
     const onPermissionDenied = vi.fn()
     const rendered = render(
@@ -4687,7 +4688,7 @@ describe('DocumentsPage', () => {
       expect(getTaskSnapshot).toHaveBeenCalledOnce()
       fireEvent.click(screen.getByRole('button', { name: 'dataset.newKnowledge.retryTask' }))
       await act(async () => {})
-      await act(async () => rejectPoll?.(new Response(null, { status: 403 })))
+      await act(async () => rejectPoll?.(new ApiError(new Response(null, { status: 403 }))))
 
       tasksQuery.data = {
         pages: [
@@ -4718,7 +4719,7 @@ describe('DocumentsPage', () => {
     tasksQuery.data = {
       pages: [{ items: [task({ id: 'forbidden-failed-poll', state: 'failed' })] }],
     }
-    getTaskSnapshot.mockRejectedValue(new Response(null, { status: 403 }))
+    getTaskSnapshot.mockRejectedValue(new ApiError(new Response(null, { status: 403 })))
 
     const rendered = render(<DocumentsPage knowledgeSpaceId="space-1" />)
     try {
@@ -4751,7 +4752,7 @@ describe('DocumentsPage', () => {
         },
       ],
     }
-    getTaskSnapshot.mockRejectedValueOnce(new Response(null, { status: 403 }))
+    getTaskSnapshot.mockRejectedValueOnce(new ApiError(new Response(null, { status: 403 })))
     streamProcessingTaskEvents.mockImplementation(async function* () {
       await new Promise<void>(() => {})
     })
@@ -4827,7 +4828,7 @@ describe('DocumentsPage', () => {
     tasksQuery.data = {
       pages: [{ items: [task({ id: 'removed-failed-task', state: 'failed' })] }],
     }
-    getTaskSnapshot.mockRejectedValue(new Response(null, { status: 403 }))
+    getTaskSnapshot.mockRejectedValue(new ApiError(new Response(null, { status: 403 })))
 
     const rendered = render(<DocumentsPage knowledgeSpaceId="space-1" />)
     try {
@@ -4960,7 +4961,7 @@ describe('DocumentsPage', () => {
       pages: [{ items: [task({ id: 'list-retry-after-block', state: 'failed' })] }],
     }
     getTaskSnapshot
-      .mockRejectedValueOnce(new Response(null, { status: 403 }))
+      .mockRejectedValueOnce(new ApiError(new Response(null, { status: 403 })))
       .mockResolvedValueOnce(
         task({
           id: 'list-retry-after-block',
@@ -5029,7 +5030,7 @@ describe('DocumentsPage', () => {
       ],
     }
     getTaskSnapshot
-      .mockRejectedValueOnce(new Response(null, { status: 403 }))
+      .mockRejectedValueOnce(new ApiError(new Response(null, { status: 403 })))
       .mockResolvedValueOnce(
         task({
           id: 'new-failed-generation',
@@ -5353,7 +5354,7 @@ describe('DocumentsPage', () => {
       ],
     }
     getTaskSnapshot
-      .mockRejectedValueOnce(new Response(null, { status: 403 }))
+      .mockRejectedValueOnce(new ApiError(new Response(null, { status: 403 })))
       .mockResolvedValueOnce(
         task({
           id: 'permission-blocked-poll',
@@ -5420,7 +5421,9 @@ describe('DocumentsPage', () => {
 
   it('locks uploads after a write mutation reveals revoked permission', async () => {
     const user = userEvent.setup()
-    uploadMutation.mutateAsync.mockRejectedValueOnce(new Response(null, { status: 403 }))
+    uploadMutation.mutateAsync.mockRejectedValueOnce(
+      new ApiError(new Response(null, { status: 403 })),
+    )
     permissionStateMock.refreshAfterDenial.mockResolvedValueOnce({
       data: { dataset: { default_permission_keys: ['dataset.acl.readonly'] } },
       error: null,
@@ -5489,7 +5492,7 @@ describe('DocumentsPage', () => {
     tasksButton.focus()
     expect(tasksButton).toHaveFocus()
 
-    await act(async () => rejectUpload(new Response(null, { status: 403 })))
+    await act(async () => rejectUpload(new ApiError(new Response(null, { status: 403 }))))
     await waitFor(() => expect(permissionStateMock.refreshAfterDenial).toHaveBeenCalledOnce())
 
     expect(tasksButton).toHaveFocus()
@@ -5498,7 +5501,9 @@ describe('DocumentsPage', () => {
   it('locks re-indexing after a write mutation reveals revoked permission', async () => {
     const user = userEvent.setup()
     documentsQuery.data = { pages: [{ items: [document()] }] }
-    reindexMutation.mutateAsync.mockRejectedValueOnce(new Response(null, { status: 403 }))
+    reindexMutation.mutateAsync.mockRejectedValueOnce(
+      new ApiError(new Response(null, { status: 403 })),
+    )
     permissionStateMock.refreshAfterDenial.mockResolvedValueOnce({
       data: { dataset: { default_permission_keys: ['dataset.acl.readonly'] } },
       error: null,
@@ -5523,7 +5528,9 @@ describe('DocumentsPage', () => {
     const user = userEvent.setup()
     documentsQuery.data = { pages: [{ items: [document()] }] }
     tasksQuery.data = { pages: [{ items: [task()] }] }
-    cancelMutation.mutateAsync.mockRejectedValueOnce(new Response(null, { status: 403 }))
+    cancelMutation.mutateAsync.mockRejectedValueOnce(
+      new ApiError(new Response(null, { status: 403 })),
+    )
     permissionStateMock.refreshAfterDenial.mockResolvedValueOnce({
       data: { dataset: { default_permission_keys: ['dataset.acl.readonly'] } },
       error: null,
@@ -5605,9 +5612,9 @@ describe('DocumentsPage', () => {
     expect(cancelMutation.mutateAsync).toHaveBeenCalledOnce()
     expect(uploadMutation.mutateAsync).toHaveBeenCalledOnce()
 
-    await act(async () => rejectUpload?.(new Response(null, { status: 403 })))
+    await act(async () => rejectUpload?.(new ApiError(new Response(null, { status: 403 }))))
     await waitFor(() => expect(permissionStateMock.refreshAfterDenial).toHaveBeenCalledOnce())
-    await act(async () => rejectCancel?.(new Response(null, { status: 403 })))
+    await act(async () => rejectCancel?.(new ApiError(new Response(null, { status: 403 }))))
     await waitFor(() => expect(permissionStateMock.refreshAfterDenial).toHaveBeenCalledTimes(2))
 
     await act(async () =>
@@ -5678,7 +5685,7 @@ describe('DocumentsPage', () => {
     tasksQuery.dataUpdatedAt = 100
     tasksQuery.dataUpdateCount = 1
     getTaskSnapshot
-      .mockRejectedValueOnce(new Response(null, { status: 403 }))
+      .mockRejectedValueOnce(new ApiError(new Response(null, { status: 403 })))
       .mockResolvedValueOnce(
         task({ id: 'denied-active-retry', state: 'running', updatedAt: taskVersion }),
       )

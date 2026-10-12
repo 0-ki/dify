@@ -1,4 +1,5 @@
 import { screen, waitFor } from '@testing-library/react'
+import { ApiError } from '@/service/api-error'
 import { useDatasetDetail } from '@/service/knowledge/use-dataset'
 import { renderWithConsoleQuery } from '@/test/console/query-data'
 import { DatasetACLPermission } from '@/utils/permission'
@@ -188,7 +189,7 @@ describe('DatasetDetailLayout', () => {
         // Arrange
         mockUseDatasetDetail.mockReturnValue({
           data: undefined,
-          error: new Response(null, { status }),
+          error: new ApiError(new Response(null, { status })),
           refetch: vi.fn(),
         } as unknown as ReturnType<typeof useDatasetDetail>)
 

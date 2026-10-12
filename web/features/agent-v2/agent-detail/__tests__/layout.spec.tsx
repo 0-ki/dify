@@ -2,6 +2,7 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AgentPermission } from '@/features/agent-v2/acl'
 import useDocumentTitle from '@/hooks/use-document-title'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import { createConsoleQueryWrapper } from '@/test/console/query-data'
 import { createAgentFixture } from '@/test/fixtures/agent'
@@ -111,7 +112,7 @@ describe('AgentDetailLayout', () => {
       .find({ queryKey: detailKey })!
       .setState({
         data: undefined,
-        error: Object.assign(new Response(null, { status: 404 }), {
+        error: Object.assign(new ApiError(new Response(null, { status: 404 })), {
           name: 'NotFound',
           message: 'Not found',
         }),

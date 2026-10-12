@@ -1,4 +1,5 @@
 import type { KnowledgeSpaceCreationResponse } from '@dify/contracts/knowledge-fs/types.gen'
+import { ApiError } from '@/service/api-error'
 import { consoleClient } from '@/service/console'
 
 export const NAME_MAX_LENGTH = 160
@@ -34,7 +35,7 @@ export class KnowledgeCreationError extends Error {
 }
 
 function responseStatus(error: unknown) {
-  if (error instanceof Response) return error.status
+  if (error instanceof ApiError) return error.status
   if (error && typeof error === 'object' && 'status' in error) return error.status
   if (error && typeof error === 'object' && 'data' in error) {
     const data = error.data

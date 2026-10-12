@@ -1,5 +1,4 @@
 'use client'
-
 import type {
   GetKnowledgeSpacesByIdSourcesBySourceIdSyncPolicyResponse,
   GetKnowledgeSpacesByIdSourceWorkflowsByRunIdPagesResponse,
@@ -14,6 +13,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useId, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from '@/next/navigation'
+import { ApiError } from '@/service/api-error'
 import { consoleClient, consoleQuery } from '@/service/console'
 import { createRequestId } from './request-id'
 import { newKnowledgeDetailPath } from './routes'
@@ -45,7 +45,7 @@ const TERMINAL_IMPORT_STATES = new Set([
 type PageSkipReason = 'failed' | 'off-domain'
 
 function requestStatus(error: unknown) {
-  if (error instanceof Response) return error.status
+  if (error instanceof ApiError) return error.status
   if (!error || typeof error !== 'object') return undefined
   if ('status' in error && typeof error.status === 'number') return error.status
   if ('data' in error && error.data && typeof error.data === 'object' && 'status' in error.data)

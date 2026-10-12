@@ -9,6 +9,7 @@ import { useStore, useWorkflowStore } from '@/app/components/workflow/store'
 import { BlockEnum } from '@/app/components/workflow/types'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
+import { ApiError } from '@/service/api-error'
 import { useWorkflowConfig } from '@/service/use-workflow'
 import { fetchNodesDefaultConfigs, fetchWorkflowDraft, syncWorkflowDraft } from '@/service/workflow'
 import { appWorkflowQueryOptions } from '@/service/workflow-queries'
@@ -126,62 +127,56 @@ export const useWorkflowInit = () => {
       setSyncWorkflowDraftHash(initialData.hash)
       setIsLoading(false)
     } catch (error: unknown) {
-      const responseError = error as {
-        bodyUsed?: boolean
-        json?: () => Promise<{ code?: string }>
-      }
-      if (responseError.json && !responseError.bodyUsed && appDetail) {
-        responseError.json().then((err) => {
-          if (err.code === 'draft_workflow_not_exist') {
-            const isAdvancedChat = appDetail.mode === AppModeEnum.ADVANCED_CHAT
-            const initialGraph = {
-              nodes: isAdvancedChat ? nodesTemplate : [],
-              edges: isAdvancedChat ? edgesTemplate : [],
-            }
-            workflowStore.setState({
-              notInitialWorkflow: true,
-              showOnboarding: false,
-              shouldAutoOpenStartNodeSelector: false,
-              hasSelectedStartNode: false,
-              hasShownOnboarding: !isAdvancedChat,
-            })
-
-            if (!appACLCapabilities.canEdit) {
-              const initialData = createLocalWorkflowDraft({
-                ...getWorkflowDraftGraphForCanvas(initialGraph, {
-                  localStartPlaceholderNodes: nodesTemplate,
-                }),
-                viewport: undefined,
-              })
-              setData(initialData)
-              workflowStore.setState({
-                envSecrets: {},
-                environmentVariables: [],
-                conversationVariables: [],
-                isWorkflowDataLoaded: true,
-              })
-              setSyncWorkflowDraftHash(initialData.hash)
-              setIsLoading(false)
-              return
-            }
-
-            syncWorkflowDraft({
-              url: `/apps/${appDetail.id}/workflows/draft`,
-              params: {
-                graph: initialGraph,
-                force: true,
-                features: {
-                  retriever_resource: { enabled: true },
-                },
-                conversation_variables: [],
-              },
-            }).then((res) => {
-              workflowStore.getState().setDraftUpdatedAt(res.updated_at)
-              setSyncWorkflowDraftHash(res.hash)
-              handleGetInitialWorkflowData()
-            })
+      if (error instanceof ApiError && appDetail) {
+        if (error.code === 'draft_workflow_not_exist') {
+          const isAdvancedChat = appDetail.mode === AppModeEnum.ADVANCED_CHAT
+          const initialGraph = {
+            nodes: isAdvancedChat ? nodesTemplate : [],
+            edges: isAdvancedChat ? edgesTemplate : [],
           }
-        })
+          workflowStore.setState({
+            notInitialWorkflow: true,
+            showOnboarding: false,
+            shouldAutoOpenStartNodeSelector: false,
+            hasSelectedStartNode: false,
+            hasShownOnboarding: !isAdvancedChat,
+          })
+
+          if (!appACLCapabilities.canEdit) {
+            const initialData = createLocalWorkflowDraft({
+              ...getWorkflowDraftGraphForCanvas(initialGraph, {
+                localStartPlaceholderNodes: nodesTemplate,
+              }),
+              viewport: undefined,
+            })
+            setData(initialData)
+            workflowStore.setState({
+              envSecrets: {},
+              environmentVariables: [],
+              conversationVariables: [],
+              isWorkflowDataLoaded: true,
+            })
+            setSyncWorkflowDraftHash(initialData.hash)
+            setIsLoading(false)
+            return
+          }
+
+          syncWorkflowDraft({
+            url: `/apps/${appDetail.id}/workflows/draft`,
+            params: {
+              graph: initialGraph,
+              force: true,
+              features: {
+                retriever_resource: { enabled: true },
+              },
+              conversation_variables: [],
+            },
+          }).then((res) => {
+            workflowStore.getState().setDraftUpdatedAt(res.updated_at)
+            setSyncWorkflowDraftHash(res.hash)
+            handleGetInitialWorkflowData()
+          })
+        }
       }
     }
   }, [

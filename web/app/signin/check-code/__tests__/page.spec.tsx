@@ -4,6 +4,7 @@ import { noop, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
+import { ApiError } from '@/service/api-error'
 import { emailLoginWithCode, sendEMailLoginCode } from '@/service/common'
 import { seedSystemFeatures } from '@/test/console/query-data'
 import CheckCode from '../page'
@@ -533,7 +534,7 @@ describe('CheckCode', () => {
         resolveProfileResponse = resolve
       })
       serviceBaseMocks.get
-        .mockRejectedValueOnce(new Response(null, { status: 401 }))
+        .mockRejectedValueOnce(new ApiError(new Response(null, { status: 401 })))
         .mockReturnValueOnce(profileResponse)
       await queryClient.query(profileQueryOptions).catch(noop)
       expect(queryClient.getQueryState(profileQueryKey)?.status).toBe('error')

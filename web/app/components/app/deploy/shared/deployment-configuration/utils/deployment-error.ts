@@ -22,15 +22,3 @@ export function getDeploymentErrorMessage(error: unknown) {
 
   return messageFrom(error)
 }
-
-export async function normalizeDeploymentError(error: unknown) {
-  if (error instanceof Response && !error.bodyUsed) {
-    try {
-      const response: unknown = await error.clone().json()
-      const message = getDeploymentErrorMessage(response)
-      if (message) return new Error(message)
-    } catch {}
-  }
-
-  return error
-}

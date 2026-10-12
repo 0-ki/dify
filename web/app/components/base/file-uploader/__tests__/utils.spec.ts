@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next'
 import type { FileEntity } from '../types'
 import { SupportUploadFileTypes } from '@/app/components/workflow/types'
+import { ApiError } from '@/service/api-error'
 import { upload } from '@/service/base'
 import { withSelectorKey } from '@/test/i18n-mock'
 import { TransferMethod } from '@/types/app'
@@ -36,19 +37,24 @@ describe('file-uploader utils', () => {
       ) as unknown as TFunction<['common']>
 
     it('should return forbidden message when error code is forbidden', () => {
-      const error = { response: { code: 'forbidden', message: 'Access denied' } }
+      const error = new ApiError(new Response(null, { status: 400 }), {
+        code: 'forbidden',
+        message: 'Access denied',
+      })
       expect(getFileUploadErrorMessage(error, 'default', createMockT())).toBe('Access denied')
     })
 
     it('should return file_extension_blocked translation when error code matches', () => {
-      const error = { response: { code: 'file_extension_blocked' } }
+      const error = new ApiError(new Response(null, { status: 400 }), {
+        code: 'file_extension_blocked',
+      })
       expect(getFileUploadErrorMessage(error, 'default', createMockT())).toBe(
         'fileUploader.fileExtensionBlocked',
       )
     })
 
     it('should return default message for other errors', () => {
-      const error = { response: { code: 'unknown_error' } }
+      const error = new ApiError(new Response(null, { status: 400 }), { code: 'unknown_error' })
       expect(getFileUploadErrorMessage(error, 'Upload failed', createMockT())).toBe('Upload failed')
     })
 

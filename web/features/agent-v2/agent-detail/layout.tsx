@@ -1,5 +1,4 @@
 'use client'
-
 import type { ReactNode } from 'react'
 import { Button } from '@langgenius/dify-ui/button'
 import { useEffect } from 'react'
@@ -9,13 +8,14 @@ import { getAgentDefaultSection, getAgentSectionAccess } from '@/features/agent-
 import { useAgentPermissions } from '@/features/agent-v2/permissions'
 import useDocumentTitle from '@/hooks/use-document-title'
 import { usePathname, useRouter } from '@/next/navigation'
+import { ApiError } from '@/service/api-error'
 
 type AgentDetailLayoutProps = {
   agentId: string
   children: ReactNode
 }
 
-const isNotFoundResponse = (error: unknown) => error instanceof Response && error.status === 404
+const isNotFoundResponse = (error: unknown) => error instanceof ApiError && error.status === 404
 
 export function AgentDetailLayout({ agentId, children }: AgentDetailLayoutProps) {
   const { t } = useTranslation(['agentV2', 'agentRoster'])

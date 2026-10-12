@@ -22,6 +22,7 @@ import { Uploader } from '@/app/components/app/create-from-dsl-modal/uploader'
 import { toast } from '@/app/notifications'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import { useRouter } from '@/next/navigation'
+import { ApiError } from '@/service/api-error'
 import {
   useConfirmSnippetImportMutation,
   useImportSnippetDSLMutation,
@@ -188,7 +189,9 @@ function ImportSnippetDSLDialog({ isOpen, onClose }: ImportSnippetDSLDialogProps
 
       handleImportResponse(response)
     } catch (error) {
-      if (error instanceof Error && error.message) toast.error(error.message)
+      // HTTP error notifications are owned by the request layer.
+      if (!(error instanceof ApiError) && error instanceof Error && error.message)
+        toast.error(error.message)
     }
   }, [
     canCreateAndModifySnippet,
@@ -206,7 +209,9 @@ function ImportSnippetDSLDialog({ isOpen, onClose }: ImportSnippetDSLDialogProps
       const response = await confirmSnippetImportMutation.mutateAsync({ importId })
       handleImportResponse(response)
     } catch (error) {
-      if (error instanceof Error && error.message) toast.error(error.message)
+      // HTTP error notifications are owned by the request layer.
+      if (!(error instanceof ApiError) && error instanceof Error && error.message)
+        toast.error(error.message)
     }
   }, [canCreateAndModifySnippet, confirmSnippetImportMutation, handleImportResponse, importId])
 

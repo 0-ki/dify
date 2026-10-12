@@ -1,4 +1,3 @@
-import type { ResponseError } from '@/service/fetch'
 import { Button } from '@langgenius/dify-ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@langgenius/dify-ui/dialog'
 import { Field, FieldError, FieldLabel } from '@langgenius/dify-ui/field'
@@ -9,9 +8,9 @@ import { useDebounceFn } from 'ahooks'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
+import { ApiError } from '@/service/api-error'
 import { checkEmailExisted, resetEmail, sendVerifyCode, verifyEmail } from '@/service/common'
 import { useLogout } from '@/service/use-common'
-import { asyncRunSafe } from '@/utils'
 
 type Props = {
   onClose: () => void
@@ -29,11 +28,6 @@ type Step = (typeof STEP)[keyof typeof STEP]
 
 const emailPattern = /^[\w.!#$%&'*+\-/=?^`{|}~]+@(?:[\w-]+\.)+[\w-]{2,}$/
 
-type FetchResponseError = {
-  status: number
-  json: () => Promise<ResponseError>
-}
-
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message
   if (typeof error === 'object' && error !== null && 'message' in error) {
@@ -41,13 +35,6 @@ function getErrorMessage(error: unknown) {
     return typeof message === 'string' ? message : ''
   }
   return ''
-}
-
-function isFetchResponseError(error: unknown): error is FetchResponseError {
-  if (typeof error !== 'object' || error === null) return false
-
-  const maybeError = error as { status?: unknown; json?: unknown }
-  return typeof maybeError.status === 'number' && typeof maybeError.json === 'function'
 }
 
 const EmailChangeModal = ({ onClose, email }: Props) => {
@@ -148,9 +135,8 @@ const EmailChangeModal = ({ onClose, email }: Props) => {
       setUnAvailableEmail(false)
     } catch (e: unknown) {
       if (latestEmailRef.current !== email) return
-      if (isFetchResponseError(e) && e.status === 400) {
-        const [, errRespData] = await asyncRunSafe<ResponseError>(e.json())
-        const { code } = errRespData || {}
+      if (e instanceof ApiError && e.status === 400) {
+        const { code } = e
         if (code === 'email_already_in_use') setNewEmailExited(true)
         if (code === 'account_in_freeze') setUnAvailableEmail(true)
       }

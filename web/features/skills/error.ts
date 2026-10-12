@@ -2,16 +2,6 @@ export function isSkillErrorRecord(value: unknown): value is Record<string, unkn
   return typeof value === 'object' && value !== null
 }
 
-export async function normalizeSkillError(error: unknown): Promise<unknown> {
-  if (!(error instanceof Response)) return error
-
-  try {
-    return await error.clone().json()
-  } catch {
-    return error
-  }
-}
-
 export function getSkillErrorCode(error: unknown): string | undefined {
   if (!isSkillErrorRecord(error)) return undefined
 

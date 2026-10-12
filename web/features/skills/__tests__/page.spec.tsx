@@ -10,6 +10,7 @@ import { createEvent, fireEvent, render, screen, waitFor, within } from '@testin
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { toast } from '@/app/notifications'
+import { ApiError } from '@/service/api-error'
 import SkillsPage from '../page'
 
 type SkillsInfiniteOptions = {
@@ -1142,9 +1143,11 @@ describe('SkillsPage', () => {
   it('keeps the package available for retry after explaining an error returned as a Response body', async () => {
     const user = userEvent.setup()
     mocks.importSkillMutationFn.mockRejectedValueOnce(
-      new Response(JSON.stringify({ message: 'Skill package must contain SKILL.md' }), {
-        status: 400,
-      }),
+      await ApiError.fromResponse(
+        new Response(JSON.stringify({ message: 'Skill package must contain SKILL.md' }), {
+          status: 400,
+        }),
+      ),
     )
     renderSkillsPage()
     const dialog = await openImportDialog(user)

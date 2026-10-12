@@ -16,6 +16,7 @@ import { cn } from '@langgenius/dify-ui/cn'
 import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
 import { toast } from '@/app/notifications'
 import { getFileIconType } from '@/features/agent-v2/file-icon'
+import { ApiError } from '@/service/api-error'
 import { consoleClient, consoleQuery } from '@/service/console'
 import {
   getSkillErrorCode,
@@ -1357,29 +1358,7 @@ function parseServerMessage(message: string) {
   return trimmedMessage
 }
 
-async function readSkillResponseErrorMessage(response: Response) {
-  try {
-    const data: unknown = await response.clone().json()
-    return getSkillErrorMessage(data)
-  } catch {
-    try {
-      const text = await response.clone().text()
-      if (text.trim()) return parseServerMessage(text)
-    } catch {}
-  }
-}
-
-async function readSkillResponseErrorPayload(response: Response) {
-  try {
-    const data: unknown = await response.clone().json()
-    return isRecord(data) ? data : undefined
-  } catch {
-    return undefined
-  }
-}
-
 function getSkillErrorMessage(error: unknown, visited = new Set<unknown>()): string | undefined {
-  if (error instanceof Response) return undefined
   if (!error || visited.has(error)) return undefined
   if (typeof error === 'string') return parseServerMessage(error)
   if (typeof error !== 'object') return undefined
@@ -1399,13 +1378,11 @@ function getSkillErrorMessage(error: unknown, visited = new Set<unknown>()): str
 }
 
 export async function getAsyncSkillErrorMessage(error: unknown) {
-  if (error instanceof Response) return readSkillResponseErrorMessage(error)
-
   return getSkillErrorMessage(error)
 }
 
 export async function getAsyncSkillErrorPayload(error: unknown) {
-  if (error instanceof Response) return readSkillResponseErrorPayload(error)
+  if (error instanceof ApiError) return error.data
 
   return isRecord(error) ? error : undefined
 }

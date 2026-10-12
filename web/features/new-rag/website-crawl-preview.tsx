@@ -1,5 +1,4 @@
 'use client'
-
 import type {
   GetKnowledgeSpacesByIdSourceWorkflowsByRunIdPagesResponse,
   Source,
@@ -22,6 +21,7 @@ import { useRefWithInit } from '@langgenius/dify-ui/use-ref-with-init'
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRouter } from '@/next/navigation'
+import { ApiError } from '@/service/api-error'
 import { consoleClient } from '@/service/console'
 import { registerPageLeaveGuard } from '@/utils/page-leave-guard'
 import { CrawlSelectionForm } from './crawl-selection-form'
@@ -105,7 +105,7 @@ function workflowAttemptKey(run: SourceWorkflowRun) {
 }
 
 function responseStatus(error: unknown) {
-  if (error instanceof Response) return error.status
+  if (error instanceof ApiError) return error.status
   if (!error || typeof error !== 'object') return undefined
   if ('status' in error && typeof error.status === 'number') return error.status
   if ('data' in error && error.data && typeof error.data === 'object' && 'status' in error.data) {

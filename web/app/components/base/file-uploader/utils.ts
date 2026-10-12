@@ -4,6 +4,7 @@ import type { FileResponse } from '@/types/workflow'
 import mime from 'mime'
 import { FILE_EXTS } from '@/app/components/base/prompt-editor/constants'
 import { SupportUploadFileTypes } from '@/app/components/workflow/types'
+import { ApiError } from '@/service/api-error'
 import { upload } from '@/service/base'
 import { TransferMethod } from '@/types/app'
 import { FileAppearanceTypeEnum } from './types'
@@ -16,13 +17,13 @@ import { FileAppearanceTypeEnum } from './types'
  * @returns Localized error message
  */
 export const getFileUploadErrorMessage = (
-  error: any,
+  error: unknown,
   defaultMessage: string,
   t: TFunction<['common']>,
 ): string => {
-  const errorCode = error?.response?.code
+  const errorCode = error instanceof ApiError ? error.code : undefined
 
-  if (errorCode === 'forbidden') return error?.response?.message
+  if (errorCode === 'forbidden') return error instanceof Error ? error.message : defaultMessage
 
   if (errorCode === 'file_extension_blocked')
     return t(($) => $['fileUploader.fileExtensionBlocked'], { ns: 'common' })

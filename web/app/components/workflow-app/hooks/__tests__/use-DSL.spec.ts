@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { createElement } from 'react'
 import { DSL_EXPORT_CHECK } from '@/app/components/workflow/constants'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import { createAppDetailFixture } from '@/test/fixtures/app'
 import { useDSLByCanEdit } from '../use-DSL'
@@ -297,7 +298,11 @@ workflow:
 
   it('should notify when export fails', async () => {
     mockExportAppConfig.mockRejectedValue(
-      new Response(JSON.stringify({ message: 'Package contains unusable Skill' }), { status: 500 }),
+      await ApiError.fromResponse(
+        new Response(JSON.stringify({ message: 'Package contains unusable Skill' }), {
+          status: 500,
+        }),
+      ),
     )
 
     const { result } = renderHook(() => useDSLByCanEdit(true), { wrapper })

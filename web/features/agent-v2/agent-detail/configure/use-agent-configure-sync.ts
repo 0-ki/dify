@@ -478,12 +478,7 @@ export function useAgentConfigureSync({
       })
       return { kind: published.publication_kind, draft }
     } catch (error) {
-      let errorData: unknown = error
-      if (error instanceof Response) {
-        try {
-          errorData = await error.clone().json()
-        } catch {}
-      }
+      const errorData: unknown = error
       toast.error(
         errorData &&
           typeof errorData === 'object' &&

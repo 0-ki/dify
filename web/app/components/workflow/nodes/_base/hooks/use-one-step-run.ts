@@ -49,6 +49,7 @@ import {
 import { EVENT_WORKFLOW_STOP } from '@/app/components/workflow/variable-inspect/types'
 import { toast } from '@/app/notifications'
 import { useEventEmitterContextContext } from '@/context/event-emitter'
+import { ApiError } from '@/service/api-error'
 import { post, ssePost } from '@/service/base'
 import {
   useAllBuiltInTools,
@@ -584,12 +585,10 @@ const useOneStepRun = <T>({
         body: JSON.stringify({}),
         signal: controller.signal,
       })
-        .catch(async (error: Response) => {
-          const data = (await error.clone().json()) as Record<string, any>
-          const { error: respError, status } = data || {}
+        .catch((error: unknown) => {
           requestError = {
-            message: respError,
-            status,
+            message: error instanceof Error ? error.message : 'Unknown error',
+            status: error instanceof ApiError ? String(error.status) : '0',
           }
           return null
         })
