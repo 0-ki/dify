@@ -26290,7 +26290,6 @@ Query parameters for workflow runs.
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| app_id | string |  | Yes |
 | created_at | integer |  | No |
 | created_by_account | [SimpleAccountResponse](#simpleaccountresponse) |  | No |
 | created_by_end_user | [SimpleEndUser](#simpleenduser) |  | No |
@@ -26315,7 +26314,6 @@ Query parameters for workflow runs.
 | retry_index | integer |  | No |
 | status | string |  | No |
 | title | string |  | No |
-| workflow_id | string |  | Yes |
 
 #### WorkflowToolParameterConfiguration
 
