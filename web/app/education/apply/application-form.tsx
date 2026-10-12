@@ -21,6 +21,7 @@ import { currentWorkspaceAtom, isCurrentWorkspaceManagerAtom } from '@/context/w
 import { useAsyncWindowOpen } from '@/hooks/use-async-window-open'
 import Link from '@/next/link'
 import { consoleClient, consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import UserInfo from '../user-info'
 import AppliedEducationContent from './applied-education-content'
 import InstitutionField from './institution-field'
@@ -104,7 +105,7 @@ const EducationApplyPage = ({ plan, token }: EducationApplyPageProps) => {
         },
         {
           onError: (err) => {
-            toast.error(err.message || String(err))
+            reportErrorOnce(err, () => toast.error(err.message || String(err)))
           },
         },
       )
@@ -124,8 +125,10 @@ const EducationApplyPage = ({ plan, token }: EducationApplyPageProps) => {
     try {
       await switchWorkspaceMutation.mutateAsync({ body: { tenant_id: tenantId } })
       globalThis.location.reload()
-    } catch {
-      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+      )
     }
   }
 

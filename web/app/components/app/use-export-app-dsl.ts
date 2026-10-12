@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { consoleClient } from '@/service/console'
 import { downloadBlob } from '@/utils/download'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { getAppTransferErrorMessage } from './transfer-error'
 
 type ExportAppDslInput = {

@@ -13,6 +13,7 @@ import { FormTypeEnum } from '@/app/components/base/form/types'
 import { ReadmeEntrance } from '@/app/components/plugins/readme-panel/entrance'
 import { toast } from '@/app/notifications'
 import { useUpdateTriggerSubscription } from '@/service/use-triggers'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { usePluginStore } from '../../store'
 import { useSubscriptionList } from '../use-subscription-list'
 
@@ -91,10 +92,12 @@ export const ManualEditModal = ({ onClose, subscription, pluginDetail }: Props) 
           onClose()
         },
         onError: (error: unknown) => {
-          toast.error(
-            getErrorMessage(
-              error,
-              t(($) => $['subscription.list.item.actions.edit.error'], { ns: 'pluginTrigger' }),
+          reportErrorOnce(error, () =>
+            toast.error(
+              getErrorMessage(
+                error,
+                t(($) => $['subscription.list.item.actions.edit.error'], { ns: 'pluginTrigger' }),
+              ),
             ),
           )
         },

@@ -5,6 +5,7 @@ import { getAppTransferErrorMessage } from '@/app/components/app/transfer-error'
 import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
 import { useCheckPipelineDependencies } from '@/service/use-pipeline'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { useStore as usePluginDependenciesStore } from './store'
 
 export const usePluginDependencies = () => {

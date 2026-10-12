@@ -21,6 +21,7 @@ import { useParams, usePathname } from '@/next/navigation'
 import { uploadRemoteFileInfo } from '@/service/common'
 import { uploadHumanInputFormLocalFile, uploadHumanInputFormRemoteFileInfo } from '@/service/share'
 import { TransferMethod } from '@/types/app'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { formatFileSize } from '@/utils/format'
 import { useFileStore } from './store'
 import { useFileUploadContext } from './upload-context'
@@ -191,7 +192,7 @@ export const useFile = (fileConfig: FileUpload, noNeedToCheckEnable = true) => {
               t(($) => $['fileUploader.uploadFromComputerUploadError'], { ns: 'common' }),
               t,
             )
-            toast.error(errorMessage)
+            reportErrorOnce(error, () => toast.error(errorMessage))
             handleUpdateFile({ ...uploadingFile, progress: -1 })
           },
         }
@@ -278,8 +279,10 @@ export const useFile = (fileConfig: FileUpload, noNeedToCheckEnable = true) => {
             handleRemoveFile(uploadingFile.id)
           else handleUpdateFile(newFile)
         })
-        .catch(() => {
-          toast.error(t(($) => $['fileUploader.pasteFileLinkInvalid'], { ns: 'common' }))
+        .catch((caughtError) => {
+          reportErrorOnce(caughtError, () =>
+            toast.error(t(($) => $['fileUploader.pasteFileLinkInvalid'], { ns: 'common' })),
+          )
           handleRemoveFile(uploadingFile.id)
         })
     },
@@ -372,7 +375,7 @@ export const useFile = (fileConfig: FileUpload, noNeedToCheckEnable = true) => {
                 t(($) => $['fileUploader.uploadFromComputerUploadError'], { ns: 'common' }),
                 t,
               )
-              toast.error(errorMessage)
+              reportErrorOnce(error, () => toast.error(errorMessage))
               handleUpdateFile({ ...uploadingFile, progress: -1 })
             },
           }

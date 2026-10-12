@@ -21,6 +21,7 @@ import { toast } from '@/app/notifications'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { AccessMode, isAccessMode } from '@/models/access-control'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { useAccessPointActions } from '../shared/use-access-point-actions'
 import { useAccessPointStatusLabel } from '../shared/use-access-point-status-label'
 import {
@@ -103,8 +104,10 @@ export function EnvironmentWebAppCard({
       scope: {
         id: `environment-web-app-toggle:${appId}:${environmentId}`,
       },
-      onError: () => {
-        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+      onError: (caughtError) => {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+        )
       },
     }),
   )
@@ -116,8 +119,10 @@ export function EnvironmentWebAppCard({
           setShowRegenerate(false)
           toast.success(t(($) => $['actionMsg.generatedSuccessfully'], { ns: 'common' }))
         },
-        onError: () => {
-          toast.error(t(($) => $['actionMsg.generatedUnsuccessfully'], { ns: 'common' }))
+        onError: (caughtError) => {
+          reportErrorOnce(caughtError, () =>
+            toast.error(t(($) => $['actionMsg.generatedUnsuccessfully'], { ns: 'common' })),
+          )
         },
       },
     ),

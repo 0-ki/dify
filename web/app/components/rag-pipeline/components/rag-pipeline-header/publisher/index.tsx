@@ -16,6 +16,7 @@ import {
   useInvalidCustomizedTemplateList,
   usePublishAsCustomizedPipeline,
 } from '@/service/use-pipeline'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import PublishAsKnowledgePipelineModal from '../../publish-as-knowledge-pipeline-modal'
 import { Popup } from './popup'
 
@@ -80,8 +81,10 @@ const Publisher = () => {
           },
         )
         invalidCustomizedTemplateList()
-      } catch {
-        toast.error(t(($) => $['publishTemplate.error.message'], { ns: 'datasetPipeline' }))
+      } catch (caughtError) {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['publishTemplate.error.message'], { ns: 'datasetPipeline' })),
+        )
       } finally {
         setIsPublishingAsCustomizedPipeline(false)
         hidePublishAsKnowledgePipelineModal()

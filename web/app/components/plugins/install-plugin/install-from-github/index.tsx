@@ -13,6 +13,7 @@ import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useGetIcon from '@/app/components/plugins/install-plugin/base/use-get-icon'
 import { toast } from '@/app/notifications'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { InstallStepFromGitHub } from '../../types'
 import Installed from '../base/installed'
 import { fetchReleases } from '../hooks'
@@ -105,8 +106,10 @@ const InstallFromGitHub: React.FC<InstallFromGitHubProps> = ({
       } else {
         toast.error(t(($) => $['error.noReleasesFound'], { ns: 'plugin' }))
       }
-    } catch {
-      toast.error(t(($) => $['error.fetchReleasesError'], { ns: 'plugin' }))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['error.fetchReleasesError'], { ns: 'plugin' })),
+      )
     }
   }
 

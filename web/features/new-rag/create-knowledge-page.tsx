@@ -36,6 +36,7 @@ import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import useDocumentTitle from '@/hooks/use-document-title'
 import { useRouter, useSearchParams } from '@/next/navigation'
 import { consoleClient, consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { registerPageLeaveGuard } from '@/utils/page-leave-guard'
 import { DatasetACLPermission, hasPermission } from '@/utils/permission'
 import { KnowledgeIllustration, StartMode } from './components/create-knowledge-dialog-parts'
@@ -304,8 +305,10 @@ export function CreateKnowledgePage() {
           replaceAfterHistoryGuard(
             newKnowledgeAddSourcePath(created.id, sourceDraft.sourceType, sourceDraftKey),
           )
-        } catch {
-          toast.error(t(($) => $['newKnowledge.addSourceFailed']))
+        } catch (caughtError) {
+          reportErrorOnce(caughtError, () =>
+            toast.error(t(($) => $['newKnowledge.addSourceFailed'])),
+          )
         }
         return
       }

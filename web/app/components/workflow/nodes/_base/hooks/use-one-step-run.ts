@@ -64,6 +64,7 @@ import {
   getLoopSingleNodeRunUrl,
   singleNodeRun,
 } from '@/service/workflow'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import useInspectVarsCrud from '../../../hooks/use-inspect-vars-crud'
 import { useNodeDataUpdate } from '../../../hooks/use-node-data-update'
 import { useIsChatMode, useWorkflow } from '../../../hooks/use-workflow'
@@ -474,7 +475,9 @@ const useOneStepRun = <T>({
           _singleRunningStatus: NodeRunningStatus.Failed,
         },
       })
-      toast.error(t(($) => $['common.scheduleTriggerRunFailed'], { ns: 'workflow' }))
+      reportErrorOnce(error, () =>
+        toast.error(t(($) => $['common.scheduleTriggerRunFailed'], { ns: 'workflow' })),
+      )
       throw error
     }
   }, [flowId, id, handleNodeDataUpdate, data, t])
@@ -558,7 +561,9 @@ const useOneStepRun = <T>({
           return null
         if (controller.signal.aborted) return null
 
-        toast.error(t(($) => $['common.webhookDebugRequestFailed'], { ns: 'workflow' }))
+        reportErrorOnce(error, () =>
+          toast.error(t(($) => $['common.webhookDebugRequestFailed'], { ns: 'workflow' })),
+        )
         cancelWebhookSingleRun()
         if (error instanceof Error) throw error
         throw new Error(String(error))

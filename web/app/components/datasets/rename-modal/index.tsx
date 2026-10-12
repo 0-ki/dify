@@ -17,6 +17,7 @@ import {
 } from '@/app/components/base/icon-picker'
 import { toast } from '@/app/notifications'
 import { updateDatasetSetting } from '@/service/datasets'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 type RenameDatasetModalProps = {
   show: boolean
@@ -77,8 +78,10 @@ const RenameDatasetModal = ({ show, dataset, onSuccess, onClose }: RenameDataset
       })
       if (onSuccess) onSuccess()
       onClose()
-    } catch {
-      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+      )
     } finally {
       setLoading(false)
     }

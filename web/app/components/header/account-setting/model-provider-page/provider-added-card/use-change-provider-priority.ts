@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { ConfigurationMethodEnum } from '../declarations'
 import { useUpdateModelList, useUpdateModelProviders } from '../hooks'
 
@@ -38,8 +39,10 @@ export function useChangeProviderPriority(
               provider?.supported_model_types.forEach((modelType) => updateModelList(modelType))
           })
         },
-        onError: () => {
-          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+        onError: (caughtError) => {
+          reportErrorOnce(caughtError, () =>
+            toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+          )
         },
       },
     ),

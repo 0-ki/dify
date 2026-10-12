@@ -62,6 +62,7 @@ import {
 import { AppSourceType } from '@/service/share'
 import { useChatConversationDetail, useCompletionConversationDetail } from '@/service/use-log'
 import { AppModeEnum } from '@/types/app'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import PromptLogModal from '../../base/prompt-log-modal'
 import {
   applyAnnotationAdded,
@@ -289,8 +290,10 @@ function DetailPanel({ appDetail, detail, onClose, onFeedback }: IDetailPanel) {
 
         toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
         return true
-      } catch {
-        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+      } catch (caughtError) {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+        )
         return false
       }
     },
@@ -653,8 +656,10 @@ const CompletionConversationDetailComp: FC<ConversationDetailProps> = ({
       conversationDetailMutate()
       toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
       return true
-    } catch {
-      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+      )
       return false
     }
   }
@@ -705,8 +710,10 @@ const ChatConversationDetailComp: FC<ConversationDetailProps> = ({
       })
       toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
       return true
-    } catch {
-      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+      )
       return false
     }
   }

@@ -2,6 +2,7 @@ import type { ToastType } from '@langgenius/dify-ui/toast'
 import type { GitHubRepoReleaseResponse } from '../types'
 import { toast } from '@/app/notifications'
 import { uploadGitHub } from '@/service/plugins'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { compareVersion, getLatestVersion } from '@/utils/semver'
 
 const normalizeAssetName = (downloadUrl: string) => {
@@ -28,9 +29,9 @@ export const fetchReleases = async (owner: string, repo: string) => {
     return formatReleases(data.releases)
   } catch (error) {
     if (error instanceof Error) {
-      toast.error(error.message)
+      reportErrorOnce(error, () => toast.error(error.message))
     } else {
-      toast.error('Failed to fetch repository releases')
+      reportErrorOnce(error, () => toast.error('Failed to fetch repository releases'))
     }
     return []
   }
@@ -78,7 +79,7 @@ export const handleUpload = async (
     if (onSuccess) onSuccess(GitHubPackage)
     return GitHubPackage
   } catch (error) {
-    toast.error('Error uploading package')
+    reportErrorOnce(error, () => toast.error('Error uploading package'))
     throw error
   }
 }

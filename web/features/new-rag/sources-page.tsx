@@ -32,6 +32,7 @@ import { toast } from '@/app/notifications'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import Link from '@/next/link'
 import { consoleClient, consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { hasPermission } from '@/utils/permission'
 import { newKnowledgeAddSourcePath } from './routes'
 
@@ -246,8 +247,10 @@ function SourceRow({
       let result: Result
       try {
         result = await mutation()
-      } catch {
-        toast.error(t(($) => $['newKnowledge.sourcesErrorDescription']))
+      } catch (caughtError) {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['newKnowledge.sourcesErrorDescription'])),
+        )
         try {
           await queryClient.invalidateQueries({
             queryKey: consoleQuery.knowledgeFs.getKnowledgeSpacesByIdSources.key(),

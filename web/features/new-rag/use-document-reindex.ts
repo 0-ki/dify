@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { refreshWorkspacePermissionKeysAfterMutationDenialAtom } from '@/context/permission-state'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { DatasetACLPermission, hasPermission } from '@/utils/permission'
 import { responseStatus } from './document-detail-model'
 import { useDocumentTaskStatus } from './use-document-task-status'
@@ -214,7 +215,7 @@ export function useDocumentReindex({
         setWritePermissionRevoked(true)
         await retryWritePermission()
       }
-      toast.error(t(($) => $['newKnowledge.documentsReindexFailed']))
+      reportErrorOnce(error, () => toast.error(t(($) => $['newKnowledge.documentsReindexFailed'])))
     } finally {
       reindexPendingRef.current = false
       setReindexBusy(false)

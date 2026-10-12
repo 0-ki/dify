@@ -15,6 +15,7 @@ import { LoadingPlaceholder } from '@/app/components/base/loading-placeholder'
 import { toast } from '@/app/notifications'
 import useTimestamp from '@/hooks/use-timestamp'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 export function AgentLogDetailPanel({
   agentId,
@@ -81,7 +82,9 @@ export function AgentLogDetailPanel({
         }),
       ])
     } catch (error) {
-      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+      reportErrorOnce(error, () =>
+        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+      )
       throw error
     }
   }

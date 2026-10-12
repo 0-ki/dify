@@ -7,6 +7,7 @@ import { toast } from '@/app/notifications'
 import { useRouter } from '@/next/navigation'
 import { useCreatePipelineDataset } from '@/service/knowledge/use-create-dataset'
 import { useInvalidDatasetList } from '@/service/knowledge/use-dataset'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 const CreateCard = () => {
   const { t } = useTranslation(['datasetPipeline'])
@@ -28,8 +29,10 @@ const CreateCard = () => {
           push(`/datasets/${id}/pipeline`)
         }
       },
-      onError: () => {
-        toast.error(t(($) => $['creation.errorTip'], { ns: 'datasetPipeline' }))
+      onError: (caughtError) => {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['creation.errorTip'], { ns: 'datasetPipeline' })),
+        )
       },
     })
   }, [createEmptyDataset, push, invalidDatasetList, t])

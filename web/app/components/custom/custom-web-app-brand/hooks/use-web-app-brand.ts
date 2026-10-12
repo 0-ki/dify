@@ -9,6 +9,7 @@ import { toast } from '@/app/notifications'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { hasPermission } from '@/utils/permission'
 
 const MAX_LOGO_FILE_SIZE = 5 * 1024 * 1024
@@ -70,7 +71,7 @@ const useWebAppBrand = () => {
             t(($) => $['imageUploader.uploadFromComputerUploadError'], { ns: 'common' }),
             t,
           )
-          toast.error(errorMessage)
+          reportErrorOnce(error, () => toast.error(errorMessage))
           setUploadProgress(-1)
         },
       },

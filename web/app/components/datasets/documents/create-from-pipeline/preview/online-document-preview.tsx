@@ -8,6 +8,7 @@ import { Markdown } from '@/app/components/base/markdown'
 import { toast } from '@/app/notifications'
 import { useDatasetDetailContextWithSelector } from '@/context/dataset-detail'
 import { usePreviewOnlineDocument } from '@/service/use-pipeline'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { formatNumberAbbreviated } from '@/utils/format'
 import { useDataSourceStore } from '../data-source/store'
 import Loading from './loading'
@@ -45,7 +46,7 @@ const OnlineDocumentPreview = ({
           setContent(data.content)
         },
         onError(error) {
-          toast.error(error.message)
+          reportErrorOnce(error, () => toast.error(error.message))
         },
       },
     )

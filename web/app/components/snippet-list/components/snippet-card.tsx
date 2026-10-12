@@ -36,6 +36,7 @@ import {
   useUpdateSnippetMutation,
 } from '@/service/use-snippets'
 import { downloadBlob } from '@/utils/download'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { formatTime } from '@/utils/time'
 
 type Props = Readonly<{
@@ -97,8 +98,8 @@ const SnippetCard = ({
       const data = await exportSnippetMutation.mutateAsync({ snippetId: snippet.id })
       const file = new Blob([data], { type: 'application/yaml' })
       downloadBlob({ data: file, fileName: `${snippet.name}.yml` })
-    } catch {
-      toast.error(t(($) => $.exportFailed))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () => toast.error(t(($) => $.exportFailed)))
     }
   }
 
@@ -113,7 +114,9 @@ const SnippetCard = ({
           onRefresh?.()
         },
         onError: (error) => {
-          toast.error(error instanceof Error ? error.message : t(($) => $.deleteFailed))
+          reportErrorOnce(error, () =>
+            toast.error(error instanceof Error ? error.message : t(($) => $.deleteFailed)),
+          )
         },
       },
     )
@@ -134,7 +137,9 @@ const SnippetCard = ({
           onRefresh?.()
         },
         onError: (error) => {
-          toast.error(error instanceof Error ? error.message : t(($) => $.editFailed))
+          reportErrorOnce(error, () =>
+            toast.error(error instanceof Error ? error.message : t(($) => $.editFailed)),
+          )
         },
       },
     )

@@ -13,6 +13,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { useDeleteTriggerSubscription } from '@/service/use-triggers'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { useSubscriptionList } from './use-subscription-list'
 
 type Props = Readonly<{
@@ -51,10 +52,12 @@ export const DeleteConfirm = (props: Props) => {
         onClose(true)
       },
       onError: (error: unknown) => {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : t(($) => $[`${tPrefix}.error`], { ns: 'pluginTrigger', name: currentName }),
+        reportErrorOnce(error, () =>
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : t(($) => $[`${tPrefix}.error`], { ns: 'pluginTrigger', name: currentName }),
+          ),
         )
       },
     })

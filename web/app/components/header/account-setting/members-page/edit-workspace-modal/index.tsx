@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { currentWorkspaceAtom, isCurrentWorkspaceOwnerAtom } from '@/context/workspace-state'
 import { updateWorkspaceInfo } from '@/service/common'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 type IEditWorkspaceModalProps = {
   onCancel: () => void
@@ -45,8 +46,10 @@ const EditWorkspaceModal = ({ onCancel }: IEditWorkspaceModalProps) => {
         },
       })
       location.assign(`${location.origin}`)
-    } catch {
-      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+      )
     } finally {
       setIsSubmitting(false)
     }

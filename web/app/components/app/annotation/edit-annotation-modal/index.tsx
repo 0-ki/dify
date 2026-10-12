@@ -27,6 +27,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import useTimestamp from '@/hooks/use-timestamp'
 import { editAnnotation } from '@/service/annotation'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import EditItem, { EditItemType } from './edit-item'
 
 type Props = Readonly<{
@@ -75,7 +76,7 @@ const EditAnnotationModal: FC<Props> = ({
     } catch (error) {
       const fallbackMessage = t(($) => $['api.actionFailed'], { ns: 'common' }) as string
       const message = error instanceof Error && error.message ? error.message : fallbackMessage
-      toast.error(message)
+      reportErrorOnce(error, () => toast.error(message))
       // Re-throw to preserve edit mode behavior for UI components
       throw error
     }

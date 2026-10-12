@@ -4,6 +4,7 @@ import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { ServiceApiCardView } from '../shared/service-api-card-view'
 
 type EnvironmentServiceApiCardProps = {
@@ -41,8 +42,10 @@ export function EnvironmentServiceApiCard({
       scope: {
         id: `environment-service-api-toggle:${appId}:${environmentId}`,
       },
-      onError: () => {
-        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+      onError: (caughtError) => {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+        )
       },
     }),
   )

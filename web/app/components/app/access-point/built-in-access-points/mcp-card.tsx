@@ -27,6 +27,7 @@ import {
   useRefreshMCPServerCode,
 } from '@/service/use-tools'
 import { AppModeEnum } from '@/types/app'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { useAccessPointStatusLabel } from '../shared/use-access-point-status-label'
 import { getPublishedWorkflowNodes, isAdvancedApp } from '../shared/utils'
 
@@ -66,8 +67,10 @@ export function MCPAccessPointCard({
         id: `app-mcp-toggle:${appInfo.id}`,
       },
       onSuccess: () => invalidateServerDetail(appInfo.id),
-      onError: () => {
-        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+      onError: (caughtError) => {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+        )
       },
     }),
   )

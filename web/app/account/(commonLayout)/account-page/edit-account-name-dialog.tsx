@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 type EditAccountNameFormProps = {
   name: string
@@ -74,7 +75,7 @@ export function EditAccountNameDialog({ name }: { name: string }) {
       // HTTP error notifications are owned by the request layer.
       // Only report a failure that never produced a response.
       if (!(error instanceof ApiError) && error instanceof Error && error.message)
-        toast.error(error.message)
+        reportErrorOnce(error, () => toast.error(error.message))
     }
   }
 

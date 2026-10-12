@@ -1,7 +1,7 @@
 import type { AfterResponseHook, BeforeRequestHook, Hooks } from 'ky'
 import type { IOtherOptions } from './base'
 import Cookies from 'js-cookie'
-import ky from 'ky'
+import ky, { NetworkError, TimeoutError } from 'ky'
 import {
   API_PREFIX,
   APP_VERSION,
@@ -13,6 +13,7 @@ import {
   PUBLIC_API_PREFIX,
   WEB_APP_SHARE_CODE_HEADER_NAME,
 } from '@/config'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { ApiError } from './api-error'
 import { shouldSuppressAppDeletionErrorToast } from './app-deletion'
 import { clearRequestErrorToasts, notifyRequestError } from './request-error-toast'
@@ -53,14 +54,11 @@ const afterResponseErrorCode = (otherOptions: IOtherOptions): AfterResponseHook 
       const shouldNotifyError =
         response.status >= 400 &&
         response.status !== 401 &&
-        errorData &&
         !otherOptions.silent &&
         !shouldSuppressAppDeletionErrorToast(request.url, response.status)
 
-      const errorMessage = [errorData?.message, errorData?.error].find(
-        (value): value is string => typeof value === 'string' && !!value.trim(),
-      )
-      if (shouldNotifyError && errorMessage) notifyRequestError(request, errorMessage)
+      if (shouldNotifyError)
+        reportErrorOnce(error, () => notifyRequestError(request, error.message))
 
       if (response.status === 403 && errorData?.code === 'already_setup')
         globalThis.location.href = `${globalThis.location.origin}/signin`
@@ -189,6 +187,10 @@ async function base<T>(
       }
       return globalThis.fetch(resource, options)
     },
+  }).catch((error: unknown) => {
+    if (!otherOptions.silent && (error instanceof NetworkError || error instanceof TimeoutError))
+      reportErrorOnce(error, () => notifyRequestError(error.request, error.message))
+    throw error
   })
 
   if (needAllResponseContent || fetchCompat) return res as T

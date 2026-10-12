@@ -235,7 +235,7 @@ const useNodesSyncDraftBase = (getNodesReadOnly: () => boolean) => {
           !notRefreshWhenSyncError
         )
           handleRefreshWorkflowDraft(true)
-        callback?.onError?.()
+        callback?.onError?.(error)
         return null
       } finally {
         callback?.onSettled?.()
@@ -332,9 +332,9 @@ const useNodesSyncDraftBase = (getNodesReadOnly: () => boolean) => {
         setDraftUpdatedAt(result.updatedAt)
         callback?.onSuccess?.()
         return result
-      } catch {
+      } catch (error) {
         const { appId, isWorkflowDataLoaded } = workflowStore.getState()
-        if (!shouldSkipDraftSync(appId, isWorkflowDataLoaded)) callback?.onError?.()
+        if (!shouldSkipDraftSync(appId, isWorkflowDataLoaded)) callback?.onError?.(error)
         return null
       } finally {
         callback?.onSettled?.()

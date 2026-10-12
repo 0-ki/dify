@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { hasPermission } from '@/utils/permission'
 import { getTagManagePermissionKey } from '../utils'
 import { TagItemEditor } from './tag-item-editor'
@@ -58,8 +59,10 @@ export const TagManagementModal = ({
           toast.success(t(($) => $['tag.created'], { ns: 'common' }))
           setName('')
         },
-        onError: () => {
-          toast.error(t(($) => $['tag.failed'], { ns: 'common' }))
+        onError: (caughtError) => {
+          reportErrorOnce(caughtError, () =>
+            toast.error(t(($) => $['tag.failed'], { ns: 'common' })),
+          )
         },
       },
     )

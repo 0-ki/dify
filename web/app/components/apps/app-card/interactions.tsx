@@ -60,6 +60,7 @@ import { useGetUserCanAccessApp } from '@/service/access-control/use-app-access-
 import { consoleClient, consoleQuery } from '@/service/console'
 import { AppModeEnum } from '@/types/app'
 import { getRedirection } from '@/utils/app-redirection'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { getAppACLCapabilities, hasPermission } from '@/utils/permission'
 import { basePath } from '@/utils/var'
 
@@ -168,13 +169,13 @@ function AppCardOperationsMenuItems({
         },
         {
           onError: (error) => {
-            toast.error(`${error.message || error}`)
+            reportErrorOnce(error, () => toast.error(`${error.message || error}`))
           },
         },
       )
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : `${error}`
-      toast.error(message)
+      reportErrorOnce(error, () => toast.error(message))
     }
   }
 
@@ -328,15 +329,21 @@ export function AppCardInteractions({
           },
           onError: (error) => {
             const message = error instanceof Error ? error.message : ''
-            toast.error(
-              `${t(($) => $.appDeleteFailed, { ns: 'app' })}${message ? `: ${message}` : ''}`,
+            reportErrorOnce(error, () =>
+              toast.error(
+                `${t(($) => $.appDeleteFailed, { ns: 'app' })}${message ? `: ${message}` : ''}`,
+              ),
             )
           },
         },
       )
     } catch (error) {
       const message = error instanceof Error ? error.message : ''
-      toast.error(`${t(($) => $.appDeleteFailed, { ns: 'app' })}${message ? `: ${message}` : ''}`)
+      reportErrorOnce(error, () =>
+        toast.error(
+          `${t(($) => $.appDeleteFailed, { ns: 'app' })}${message ? `: ${message}` : ''}`,
+        ),
+      )
     }
   }, [app.id, deleteApp, t])
 
@@ -421,7 +428,9 @@ export function AppCardInteractions({
         })
         setActiveDialog(null)
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : t(($) => $.editFailed, { ns: 'app' }))
+        reportErrorOnce(e, () =>
+          toast.error(e instanceof Error ? e.message : t(($) => $.editFailed, { ns: 'app' })),
+        )
       }
     },
     [app.id, t, updateApp],
@@ -459,11 +468,16 @@ export function AppCardInteractions({
               isRbacEnabled,
             })
           },
-          onError: () => toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' })),
+          onError: (caughtError) =>
+            reportErrorOnce(caughtError, () =>
+              toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' })),
+            ),
         },
       )
-    } catch {
-      toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' }))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' })),
+      )
     }
     return Promise.resolve()
   }
@@ -495,16 +509,22 @@ export function AppCardInteractions({
           { params: { app_id: app.id } },
           {
             onError: (error) =>
-              toast.error(
-                error instanceof Error
-                  ? error.message
-                  : t(($) => $['studio.starFailed'], { ns: 'app' }),
+              reportErrorOnce(error, () =>
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : t(($) => $['studio.starFailed'], { ns: 'app' }),
+                ),
               ),
           },
         )
       } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : t(($) => $['studio.starFailed'], { ns: 'app' }),
+        reportErrorOnce(error, () =>
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : t(($) => $['studio.starFailed'], { ns: 'app' }),
+          ),
         )
       }
     },

@@ -71,6 +71,7 @@ import { useCanCreateAgents } from '@/features/agent-v2/permissions'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { consoleQuery } from '@/service/console'
 import { FlowType } from '@/types/common'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { useWorkflowInlineAgentConfigureSync } from '../agent-soul-config'
 import { InlineAgentLoading } from './inline-agent-loading'
 
@@ -569,8 +570,8 @@ function WorkflowInlineAgentConfigureWorkspaceContent({
         savedComposerState?.agent_soul ?? buildDraft.agentSoulConfig,
       )
       toast.success(t(($) => $['api.actionSuccess']))
-    } catch {
-      toast.error(t(($) => $['api.actionFailed']))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () => toast.error(t(($) => $['api.actionFailed'])))
     } finally {
       setIsApplyingInlineBuildDraft(false)
     }
@@ -591,8 +592,8 @@ function WorkflowInlineAgentConfigureWorkspaceContent({
       rebaseComposerDraftFromSoulConfig(agentSoulConfig)
       toast.success(t(($) => $['api.actionSuccess']))
       return true
-    } catch {
-      toast.error(t(($) => $['api.actionFailed']))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () => toast.error(t(($) => $['api.actionFailed'])))
       return false
     }
   }, [

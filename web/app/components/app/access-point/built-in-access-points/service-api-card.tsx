@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { getAccessPointStatus } from '@/app/components/base/access-point/status'
 import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { ServiceApiCardView } from '../shared/service-api-card-view'
 import { getBuiltInAccessUrls } from '../shared/utils'
 
@@ -29,8 +30,10 @@ export function ServiceApiAccessPointCard({
       scope: {
         id: `app-service-api-toggle:${appInfo.id}`,
       },
-      onError: () => {
-        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+      onError: (caughtError) => {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+        )
       },
     }),
   )

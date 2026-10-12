@@ -124,7 +124,7 @@ export const useNodesSyncDraft = (snippetId: string) => {
           !notRefreshWhenSyncError
         )
           handleRefreshWorkflowDraft(onRefresh)
-        callback?.onError?.()
+        callback?.onError?.(error)
         return undefined
       } finally {
         callback?.onSettled?.()

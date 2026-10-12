@@ -22,6 +22,7 @@ import { consoleQuery } from '@/service/console'
 import { updateDatasetSetting } from '@/service/datasets'
 import { useInvalidDatasetList } from '@/service/knowledge/use-dataset'
 import { useMembers } from '@/service/use-common'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { getDatasetACLCapabilities } from '@/utils/permission'
 import { checkShowMultiModalTip } from '../../utils'
 
@@ -223,8 +224,10 @@ export const useFormState = () => {
         await mutateDatasets()
         invalidDatasetList()
       }
-    } catch {
-      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+      )
     } finally {
       setLoading(false)
     }

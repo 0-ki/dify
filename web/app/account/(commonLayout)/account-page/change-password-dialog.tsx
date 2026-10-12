@@ -22,6 +22,7 @@ import { validPassword } from '@/config'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
 import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 type ChangePasswordFormValues = {
   'current-password'?: string
@@ -173,7 +174,7 @@ export function ChangePasswordDialog({ isPasswordSet }: { isPasswordSet: boolean
       // HTTP error notifications are owned by the request layer.
       // Only report a failure that never produced a response.
       if (!(error instanceof ApiError) && error instanceof Error && error.message)
-        toast.error(error.message)
+        reportErrorOnce(error, () => toast.error(error.message))
     }
   }
 

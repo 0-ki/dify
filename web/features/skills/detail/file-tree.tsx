@@ -72,6 +72,7 @@ import HelpMenu from '@/app/components/main-nav/components/help-menu'
 import { toast } from '@/app/notifications'
 import Link from '@/next/link'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { fetchSkillFileBlob, uploadSkillFile } from '../client'
 import { SkillDropDestinationHint, SkillUploadStatusPanel } from './file-tree-dnd'
 import { FileTreeItem, FileTreeNameInput, RootFileActionMenuItems } from './file-tree-items'
@@ -481,8 +482,10 @@ export function FileTree({
       })
       setUploadReviewItems(reviewItems)
       setUploadReviewOpen(true)
-    } catch {
-      toast.error(t(($) => $['skillManagement.detail.uploadCheckFailed']))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['skillManagement.detail.uploadCheckFailed'])),
+      )
     }
   }
 

@@ -20,6 +20,7 @@ import { toast } from '@/app/notifications'
 import { useFormatTimeFromNow } from '@/hooks/use-format-time-from-now'
 import { consoleQuery } from '@/service/console'
 import { downloadBlob } from '@/utils/download'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { fetchSkillFileBlob } from '../client'
 import { FileTabs } from './file-tabs'
 import {
@@ -318,8 +319,10 @@ export function FileEditor({
       if (!file) return
       downloadBlob({ data: blob, fileName: getPathBaseName(file.path) })
     },
-    onError: () => {
-      toast.error(t(($) => $['skillManagement.detail.loadFailed']))
+    onError: (caughtError) => {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['skillManagement.detail.loadFailed'])),
+      )
     },
   })
 
@@ -429,15 +432,17 @@ export function FileEditor({
             setSaveStatus('saved')
             onSaveConflictConfirm(handleSaveConflictReloadRef.current)
             return false
-          } catch {
+          } catch (caughtError) {
             setSaveStatus('error')
-            toast.error(t(($) => $['skillManagement.detail.saveFailed']))
+            reportErrorOnce(caughtError, () =>
+              toast.error(t(($) => $['skillManagement.detail.saveFailed'])),
+            )
             return false
           }
         }
 
         setSaveStatus('error')
-        toast.error(t(($) => $['skillManagement.detail.saveFailed']))
+        reportErrorOnce(error, () => toast.error(t(($) => $['skillManagement.detail.saveFailed'])))
         return false
       }
     },

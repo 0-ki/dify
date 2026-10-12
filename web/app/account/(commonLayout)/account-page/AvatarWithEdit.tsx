@@ -17,6 +17,7 @@ import { toast } from '@/app/notifications'
 import { DISABLE_UPLOAD_IMAGE_AS_ICON } from '@/config'
 import { consoleQuery } from '@/service/console'
 import { getAvatarInitial } from '@/utils/avatar'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { createAvatarImageFile, createCroppedAvatarImage } from './avatar-image'
 
 type AvatarWithEditProps = {
@@ -44,7 +45,7 @@ const AvatarWithEdit = ({ avatar, name, size }: AvatarWithEditProps) => {
         await updateProfile({ body: { avatar: uploadedFileId } })
         setIsShowAvatarPicker(false)
       } catch (e) {
-        toast.error((e as Error).message)
+        reportErrorOnce(e, () => toast.error((e as Error).message))
       }
     },
     [updateProfile],
@@ -55,7 +56,7 @@ const AvatarWithEdit = ({ avatar, name, size }: AvatarWithEditProps) => {
       await updateProfile({ body: { avatar: '' } })
       setIsShowDeleteConfirm(false)
     } catch (e) {
-      toast.error((e as Error).message)
+      reportErrorOnce(e, () => toast.error((e as Error).message))
     }
   }, [updateProfile])
 

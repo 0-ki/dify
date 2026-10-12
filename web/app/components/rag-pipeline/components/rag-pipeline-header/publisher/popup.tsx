@@ -45,6 +45,7 @@ import { useInvalidDatasetList } from '@/service/knowledge/use-dataset'
 import { useInvalid } from '@/service/use-base'
 import { publishedPipelineInfoQueryKeyPrefix } from '@/service/use-pipeline'
 import { usePublishWorkflow } from '@/service/use-workflow'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { getDatasetACLCapabilities } from '@/utils/permission'
 import { RAG_PIPELINE_PUBLISH_HOTKEY } from '../hotkeys'
 
@@ -169,8 +170,10 @@ export function Popup({
             invalidDatasetList()
           }
         }
-      } catch {
-        toast.error(t(($) => $['publishPipeline.error.message'], { ns: 'datasetPipeline' }))
+      } catch (caughtError) {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['publishPipeline.error.message'], { ns: 'datasetPipeline' })),
+        )
       } finally {
         if (startedPublishing) hidePublishing()
         if (confirmVisible) handleHideConfirm()

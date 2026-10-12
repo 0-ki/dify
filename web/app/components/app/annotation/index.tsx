@@ -37,6 +37,7 @@ import {
 import { consoleQuery } from '@/service/console'
 import { AppModeEnum } from '@/types/app'
 import { sleep } from '@/utils'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import PageTitle from '../log-annotation/page-title'
 import EmptyElement from './empty-element'
 import Filter from './filter'
@@ -145,7 +146,9 @@ const Annotation: FC<Props> = (props) => {
       setControlUpdateList(Date.now())
       setSelectedIds([])
     } catch (e: any) {
-      toast.error(e.message || t(($) => $['api.actionFailed'], { ns: 'common' }))
+      reportErrorOnce(e, () =>
+        toast.error(e.message || t(($) => $['api.actionFailed'], { ns: 'common' })),
+      )
       throw e
     }
   }

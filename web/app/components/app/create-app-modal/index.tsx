@@ -32,6 +32,7 @@ import { consoleQuery } from '@/service/console'
 import { AppModeEnum } from '@/types/app'
 import { getRedirection } from '@/utils/app-redirection'
 import { trackCreateApp } from '@/utils/create-app-tracking'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { hasPermission } from '@/utils/permission'
 import { basePath } from '@/utils/var'
 import { CreateAppDialogShell } from '../create-app-dialog-shell'
@@ -141,10 +142,12 @@ function CreateApp({ onClose, onCreateFromTemplate, defaultAppMode }: CreateAppP
         isRbacEnabled,
       })
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t(($) => $['newApp.appCreateFailed'], { ns: 'app' }),
+      reportErrorOnce(error, () =>
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t(($) => $['newApp.appCreateFailed'], { ns: 'app' }),
+        ),
       )
     } finally {
       creatingRef.current = false

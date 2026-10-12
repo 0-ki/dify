@@ -33,6 +33,7 @@ import { datasetDetailQueryKeyPrefix, useInvalidDatasetList } from '@/service/kn
 import { useInvalid } from '@/service/use-base'
 import { useExportPipelineDSL } from '@/service/use-pipeline'
 import { downloadBlob } from '@/utils/download'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { getDatasetACLCapabilities } from '@/utils/permission'
 import RenameDatasetModal from '../../datasets/rename-modal'
 
@@ -108,8 +109,8 @@ const DropDown = ({ expand, triggerClassName }: DropDownProps) => {
         })
         const file = new Blob([data], { type: 'application/yaml' })
         downloadBlob({ data: file, fileName: `${name}.pipeline` })
-      } catch {
-        toast.error(t(($) => $.exportFailed, { ns: 'app' }))
+      } catch (caughtError) {
+        reportErrorOnce(caughtError, () => toast.error(t(($) => $.exportFailed, { ns: 'app' })))
       }
     },
     [dataset, exportPipelineConfig, t],

@@ -35,6 +35,7 @@ import {
 } from '@/service/knowledge/use-segment'
 import { useInvalid } from '@/service/use-base'
 import { segmentImportStatus } from '@/types/dataset'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { getDatasetACLCapabilities } from '@/utils/permission'
 import Operations from '../components/operations'
 import StatusItem from '../status-item'
@@ -105,8 +106,10 @@ const DocumentDetail: FC<DocumentDetailProps> = ({ datasetId, documentId }) => {
         },
         onError: (e) => {
           const message = 'message' in e ? `: ${e.message}` : ''
-          toast.error(
-            `${t(($) => $['list.batchModal.runError'], { ns: 'datasetDocuments' })}${message}`,
+          reportErrorOnce(e, () =>
+            toast.error(
+              `${t(($) => $['list.batchModal.runError'], { ns: 'datasetDocuments' })}${message}`,
+            ),
           )
         },
       },
@@ -127,8 +130,10 @@ const DocumentDetail: FC<DocumentDetailProps> = ({ datasetId, documentId }) => {
         },
         onError: (e) => {
           const message = 'message' in e ? `: ${e.message}` : ''
-          toast.error(
-            `${t(($) => $['list.batchModal.runError'], { ns: 'datasetDocuments' })}${message}`,
+          reportErrorOnce(e, () =>
+            toast.error(
+              `${t(($) => $['list.batchModal.runError'], { ns: 'datasetDocuments' })}${message}`,
+            ),
           )
         },
       },

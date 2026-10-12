@@ -16,6 +16,7 @@ import {
   useInitiateTriggerOAuth,
   useVerifyAndUpdateTriggerSubscriptionBuilder,
 } from '@/service/use-triggers'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 export const AuthorizationStatusEnum = {
   Pending: 'pending',
@@ -128,9 +129,11 @@ export const useOAuthClientState = ({
           showOAuthCreateModal(response.subscription_builder)
         })
       },
-      onError: () => {
+      onError: (caughtError) => {
         setAuthorizationStatus(AuthorizationStatusEnum.Failed)
-        toast.error(t(($) => $['modal.oauth.authorization.authFailed'], { ns: 'pluginTrigger' }))
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['modal.oauth.authorization.authFailed'], { ns: 'pluginTrigger' })),
+        )
       },
     })
   }, [providerName, initiateOAuth, onOpenChange, showOAuthCreateModal, t])
@@ -143,10 +146,12 @@ export const useOAuthClientState = ({
         toast.success(t(($) => $['modal.oauth.remove.success'], { ns: 'pluginTrigger' }))
       },
       onError: (error: unknown) => {
-        toast.error(
-          getErrorMessage(
-            error,
-            t(($) => $['modal.oauth.remove.failed'], { ns: 'pluginTrigger' }),
+        reportErrorOnce(error, () =>
+          toast.error(
+            getErrorMessage(
+              error,
+              t(($) => $['modal.oauth.remove.failed'], { ns: 'pluginTrigger' }),
+            ),
           ),
         )
       },

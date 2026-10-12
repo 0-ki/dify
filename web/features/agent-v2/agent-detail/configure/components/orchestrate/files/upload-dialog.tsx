@@ -29,6 +29,7 @@ import { toast } from '@/app/notifications'
 import { getFileIconType } from '@/features/agent-v2/file-icon'
 import { consoleQuery } from '@/service/console'
 import { useFileUploadConfig } from '@/service/use-common'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { formatFileSize } from '@/utils/format'
 
 function toAgentFileNode(committedFile: AgentConfigFileItemResponse): AgentFileNode {
@@ -241,7 +242,7 @@ export function AgentFileUploadDialog({
     uploadedFile: FileResponse,
     options: {
       onSuccess: (committedFile: AgentConfigFileUploadResponse) => void
-      onError: () => void
+      onError: (error: unknown) => void
     },
   ) => {
     const body = {
@@ -299,13 +300,17 @@ export function AgentFileUploadDialog({
               setFile(undefined)
               onOpenChange(false)
             },
-            onError: () => {
-              toast.error(t(($) => $['agentDetail.configure.files.upload.failed']))
+            onError: (caughtError) => {
+              reportErrorOnce(caughtError, () =>
+                toast.error(t(($) => $['agentDetail.configure.files.upload.failed'])),
+              )
             },
           })
         },
-        onError: () => {
-          toast.error(t(($) => $['agentDetail.configure.files.upload.failed']))
+        onError: (caughtError) => {
+          reportErrorOnce(caughtError, () =>
+            toast.error(t(($) => $['agentDetail.configure.files.upload.failed'])),
+          )
         },
       },
     )

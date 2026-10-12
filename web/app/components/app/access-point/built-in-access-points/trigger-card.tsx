@@ -19,6 +19,7 @@ import { consoleQuery } from '@/service/console'
 import { useAppTriggers, useInvalidateAppTriggers } from '@/service/use-tools'
 import { useAllTriggerPlugins } from '@/service/use-triggers'
 import { canFindTool } from '@/utils'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { useAccessPointStatusLabel } from '../shared/use-access-point-status-label'
 
 function TriggerIcon({
@@ -71,8 +72,10 @@ function TriggerAccessPointItem({
         id: `app-trigger-toggle:${appId}:${trigger.id}`,
       },
       onSuccess: () => invalidateTriggers(appId),
-      onError: () => {
-        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+      onError: (caughtError) => {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+        )
       },
     }),
   )

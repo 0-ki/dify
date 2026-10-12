@@ -17,6 +17,7 @@ import {
   useInvalidateWorkflowToolDetailByAppID,
   useWorkflowToolDetailByAppID,
 } from '@/service/use-tools'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 // region Pure helpers
 
@@ -192,7 +193,7 @@ export function useConfigureButton(options: UseConfigureButtonOptions) {
       toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }))
       onConfigured?.()
     } catch (e) {
-      toast.error((e as Error).message)
+      reportErrorOnce(e, () => toast.error((e as Error).message))
     }
   }
 
@@ -212,7 +213,7 @@ export function useConfigureButton(options: UseConfigureButtonOptions) {
       toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }))
       onConfigured?.()
     } catch (e) {
-      toast.error((e as Error).message)
+      reportErrorOnce(e, () => toast.error((e as Error).message))
     }
   }
 

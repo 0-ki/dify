@@ -863,7 +863,7 @@ describe('EnvPanel container', () => {
     mockFindUsedVarNodes.mockReturnValue([])
     mockUpdateEnvironmentVariables.mockRejectedValueOnce(new Error('environment API failed'))
     mockDoSyncWorkflowDraft.mockImplementationOnce(async (_notRefresh, callback) => {
-      callback?.onError?.()
+      callback?.onError?.(new Error('Draft sync failed'))
     })
 
     const { store } = renderWithProviders(<EnvPanel />, {
@@ -897,7 +897,7 @@ describe('EnvPanel container', () => {
     })
     mockUpdateEnvironmentVariables.mockRejectedValueOnce(new Error('environment API failed'))
     mockDoSyncWorkflowDraft.mockImplementationOnce(async (_notRefresh, callback) => {
-      callback?.onError?.()
+      callback?.onError?.(new Error('Draft sync failed'))
     })
     mockFetchWorkflowDraft.mockResolvedValueOnce({ environment_variables: [remoteEnv] })
 
@@ -936,7 +936,7 @@ describe('EnvPanel container', () => {
       }),
     )
     mockDoSyncWorkflowDraft.mockImplementationOnce(async (_notRefresh, callback) => {
-      callback?.onError?.()
+      callback?.onError?.(new Error('Draft sync failed'))
     })
 
     const { store } = renderWithProviders(<EnvPanel />, {
@@ -972,7 +972,7 @@ describe('EnvPanel container', () => {
     mockVariableTriggerState.savePayload = savedEnv
     mockUpdateEnvironmentVariables.mockRejectedValueOnce(new Error('response lost'))
     mockDoSyncWorkflowDraft.mockImplementationOnce(async (_notRefresh, callback) => {
-      callback?.onError?.()
+      callback?.onError?.(new Error('Draft sync failed'))
     })
     mockFetchWorkflowDraft.mockResolvedValueOnce({ environment_variables: [savedEnv] })
 
@@ -1033,7 +1033,7 @@ describe('EnvPanel container', () => {
           },
         },
       ])
-      callback?.onError?.()
+      callback?.onError?.(new Error('Draft sync failed'))
     })
 
     const { store } = renderWithProviders(<EnvPanel />, {

@@ -17,6 +17,7 @@ import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
 import { toast } from '@/app/notifications'
 import { getFileIconType } from '@/features/agent-v2/file-icon'
 import { consoleClient, consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import {
   getSkillErrorCode,
   getSkillErrorDetailNumber,

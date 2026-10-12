@@ -14,6 +14,7 @@ import useTheme from '@/hooks/use-theme'
 import { upload } from '@/service/base'
 import { useFileUploadConfig } from '@/service/use-common'
 import { Theme } from '@/types/app'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 type Props = Readonly<{
   file: FileItem | undefined
@@ -80,7 +81,7 @@ const CSVUploader: FC<Props> = ({ file, updateFile }) => {
             t(($) => $['stepOne.uploader.failed'], { ns: 'datasetCreation' }),
             t,
           )
-          toast.error(errorMessage)
+          reportErrorOnce(e, () => toast.error(errorMessage))
           const errorFile = {
             ...fileItem,
             progress: -2,

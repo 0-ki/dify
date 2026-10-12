@@ -41,6 +41,7 @@ import { useRouter } from '@/next/navigation'
 import { fetchWorkflowDraft } from '@/service/workflow'
 import { generateWorkflow, generateWorkflowStream } from '@/service/workflow-generator'
 import { getRedirectionPath } from '@/utils/app-redirection'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import {
   applyToCurrentApp,
   applyToNewApp,
@@ -426,9 +427,11 @@ function WorkflowGeneratorModal() {
             .catch((e: unknown) => {
               if (isAbortError(e)) return
               const message = e instanceof Error ? e.message : ''
-              toast.error(
-                message ||
-                  t(($) => $['workflowGenerator.generateFailed'], { ns: 'workflowGenerator' }),
+              reportErrorOnce(e, () =>
+                toast.error(
+                  message ||
+                    t(($) => $['workflowGenerator.generateFailed'], { ns: 'workflowGenerator' }),
+                ),
               )
             })
             .finally(finish)
@@ -485,16 +488,22 @@ function WorkflowGeneratorModal() {
       if (e instanceof WorkflowApplyOrphanError) {
         // Sync failed AND we couldn't roll back. Route the user to /apps so
         // the orphan is still discoverable — they can delete it by hand.
-        toast.error(
-          t(($) => $['workflowGenerator.errors.apply_failed_orphan'], { ns: 'workflowGenerator' }),
+        reportErrorOnce(e, () =>
+          toast.error(
+            t(($) => $['workflowGenerator.errors.apply_failed_orphan'], {
+              ns: 'workflowGenerator',
+            }),
+          ),
         )
         closeGenerator()
         router.push('/apps')
         return
       }
       const message = e instanceof Error ? e.message : ''
-      toast.error(
-        message || t(($) => $['workflowGenerator.applyFailed'], { ns: 'workflowGenerator' }),
+      reportErrorOnce(e, () =>
+        toast.error(
+          message || t(($) => $['workflowGenerator.applyFailed'], { ns: 'workflowGenerator' }),
+        ),
       )
     } finally {
       setApplyingFalse()
@@ -538,8 +547,10 @@ function WorkflowGeneratorModal() {
         return
       }
       const message = e instanceof Error ? e.message : ''
-      toast.error(
-        message || t(($) => $['workflowGenerator.applyFailed'], { ns: 'workflowGenerator' }),
+      reportErrorOnce(e, () =>
+        toast.error(
+          message || t(($) => $['workflowGenerator.applyFailed'], { ns: 'workflowGenerator' }),
+        ),
       )
     } finally {
       setApplyingFalse()

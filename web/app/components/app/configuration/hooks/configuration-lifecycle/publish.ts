@@ -22,6 +22,7 @@ import { toast } from '@/app/components/app/configuration/toast'
 import { DEFAULT_CHAT_PROMPT_CONFIG, DEFAULT_COMPLETION_PROMPT_CONFIG } from '@/config'
 import { PromptMode } from '@/models/debug'
 import { AgentStrategy, AppModeEnum, ModelModeType } from '@/types/app'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { promptVariablesToUserInputsForm } from '@/utils/model-config'
 import { normalizeChatPromptConfig, normalizeCompletionPromptConfig } from './prompt-config'
 
@@ -221,7 +222,7 @@ export const createPublishHandler =
       })
       payload = zAppModelConfigPayload.parse(body)
     } catch (error) {
-      toast.error(t(($) => $['api.actionFailed'], { ns: 'common' }))
+      reportErrorOnce(error, () => toast.error(t(($) => $['api.actionFailed'], { ns: 'common' })))
       throw error
     }
 

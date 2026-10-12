@@ -157,13 +157,18 @@ export const updateEnvironmentVariables = ({
 }: {
   appId: string
 } & EnvironmentVariablePatch) => {
-  return post<CommonResponse>(`apps/${appId}/workflows/draft/environment-variables`, {
-    body: {
-      environment_variables: environmentVariables,
-      patch: true,
-      deleted_environment_variable_ids: deletedEnvironmentVariableIds,
+  // EnvPanel owns recovery through a draft sync and reports only if both paths fail.
+  return consoleClient.apps.byAppId.workflows.draft.environmentVariables.post(
+    {
+      params: { app_id: appId },
+      body: {
+        environment_variables: environmentVariables,
+        patch: true,
+        deleted_environment_variable_ids: deletedEnvironmentVariableIds,
+      },
     },
-  })
+    { context: { silent: true } },
+  )
 }
 
 export const updateConversationVariables = ({

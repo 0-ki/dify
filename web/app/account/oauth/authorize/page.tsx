@@ -23,6 +23,7 @@ import { useRouter, useSearchParams } from '@/next/navigation'
 import { consoleQuery } from '@/service/console'
 import { useLogout } from '@/service/use-common'
 import { getAvatarInitial } from '@/utils/avatar'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { buildOAuthCallbackUrl, buildReturnUrl, useSilentAuthorize } from './use-silent-authorize'
 
 export default function OAuthAuthorize() {
@@ -134,7 +135,9 @@ export default function OAuthAuthorize() {
       globalThis.location.href = buildOAuthCallbackUrl(redirectUri, code, state)
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error)
-      toast.error(`${t(($) => $['error.authorizeFailed'], { ns: 'oauth' })}: ${message}`)
+      reportErrorOnce(error, () =>
+        toast.error(`${t(($) => $['error.authorizeFailed'], { ns: 'oauth' })}: ${message}`),
+      )
     }
   }
 

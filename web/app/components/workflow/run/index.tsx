@@ -9,6 +9,7 @@ import { LoadingPlaceholder } from '@/app/components/base/loading-placeholder'
 import { WorkflowRunningStatus } from '@/app/components/workflow/types'
 import { toast } from '@/app/notifications'
 import { fetchRunDetail, fetchTracingList } from '@/service/log'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { useStore } from '../store'
 import OutputPanel from './output-panel'
 import ResultPanel from './result-panel'
@@ -98,7 +99,7 @@ function RunSession({
         if (getResultCallback) getResultCallback(res)
       } catch (err) {
         if (lifetime.active && request === lifetime.detailRequest)
-          toast.error(err instanceof Error ? err.message : String(err))
+          reportErrorOnce(err, () => toast.error(err instanceof Error ? err.message : String(err)))
       } finally {
         if (lifetime.active && request === lifetime.detailRequest) {
           lifetime.detailSettled = true
@@ -119,7 +120,7 @@ function RunSession({
         if (lifetime.active && request === lifetime.tracingRequest) setList(nodeList)
       } catch (err) {
         if (lifetime.active && request === lifetime.tracingRequest)
-          toast.error(err instanceof Error ? err.message : String(err))
+          reportErrorOnce(err, () => toast.error(err instanceof Error ? err.message : String(err)))
       } finally {
         if (lifetime.active && request === lifetime.tracingRequest) {
           lifetime.tracingSettled = true

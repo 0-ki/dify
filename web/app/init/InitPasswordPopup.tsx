@@ -8,6 +8,7 @@ import { toast } from '@/app/notifications'
 import useDocumentTitle from '@/hooks/use-document-title'
 import { useRouter } from '@/next/navigation'
 import { fetchInitValidateStatus, initValidate } from '@/service/common'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { basePath } from '@/utils/var'
 
 const InitPasswordPopup = () => {
@@ -31,7 +32,7 @@ const InitPasswordPopup = () => {
         throw new Error('Validation failed')
       }
     } catch (e: any) {
-      toast.error(e.message)
+      reportErrorOnce(e, () => toast.error(e.message))
       setLoading(false)
     }
   }

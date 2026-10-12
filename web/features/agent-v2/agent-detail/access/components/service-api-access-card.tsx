@@ -12,6 +12,7 @@ import { toast } from '@/app/notifications'
 import { useDocLink } from '@/context/i18n'
 import { useAgentPermissions } from '@/features/agent-v2/permissions'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { AgentApiKeyModal } from './agent-api-key-modal'
 
 export function ServiceApiAccessCard({ agentId }: { agentId: string }) {
@@ -48,8 +49,10 @@ export function ServiceApiAccessCard({ agentId }: { agentId: string }) {
               : agentDetail,
         )
       },
-      onError: () => {
-        toast.error(tCommon(($) => $['actionMsg.modifiedUnsuccessfully']))
+      onError: (caughtError) => {
+        reportErrorOnce(caughtError, () =>
+          toast.error(tCommon(($) => $['actionMsg.modifiedUnsuccessfully'])),
+        )
       },
     }),
   )

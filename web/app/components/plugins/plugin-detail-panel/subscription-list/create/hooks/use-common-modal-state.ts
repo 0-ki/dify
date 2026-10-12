@@ -19,6 +19,7 @@ import {
   useUpdateTriggerSubscriptionBuilder,
   useVerifyAndUpdateTriggerSubscriptionBuilder,
 } from '@/service/use-triggers'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { parsePluginErrorMessage } from '@/utils/error-parser'
 import { usePluginStore } from '../../../store'
 import { useSubscriptionList } from '../../use-subscription-list'
@@ -168,7 +169,7 @@ export const useCommonModalState = ({
                 (await parsePluginErrorMessage(error)) ||
                 t(($) => $['modal.errors.updateFailed'], { ns: 'pluginTrigger' })
               console.error('Failed to update subscription builder:', error)
-              toast.error(errorMessage)
+              reportErrorOnce(error, () => toast.error(errorMessage))
             },
           },
         )
@@ -301,7 +302,7 @@ export const useCommonModalState = ({
         const errorMessage =
           (await parsePluginErrorMessage(error)) ||
           t(($) => $['subscription.createFailed'], { ns: 'pluginTrigger' })
-        toast.error(errorMessage)
+        reportErrorOnce(error, () => toast.error(errorMessage))
       },
     })
   }, [

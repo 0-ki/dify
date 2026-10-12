@@ -32,6 +32,7 @@ import { useRouter } from '@/next/navigation'
 import { consoleQuery } from '@/service/console'
 import { AppModeEnum } from '@/types/app'
 import { getRedirection } from '@/utils/app-redirection'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 type SwitchAppModalProps = {
   show: boolean
@@ -114,8 +115,10 @@ const SwitchAppModal = ({ show, sourceApp, onClose }: SwitchAppModalProps) => {
         removeOriginal ? replace : push,
         { isRbacEnabled },
       )
-    } catch {
-      toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' }))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' })),
+      )
     }
   }
 

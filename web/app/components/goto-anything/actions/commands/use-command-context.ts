@@ -8,6 +8,7 @@ import { toast } from '@/app/notifications'
 import { useDocLink } from '@/context/i18n'
 import { setLocaleOnClient } from '@/i18n/client'
 import { useRouter } from '@/next/navigation'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 const openExternal = (url: string) => {
   window.open(url, '_blank', 'noopener,noreferrer')
@@ -43,7 +44,7 @@ export function useCommandContext(
       navigate: push,
       onError: (error) => {
         console.error('Goto Anything command failed:', error)
-        toast.error(t(($) => $['api.actionFailed'], { ns: 'common' }))
+        reportErrorOnce(error, () => toast.error(t(($) => $['api.actionFailed'], { ns: 'common' })))
       },
       openExternal,
       openGenerator,

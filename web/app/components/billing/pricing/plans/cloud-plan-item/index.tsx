@@ -17,6 +17,7 @@ import { toast } from '@/app/notifications'
 import { isCurrentWorkspaceManagerAtom } from '@/context/workspace-state'
 import { useAsyncWindowOpen } from '@/hooks/use-async-window-open'
 import { consoleClient } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { ALL_PLANS } from '../../../config'
 import { useEducationDiscount } from '../../../hooks/use-education-discount'
 import Professional from '../../assets/professional'
@@ -109,7 +110,7 @@ export function CloudPlanItem({ plan, billingInterval, billing }: CloudPlanItemP
           },
           {
             onError: (err) => {
-              toast.error(err.message || String(err))
+              reportErrorOnce(err, () => toast.error(err.message || String(err)))
             },
           },
         )

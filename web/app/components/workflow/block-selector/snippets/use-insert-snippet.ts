@@ -9,6 +9,7 @@ import { useStoreApi } from 'reactflow'
 import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
 import { useIncrementSnippetUseCountMutation } from '@/service/use-snippets'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { CUSTOM_EDGE, NESTED_ELEMENT_Z_INDEX, NODE_WIDTH_X_OFFSET, X_OFFSET } from '../../constants'
 import { useNodesSyncDraft } from '../../hooks/use-nodes-sync-draft'
 import { useWorkflowHistory, WorkflowHistoryEvent } from '../../hooks/use-workflow-history'
@@ -573,8 +574,10 @@ export const useInsertSnippet = () => {
         })
         return true
       } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : t(($) => $.createFailed, { ns: 'snippet' }),
+        reportErrorOnce(error, () =>
+          toast.error(
+            error instanceof Error ? error.message : t(($) => $.createFailed, { ns: 'snippet' }),
+          ),
         )
         return false
       }

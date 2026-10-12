@@ -16,6 +16,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 type TagItemEditorProps = {
   tag: Tag
@@ -51,8 +52,10 @@ export const TagItemEditor = ({ tag, onTagsChange }: TagItemEditorProps) => {
           setIsEditing(false)
           onTagsChange?.()
         },
-        onError: () => {
-          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+        onError: (caughtError) => {
+          reportErrorOnce(caughtError, () =>
+            toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+          )
           setIsEditing(false)
         },
       },
@@ -73,8 +76,10 @@ export const TagItemEditor = ({ tag, onTagsChange }: TagItemEditorProps) => {
           toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
           onTagsChange?.()
         },
-        onError: () => {
-          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+        onError: (caughtError) => {
+          reportErrorOnce(caughtError, () =>
+            toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+          )
         },
       },
     )

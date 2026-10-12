@@ -18,6 +18,7 @@ import {
   useRestoreWorkflow,
 } from '@/service/use-workflow'
 import { FlowType } from '@/types/common'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { useHooksStore } from '../hooks-store'
 import { useWorkflowRefreshDraft } from '../hooks/use-workflow-refresh-draft'
 import { useWorkflowRun } from '../hooks/use-workflow-run'
@@ -143,8 +144,10 @@ const HeaderInRestoring = ({ onRestoreSettled }: HeaderInRestoringProps) => {
       invalidAllLastRun()
       await emitRestoreComplete(true)
       await emitWorkflowUpdate()
-    } catch {
-      toast.error(t(($) => $['versionHistory.action.restoreFailure'], { ns: 'workflowHistory' }))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['versionHistory.action.restoreFailure'], { ns: 'workflowHistory' })),
+      )
       await emitRestoreComplete(false, 'restore failed')
     } finally {
       resetWorkflowVersionHistory()

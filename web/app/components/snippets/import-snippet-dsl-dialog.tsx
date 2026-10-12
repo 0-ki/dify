@@ -27,6 +27,7 @@ import {
   useConfirmSnippetImportMutation,
   useImportSnippetDSLMutation,
 } from '@/service/use-snippets'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { canCreateAndModifySnippets } from './utils/permission'
 
 type ImportSnippetDSLDialogProps = {
@@ -191,7 +192,7 @@ function ImportSnippetDSLDialog({ isOpen, onClose }: ImportSnippetDSLDialogProps
     } catch (error) {
       // HTTP error notifications are owned by the request layer.
       if (!(error instanceof ApiError) && error instanceof Error && error.message)
-        toast.error(error.message)
+        reportErrorOnce(error, () => toast.error(error.message))
     }
   }, [
     canCreateAndModifySnippet,
@@ -211,7 +212,7 @@ function ImportSnippetDSLDialog({ isOpen, onClose }: ImportSnippetDSLDialogProps
     } catch (error) {
       // HTTP error notifications are owned by the request layer.
       if (!(error instanceof ApiError) && error instanceof Error && error.message)
-        toast.error(error.message)
+        reportErrorOnce(error, () => toast.error(error.message))
     }
   }, [canCreateAndModifySnippet, confirmSnippetImportMutation, handleImportResponse, importId])
 

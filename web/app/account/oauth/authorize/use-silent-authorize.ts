@@ -6,6 +6,7 @@ import { flushEvents } from '@/app/components/base/amplitude/utils'
 import { reportOAuthRegistrationIfNewUser } from '@/app/components/oauth-registration-attribution'
 import { toast } from '@/app/notifications'
 import { useRouter } from '@/next/navigation'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 export function buildReturnUrl(pathname: string, search: string) {
   try {
@@ -82,7 +83,9 @@ export function useSilentAuthorize({
       .catch((error: unknown) => {
         setAutoAuthorizationFailed(true)
         const message = error instanceof Error ? error.message : String(error)
-        toast.error(`${t(($) => $['error.authorizeFailed'], { ns: 'oauth' })}: ${message}`)
+        reportErrorOnce(error, () =>
+          toast.error(`${t(($) => $['error.authorizeFailed'], { ns: 'oauth' })}: ${message}`),
+        )
       })
   }, [
     authorize,

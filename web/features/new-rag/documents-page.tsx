@@ -24,6 +24,7 @@ import {
 } from '@/context/permission-state'
 import { ApiError } from '@/service/api-error'
 import { consoleClient, consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { DatasetACLPermission, hasPermission } from '@/utils/permission'
 import { useAuxiliaryTaskReadGuard } from './auxiliary-task-read-guard'
 import { DocumentBulkActions, DocumentsEmpty, DocumentsList } from './document-list'
@@ -1503,7 +1504,10 @@ export function DocumentsPage({ knowledgeSpaceId }: { knowledgeSpaceId: string }
         if (responseStatus(error) === 403) {
           writePermissionDenied = true
           handleWritePermissionDenied()
-        } else toast.error(t(($) => $['newKnowledge.documentUploadFailed']))
+        } else
+          reportErrorOnce(error, () =>
+            toast.error(t(($) => $['newKnowledge.documentUploadFailed'])),
+          )
       } finally {
         if (!writePermissionDenied) {
           writePermissionFocusRecoveryRequestedRef.current = false
@@ -1567,7 +1571,10 @@ export function DocumentsPage({ knowledgeSpaceId }: { knowledgeSpaceId: string }
       refreshDocumentsAndTasks()
     } catch (error) {
       if (responseStatus(error) === 403) handleWritePermissionDenied()
-      else toast.error(t(($) => $['newKnowledge.documentsReindexFailed']))
+      else
+        reportErrorOnce(error, () =>
+          toast.error(t(($) => $['newKnowledge.documentsReindexFailed'])),
+        )
     } finally {
       reindexPendingRef.current = false
       setReindexing(false)

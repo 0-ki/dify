@@ -11,6 +11,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { renameDocumentName } from '@/service/datasets'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 type Props = Readonly<{
   datasetId: string
@@ -40,7 +41,10 @@ const RenameModal: FC<Props> = ({ documentId, datasetId, name, onClose, onSaved 
       onSaved()
       onClose()
     } catch (error) {
-      if (error) toast.error(error instanceof Error ? error.message : String(error))
+      if (error)
+        reportErrorOnce(error, () =>
+          toast.error(error instanceof Error ? error.message : String(error)),
+        )
     } finally {
       setSaveLoadingFalse()
     }

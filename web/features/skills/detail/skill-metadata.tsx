@@ -28,6 +28,7 @@ import { TagManagementModal } from '@/features/tag-management/components/tag-man
 import { TagSearchContentView } from '@/features/tag-management/components/tag-search-content'
 import Link from '@/next/link'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { SkillPublishShortcut } from './publish-bar'
 import {
   invalidateSkillDetail,
@@ -142,9 +143,11 @@ export function SkillTagsEditor({
           queryKey: consoleQuery.workspaces.current.skills.get.key({ type: 'query' }),
         })
       })
-      .catch(() => {
+      .catch((caughtError) => {
         invalidateSkillDetail(queryClient, skillId)
-        toast.error(t(($) => $['skillManagement.detail.updateTagsFailed']))
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['skillManagement.detail.updateTagsFailed'])),
+        )
       })
       .finally(() => {
         setDraftTags(null)

@@ -38,6 +38,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import useTimestamp from '@/hooks/use-timestamp'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { RestoreVersionDialogContent } from './restore-version-dialog-content'
 import { getSkillVersionTitle, invalidateSkillDetail } from './shared'
 
@@ -245,8 +246,10 @@ function VersionRow({
           setRenameOpen(false)
           invalidateVersions()
         },
-        onError: () => {
-          toast.error(t(($) => $['skillManagement.detail.renameVersionFailed']))
+        onError: (caughtError) => {
+          reportErrorOnce(caughtError, () =>
+            toast.error(t(($) => $['skillManagement.detail.renameVersionFailed'])),
+          )
         },
       },
     )

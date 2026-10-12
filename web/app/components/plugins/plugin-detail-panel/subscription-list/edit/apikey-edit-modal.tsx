@@ -14,6 +14,7 @@ import { FormTypeEnum } from '@/app/components/base/form/types'
 import { ReadmeEntrance } from '@/app/components/plugins/readme-panel/entrance'
 import { toast } from '@/app/notifications'
 import { useUpdateTriggerSubscription, useVerifyTriggerSubscription } from '@/service/use-triggers'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { parsePluginErrorMessage } from '@/utils/error-parser'
 import { usePluginStore } from '../../store'
 import { useSubscriptionList } from '../use-subscription-list'
@@ -173,7 +174,7 @@ export const ApiKeyEditModal = ({ onClose, subscription, pluginDetail }: Props) 
           const errorMessage =
             (await parsePluginErrorMessage(error)) ||
             t(($) => $['modal.apiKey.verify.error'], { ns: 'pluginTrigger' })
-          toast.error(errorMessage)
+          reportErrorOnce(error, () => toast.error(errorMessage))
         },
       },
     )
@@ -214,7 +215,7 @@ export const ApiKeyEditModal = ({ onClose, subscription, pluginDetail }: Props) 
           const errorMessage =
             (await parsePluginErrorMessage(error)) ||
             t(($) => $['subscription.list.item.actions.edit.error'], { ns: 'pluginTrigger' })
-          toast.error(errorMessage)
+          reportErrorOnce(error, () => toast.error(errorMessage))
         },
       },
     )

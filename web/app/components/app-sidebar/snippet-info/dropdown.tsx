@@ -35,6 +35,7 @@ import {
   useUpdateSnippetMutation,
 } from '@/service/use-snippets'
 import { downloadBlob } from '@/utils/download'
+import { reportErrorOnce } from '@/utils/error-feedback'
 
 type SnippetInfoDropdownProps = {
   snippet: SnippetDetail
@@ -72,8 +73,8 @@ const SnippetInfoDropdown = ({ snippet }: SnippetInfoDropdownProps) => {
       const data = await exportSnippetMutation.mutateAsync({ snippetId: snippet.id })
       const file = new Blob([data], { type: 'application/yaml' })
       downloadBlob({ data: file, fileName: `${snippet.name}.yml` })
-    } catch {
-      toast.error(t(($) => $.exportFailed))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () => toast.error(t(($) => $.exportFailed)))
     }
   }, [canCreateAndModifySnippet, exportSnippetMutation, snippet.id, snippet.name, t])
 
@@ -92,7 +93,9 @@ const SnippetInfoDropdown = ({ snippet }: SnippetInfoDropdownProps) => {
             setIsEditDialogOpen(false)
           },
           onError: (error) => {
-            toast.error(error instanceof Error ? error.message : t(($) => $.editFailed))
+            reportErrorOnce(error, () =>
+              toast.error(error instanceof Error ? error.message : t(($) => $.editFailed)),
+            )
           },
         },
       )
@@ -112,7 +115,9 @@ const SnippetInfoDropdown = ({ snippet }: SnippetInfoDropdownProps) => {
           replace('/snippets')
         },
         onError: (error) => {
-          toast.error(error instanceof Error ? error.message : t(($) => $.deleteFailed))
+          reportErrorOnce(error, () =>
+            toast.error(error instanceof Error ? error.message : t(($) => $.deleteFailed)),
+          )
         },
       },
     )

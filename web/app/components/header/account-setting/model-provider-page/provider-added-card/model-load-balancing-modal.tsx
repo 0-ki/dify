@@ -23,6 +23,7 @@ import { LoadingPlaceholder } from '@/app/components/base/loading-placeholder'
 import { SwitchCredentialInLoadBalancing } from '@/app/components/header/account-setting/model-provider-page/model-auth'
 import { toast } from '@/app/notifications'
 import { useGetModelCredential, useUpdateModelLoadBalancingConfig } from '@/service/use-models'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { ConfigurationMethodEnum, FormTypeEnum } from '../declarations'
 import { useRefreshModel } from '../hooks'
 import { useAuth } from '../model-auth/hooks/use-auth'
@@ -172,10 +173,12 @@ const ModelLoadBalancingModal = ({
         )
       }
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }),
+      reportErrorOnce(error, () =>
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }),
+        ),
       )
     } finally {
       setLoading(false)

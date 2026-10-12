@@ -165,7 +165,7 @@ describe('base', () => {
       expect(toast.error).toHaveBeenCalledWith('Invalid DSL kind')
     })
 
-    it('should not display an empty error toast when message and error are absent', async () => {
+    it('should display the HTTP fallback when message and error are absent', async () => {
       const errorResponse = new Response(
         JSON.stringify({
           code: 'invalid_param',
@@ -183,7 +183,7 @@ describe('base', () => {
 
       await expect(base('/imports')).rejects.toBeInstanceOf(ApiError)
 
-      expect(toast.error).not.toHaveBeenCalled()
+      expect(toast.error).toHaveBeenCalledExactlyOnceWith('HTTP 400')
     })
 
     it('should suppress a late workflow 404 for the app being deleted', async () => {

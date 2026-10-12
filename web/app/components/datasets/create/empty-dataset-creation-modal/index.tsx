@@ -13,6 +13,7 @@ import { toast } from '@/app/notifications'
 import { useRouter } from '@/next/navigation'
 import { createEmptyDataset } from '@/service/datasets'
 import { useInvalidDatasetList } from '@/service/knowledge/use-dataset'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import s from './index.module.css'
 
 type IProps = {
@@ -46,8 +47,10 @@ const EmptyDatasetCreationModal = ({ show = false, onHide }: IProps) => {
       })
       onHide()
       router.push(`/datasets/${dataset.id}/documents`)
-    } catch {
-      toast.error(t(($) => $['stepOne.modal.failed'], { ns: 'datasetCreation' }))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () =>
+        toast.error(t(($) => $['stepOne.modal.failed'], { ns: 'datasetCreation' })),
+      )
     } finally {
       setIsSubmitting(false)
     }

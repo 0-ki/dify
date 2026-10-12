@@ -38,6 +38,7 @@ import {
 } from '@/service/access-control/use-app-access-control'
 import { consoleQuery } from '@/service/console'
 import { AppModeEnum } from '@/types/app'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { useAccessPointStatusLabel } from '../shared/use-access-point-status-label'
 import { getBuiltInAccessUrls, getHiddenStartInputs } from '../shared/utils'
 import {
@@ -98,16 +99,20 @@ export function WebAppAccessPointCard({
       scope: {
         id: `app-web-app-toggle:${appInfo.id}`,
       },
-      onError: () => {
-        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+      onError: (caughtError) => {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
+        )
       },
     }),
   )
   const resetSiteAccessToken = useMutation(
     consoleQuery.apps.byAppId.site.accessTokenReset.post.mutationOptions({
       onSuccess: () => setShowRegenerate(false),
-      onError: () => {
-        toast.error(t(($) => $['actionMsg.generatedUnsuccessfully'], { ns: 'common' }))
+      onError: (caughtError) => {
+        reportErrorOnce(caughtError, () =>
+          toast.error(t(($) => $['actionMsg.generatedUnsuccessfully'], { ns: 'common' })),
+        )
         setShowRegenerate(false)
       },
     }),

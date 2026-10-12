@@ -12,6 +12,7 @@ import { LanguagesSupported } from '@/i18n/language'
 import { upload } from '@/service/base'
 import { consoleQuery } from '@/service/console'
 import { useFileUploadConfig } from '@/service/use-common'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { getFileExtension } from '@/utils/format'
 import { PROGRESS_COMPLETE, PROGRESS_ERROR, PROGRESS_NOT_STARTED } from '../constants'
 
@@ -189,7 +190,7 @@ export const useFileUpload = ({
             t(($) => $['stepOne.uploader.failed'], { ns: 'datasetCreation' }),
             t,
           )
-          toast.error(errorMessage)
+          reportErrorOnce(e, () => toast.error(errorMessage))
           onFileUpdate(fileItem, PROGRESS_ERROR, fileListRef.current)
           return Promise.resolve({ ...fileItem })
         })

@@ -18,6 +18,7 @@ import { toast } from '@/app/notifications'
 import { agentSoulConfigToFormState } from '@/features/agent-v2/agent-composer/conversions'
 import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
+import { reportErrorOnce } from '@/utils/error-feedback'
 import { usePrepareAgentBuildDraftBeforeRun } from './use-agent-build-draft-run'
 
 const isNotFoundResponse = (error: unknown) => error instanceof ApiError && error.status === 404
@@ -183,7 +184,7 @@ export function useAgentConfigureBuildDraftData({
           return await buildDraftQueryOptions.queryFn(context)
         } catch (error) {
           if (isNotFoundResponse(error)) setSoulSourceOverride('draft')
-          else toast.error(t(($) => $['api.actionFailed']))
+          else reportErrorOnce(error, () => toast.error(t(($) => $['api.actionFailed'])))
           throw error
         }
       },
@@ -345,7 +346,7 @@ export function useAgentConfigureBuildDraftActions({
       forceCheckoutBeforeNextBuildRunRef.current = false
       return buildDraft
     } catch (error) {
-      toast.error(tCommon(($) => $['api.actionFailed']))
+      reportErrorOnce(error, () => toast.error(tCommon(($) => $['api.actionFailed'])))
       throw error
     }
   }, [
@@ -363,8 +364,8 @@ export function useAgentConfigureBuildDraftActions({
       await resetBuildChatSession()
       forceCheckoutBeforeNextBuildRunRef.current = true
       return true
-    } catch {
-      toast.error(tCommon(($) => $['api.actionFailed']))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () => toast.error(tCommon(($) => $['api.actionFailed'])))
       return false
     }
   }, [cancelBuildDraftRefresh, resetBuildChatSession, setSoulSourceOverride, tCommon])
@@ -458,8 +459,8 @@ export function useAgentConfigureBuildDraftActions({
       await exitBuildDraftMode(false)
       toast.success(tCommon(($) => $['api.actionSuccess']))
       return true
-    } catch {
-      toast.error(tCommon(($) => $['api.actionFailed']))
+    } catch (caughtError) {
+      reportErrorOnce(caughtError, () => toast.error(tCommon(($) => $['api.actionFailed'])))
       return false
     }
   }
