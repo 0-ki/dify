@@ -7,7 +7,6 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import {
   getErrorCode,
   getErrorDetailString,
@@ -111,7 +110,7 @@ export function SkillDisplayNameEditor({
           }),
         )
       } else {
-        reportErrorOnce(error, () => toast.error(t(($) => $['skillManagement.detail.saveFailed'])))
+        toast.error(t(($) => $['skillManagement.detail.saveFailed']))
       }
     } finally {
       submittingRef.current = false

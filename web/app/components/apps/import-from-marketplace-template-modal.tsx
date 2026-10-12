@@ -13,7 +13,6 @@ import {
   fetchMarketplaceTemplateDSL,
   useMarketplaceTemplateDetail,
 } from '@/service/marketplace-templates'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type ImportFromMarketplaceTemplateModalProps = {
   templateId: string
@@ -59,10 +58,8 @@ const ImportFromMarketplaceTemplateModal = ({
     try {
       const dsl = await fetchMarketplaceTemplateDSL(templateId)
       onConfirm(dsl)
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(t(($) => $['marketplace.template.importFailed'], { ns: 'app' })),
-      )
+    } catch {
+      toast.error(t(($) => $['marketplace.template.importFailed'], { ns: 'app' }))
     } finally {
       setImporting(false)
       isImportingRef.current = false

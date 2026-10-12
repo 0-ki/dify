@@ -41,7 +41,6 @@ import { getSkillErrorCode, getSkillErrorDetailString } from '@/features/skills/
 import { TagFilter } from '@/features/tag-management/components/tag-filter'
 import Link from '@/next/link'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { useRegisterAgentOrchestrateAddAction } from '../add-actions-context'
 import { ConfigureSectionEmpty } from '../common/empty'
 import { ConfigureSection } from '../common/section'
@@ -490,7 +489,11 @@ export function AgentSkills() {
   })
   const hasLoadedAgentSkillBindings = agentSkillBindingsQuery.data !== undefined
   const { isPending: isReplacingAgentSkillBindings, mutate: replaceAgentSkillBindings } =
-    useMutation(consoleQuery.workspaces.current.agents.byAgentId.skills.put.mutationOptions())
+    useMutation(
+      consoleQuery.workspaces.current.agents.byAgentId.skills.put.mutationOptions({
+        context: { silent: true },
+      }),
+    )
   const workspaceSkills = agentSkillBindingsQuery.data?.data ?? []
   const boundSkillIds =
     agentSkillBindingsQuery.data?.skill_ids ?? workspaceSkills.map((skill) => skill.id)
@@ -526,26 +529,20 @@ export function AgentSkills() {
             const normalizedError = error
             const errorCode = getSkillErrorCode(normalizedError)
             if (errorCode === 'too_many_agent_skills') {
-              reportErrorOnce(error, () =>
-                toast.error(
-                  t(($) => $['agentDetail.configure.skills.workspaceSelector.limitReached']),
-                ),
+              toast.error(
+                t(($) => $['agentDetail.configure.skills.workspaceSelector.limitReached']),
               )
               return
             }
             if (errorCode === 'skill_name_conflict') {
-              reportErrorOnce(error, () =>
-                toast.error(
-                  tSkill(($) => $['skillManagement.errors.nameConflict'], {
-                    name: getSkillErrorDetailString(normalizedError, 'name') ?? '',
-                  }),
-                ),
+              toast.error(
+                tSkill(($) => $['skillManagement.errors.nameConflict'], {
+                  name: getSkillErrorDetailString(normalizedError, 'name') ?? '',
+                }),
               )
               return
             }
-            reportErrorOnce(error, () =>
-              toast.error(t(($) => $['agentDetail.configure.skills.workspaceSelector.saveFailed'])),
-            )
+            toast.error(t(($) => $['agentDetail.configure.skills.workspaceSelector.saveFailed']))
           },
           onSuccess: () => {
             invalidateAgentSkillBindings()

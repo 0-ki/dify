@@ -22,7 +22,6 @@ import ModelParameterModal from '@/app/components/header/account-setting/model-p
 import { ModelSelector } from '@/app/components/header/account-setting/model-provider-page/model-selector'
 import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { sendSkillAssistMessage, uploadSkillFile } from '../client'
 import { SkillBuilderGridTexture } from './builder-grid-texture'
 import {
@@ -546,12 +545,10 @@ export function SkillBuilderPanel({
         return
       }
       if (previewUrl) URL.revokeObjectURL(previewUrl)
-      reportErrorOnce(error, () =>
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : t(($) => $['skillManagement.detail.builder.attachFailed']),
-        ),
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t(($) => $['skillManagement.detail.builder.attachFailed']),
       )
     } finally {
       if (uploadGeneration === attachmentUploadGenerationRef.current) {
@@ -790,12 +787,10 @@ export function SkillBuilderPanel({
       thinkingElapsedSecondsRef.current = 0
       isSendingRef.current = false
       assistAbortControllerRef.current = null
-      reportErrorOnce(error, () =>
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : t(($) => $['skillManagement.detail.builder.sendFailed']),
-        ),
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t(($) => $['skillManagement.detail.builder.sendFailed']),
       )
     })
   }

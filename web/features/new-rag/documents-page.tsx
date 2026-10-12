@@ -24,7 +24,6 @@ import {
 } from '@/context/permission-state'
 import { ApiError } from '@/service/api-error'
 import { consoleClient, consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { DatasetACLPermission, hasPermission } from '@/utils/permission'
 import { useAuxiliaryTaskReadGuard } from './auxiliary-task-read-guard'
 import { DocumentBulkActions, DocumentsEmpty, DocumentsList } from './document-list'
@@ -209,13 +208,19 @@ export function DocumentsPage({ knowledgeSpaceId }: { knowledgeSpaceId: string }
   const [uploading, setUploading] = useState(false)
   const [reindexing, setReindexing] = useState(false)
   const { mutateAsync: uploadDocument } = useMutation(
-    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocuments.mutationOptions(),
+    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocuments.mutationOptions({
+      context: { silent: true },
+    }),
   )
   const { mutateAsync: bulkUploadDocuments } = useMutation(
-    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocumentsBulk.mutationOptions(),
+    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocumentsBulk.mutationOptions({
+      context: { silent: true },
+    }),
   )
   const { mutateAsync: reindexDocuments } = useMutation(
-    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocumentsBulkReindex.mutationOptions(),
+    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocumentsBulkReindex.mutationOptions({
+      context: { silent: true },
+    }),
   )
 
   const documentsQuery = useInfiniteQuery(
@@ -1504,10 +1509,7 @@ export function DocumentsPage({ knowledgeSpaceId }: { knowledgeSpaceId: string }
         if (responseStatus(error) === 403) {
           writePermissionDenied = true
           handleWritePermissionDenied()
-        } else
-          reportErrorOnce(error, () =>
-            toast.error(t(($) => $['newKnowledge.documentUploadFailed'])),
-          )
+        } else toast.error(t(($) => $['newKnowledge.documentUploadFailed']))
       } finally {
         if (!writePermissionDenied) {
           writePermissionFocusRecoveryRequestedRef.current = false
@@ -1571,10 +1573,7 @@ export function DocumentsPage({ knowledgeSpaceId }: { knowledgeSpaceId: string }
       refreshDocumentsAndTasks()
     } catch (error) {
       if (responseStatus(error) === 403) handleWritePermissionDenied()
-      else
-        reportErrorOnce(error, () =>
-          toast.error(t(($) => $['newKnowledge.documentsReindexFailed'])),
-        )
+      else toast.error(t(($) => $['newKnowledge.documentsReindexFailed']))
     } finally {
       reindexPendingRef.current = false
       setReindexing(false)

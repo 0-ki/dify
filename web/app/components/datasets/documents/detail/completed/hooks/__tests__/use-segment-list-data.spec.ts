@@ -493,10 +493,10 @@ describe('useSegmentListData', () => {
       })
     })
 
-    it('should notify error on failure', async () => {
+    it('leaves request error feedback to the transport on failure', async () => {
       mockEnableSegment.mockImplementation(
         async (_params, { onError }: { onError: () => void }) => {
-          onError()
+          onError?.()
         },
       )
 
@@ -508,10 +508,7 @@ describe('useSegmentListData', () => {
         await result.current.onChangeSwitch(true, 'seg-1')
       })
 
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'common.actionMsg.modifiedUnsuccessfully',
-      })
+      expect(mockNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
     })
   })
 
@@ -574,10 +571,10 @@ describe('useSegmentListData', () => {
       expect(clearSelection).toHaveBeenCalled()
     })
 
-    it('should notify error on failure', async () => {
+    it('leaves request error feedback to the transport on failure', async () => {
       mockDeleteSegment.mockImplementation(
         async (_params, { onError }: { onError: () => void }) => {
-          onError()
+          onError?.()
         },
       )
 
@@ -589,10 +586,7 @@ describe('useSegmentListData', () => {
         await result.current.onDelete('seg-1')
       })
 
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'common.actionMsg.modifiedUnsuccessfully',
-      })
+      expect(mockNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
     })
   })
 

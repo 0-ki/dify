@@ -56,7 +56,7 @@ describe('useSnippetDSL', () => {
 
     await act(() => result.current.handleExportDSL(false, 'workflow-1'))
 
-    expect(toast.error).toHaveBeenCalledWith('snippet.exportFailed')
+    expect(toast.error).not.toHaveBeenCalled()
     expect(downloadBlob).not.toHaveBeenCalled()
   })
 })

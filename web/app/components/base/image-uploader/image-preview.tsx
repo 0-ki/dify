@@ -7,7 +7,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { downloadBlob } from '@/utils/download'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type ImagePreviewProps = {
   url: string
@@ -89,10 +88,8 @@ function ImagePreviewContent({ url, title, onCancel, onPrev, onNext }: ImagePrev
       const extension = extensions[data.type]
       const fileName = title.trim() || (extension ? `image.${extension}` : 'image')
       downloadBlob({ data, fileName })
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(t(($) => $['operation.downloadFailed'], { ns: 'common' })),
-      )
+    } catch {
+      toast.error(t(($) => $['operation.downloadFailed'], { ns: 'common' }))
     }
   }
 
@@ -131,9 +128,7 @@ function ImagePreviewContent({ url, title, onCancel, onPrev, onNext }: ImagePrev
         console.error('Failed to copy image:', err)
 
         setIsCopied(false)
-        reportErrorOnce(err, () =>
-          toast.error(t(($) => $['operation.imageCopyFailed'], { ns: 'common' })),
-        )
+        toast.error(t(($) => $['operation.imageCopyFailed'], { ns: 'common' }))
       }
     }
     shareImage()

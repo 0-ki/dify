@@ -21,7 +21,6 @@ import { toast } from '@/app/notifications'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { AccessMode, isAccessMode } from '@/models/access-control'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { useAccessPointActions } from '../shared/use-access-point-actions'
 import { useAccessPointStatusLabel } from '../shared/use-access-point-status-label'
 import {
@@ -104,11 +103,6 @@ export function EnvironmentWebAppCard({
       scope: {
         id: `environment-web-app-toggle:${appId}:${environmentId}`,
       },
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-        )
-      },
     }),
   )
   const resetAccessTokenMutation = useMutation(
@@ -118,11 +112,6 @@ export function EnvironmentWebAppCard({
           queryClient.setQueryData(siteQueryOptions.queryKey, updatedSite)
           setShowRegenerate(false)
           toast.success(t(($) => $['actionMsg.generatedSuccessfully'], { ns: 'common' }))
-        },
-        onError: (caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(t(($) => $['actionMsg.generatedUnsuccessfully'], { ns: 'common' })),
-          )
         },
       },
     ),

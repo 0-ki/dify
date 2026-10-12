@@ -250,10 +250,10 @@ describe('useChildSegmentData', () => {
       expect(mockInvalidChildSegmentList).toHaveBeenCalled()
     })
 
-    it('should notify error on failure', async () => {
+    it('leaves request error feedback to the transport on failure', async () => {
       mockDeleteChildSegment.mockImplementation(
         async (_params, { onError }: { onError: () => void }) => {
-          onError()
+          onError?.()
         },
       )
 
@@ -265,10 +265,7 @@ describe('useChildSegmentData', () => {
         await result.current.onDeleteChildChunk('seg-1', 'child-1')
       })
 
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'common.actionMsg.modifiedUnsuccessfully',
-      })
+      expect(mockNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
     })
   })
 

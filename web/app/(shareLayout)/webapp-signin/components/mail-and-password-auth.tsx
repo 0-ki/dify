@@ -20,7 +20,6 @@ import { webAppLogin } from '@/service/common'
 import { fetchAccessToken } from '@/service/share'
 import { setWebAppAccessToken, setWebAppPassport } from '@/service/webapp-auth'
 import { encryptPassword } from '@/utils/encryption'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { getClientLoginFallback } from '@/utils/login-redirect'
 import { replaceLoginRedirect } from '@/utils/login-redirect.client'
 import { basePath } from '@/utils/var'
@@ -99,7 +98,7 @@ export default function MailAndPasswordAuth({ isEmailSetup }: MailAndPasswordAut
         typeof authenticationError.message === 'string'
       ) {
         const message = authenticationError.message
-        reportErrorOnce(error, () => toast.error(message))
+        toast.error(message)
       }
     } finally {
       setIsLoading(false)

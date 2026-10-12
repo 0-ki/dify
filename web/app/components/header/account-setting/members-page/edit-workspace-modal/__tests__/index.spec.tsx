@@ -142,7 +142,7 @@ describe('EditWorkspaceModal', () => {
     })
   })
 
-  it('should show error toast when update fails', async () => {
+  it('leaves request error feedback to the transport when update fails', async () => {
     const user = userEvent.setup()
 
     vi.mocked(updateWorkspaceInfo).mockRejectedValue(new Error('update failed'))
@@ -155,11 +155,7 @@ describe('EditWorkspaceModal', () => {
     await user.click(getSaveButton())
 
     await waitFor(() => {
-      expect(mockNotify).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'error',
-        }),
-      )
+      expect(mockNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
     })
   })
 

@@ -17,7 +17,6 @@ import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
 import { toast } from '@/app/notifications'
 import { getFileIconType } from '@/features/agent-v2/file-icon'
 import { consoleClient, consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import {
   getSkillErrorCode,
   getSkillErrorDetailNumber,
@@ -1489,11 +1488,14 @@ function updateSkillListCache(
 }
 
 function refetchSkillDetail(skillId: string) {
-  return consoleClient.workspaces.current.skills.bySkillId.get({
-    params: {
-      skill_id: skillId,
+  return consoleClient.workspaces.current.skills.bySkillId.get(
+    {
+      params: {
+        skill_id: skillId,
+      },
     },
-  })
+    { context: { silent: true } },
+  )
 }
 
 export async function refreshSkillDetailAfterConflict(

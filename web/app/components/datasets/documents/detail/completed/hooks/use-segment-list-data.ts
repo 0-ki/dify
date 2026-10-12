@@ -21,7 +21,6 @@ import {
 } from '@/service/knowledge/use-segment'
 import { useInvalid } from '@/service/use-base'
 import { segmentImportStatus } from '@/types/dataset'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { formatNumber } from '@/utils/format'
 import { useDocumentContext } from '../../context'
 
@@ -214,11 +213,6 @@ export const useSegmentListData = (
             updateSegmentsInCache(targetIds, (seg) => ({ ...seg, enabled: enable }))
             refreshChunkListWithStatusChanged()
           },
-          onError: (caughtError) => {
-            reportErrorOnce(caughtError, () =>
-              toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-            )
-          },
         },
       )
     },
@@ -243,11 +237,6 @@ export const useSegmentListData = (
             toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
             resetList()
             if (!segId) clearSelection()
-          },
-          onError: (caughtError) => {
-            reportErrorOnce(caughtError, () =>
-              toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-            )
           },
         },
       )

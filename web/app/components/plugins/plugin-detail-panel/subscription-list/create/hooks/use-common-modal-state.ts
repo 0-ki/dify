@@ -19,7 +19,6 @@ import {
   useUpdateTriggerSubscriptionBuilder,
   useVerifyAndUpdateTriggerSubscriptionBuilder,
 } from '@/service/use-triggers'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { parsePluginErrorMessage } from '@/utils/error-parser'
 import { usePluginStore } from '../../../store'
 import { useSubscriptionList } from '../../use-subscription-list'
@@ -165,16 +164,12 @@ export const useCommonModalState = ({
           },
           {
             onError: async (error: unknown) => {
-              const errorMessage =
-                (await parsePluginErrorMessage(error)) ||
-                t(($) => $['modal.errors.updateFailed'], { ns: 'pluginTrigger' })
               console.error('Failed to update subscription builder:', error)
-              reportErrorOnce(error, () => toast.error(errorMessage))
             },
           },
         )
       }, 500),
-    [updateBuilder, t],
+    [updateBuilder],
   )
 
   useInitializeSubscriptionBuilder({
@@ -298,12 +293,6 @@ export const useCommonModalState = ({
         onClose()
         refetch?.()
       },
-      onError: async (error: unknown) => {
-        const errorMessage =
-          (await parsePluginErrorMessage(error)) ||
-          t(($) => $['subscription.createFailed'], { ns: 'pluginTrigger' })
-        reportErrorOnce(error, () => toast.error(errorMessage))
-      },
     })
   }, [
     subscriptionBuilder,
@@ -314,7 +303,6 @@ export const useCommonModalState = ({
     buildSubscription,
     onClose,
     refetch,
-    t,
   ])
 
   // Handle confirm (dispatch based on step)

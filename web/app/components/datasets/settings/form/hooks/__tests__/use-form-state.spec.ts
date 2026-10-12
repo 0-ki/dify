@@ -591,7 +591,7 @@ describe('useFormState', () => {
         await result.current.handleSave()
       })
 
-      expect(toast.error).toHaveBeenCalledWith(expect.any(String))
+      expect(toast.error).not.toHaveBeenCalled()
     })
 
     it('should include partial_member_list when permission is partialMembers', async () => {

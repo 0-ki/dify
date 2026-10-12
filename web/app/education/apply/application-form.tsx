@@ -21,7 +21,6 @@ import { currentWorkspaceAtom, isCurrentWorkspaceManagerAtom } from '@/context/w
 import { useAsyncWindowOpen } from '@/hooks/use-async-window-open'
 import Link from '@/next/link'
 import { consoleClient, consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import UserInfo from '../user-info'
 import AppliedEducationContent from './applied-education-content'
 import InstitutionField from './institution-field'
@@ -98,16 +97,14 @@ const EducationApplyPage = ({ plan, token }: EducationApplyPageProps) => {
     try {
       await openAsyncWindow(
         async () => {
-          const res = await consoleClient.billing.invoices.get()
+          const res = await consoleClient.billing.invoices.get(undefined, {
+            context: { silent: true },
+          })
           if (res.url) return res.url
 
           throw new Error('Failed to open billing page')
         },
-        {
-          onError: (err) => {
-            reportErrorOnce(err, () => toast.error(err.message || String(err)))
-          },
-        },
+        { onError: (error) => toast.error(error.message) },
       )
     } finally {
       setIsOpeningBillingPortal(false)
@@ -125,10 +122,8 @@ const EducationApplyPage = ({ plan, token }: EducationApplyPageProps) => {
     try {
       await switchWorkspaceMutation.mutateAsync({ body: { tenant_id: tenantId } })
       globalThis.location.reload()
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-      )
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     }
   }
 

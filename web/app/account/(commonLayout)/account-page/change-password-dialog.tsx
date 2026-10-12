@@ -20,9 +20,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { validPassword } from '@/config'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
-import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type ChangePasswordFormValues = {
   'current-password'?: string
@@ -170,11 +168,8 @@ export function ChangePasswordDialog({ isPasswordSet }: { isPasswordSet: boolean
       await updatePassword.mutateAsync({ body: password })
       toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
       actionsRef.current?.close()
-    } catch (error) {
-      // HTTP error notifications are owned by the request layer.
-      // Only report a failure that never produced a response.
-      if (!(error instanceof ApiError) && error instanceof Error && error.message)
-        reportErrorOnce(error, () => toast.error(error.message))
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     }
   }
 

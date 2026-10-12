@@ -10,7 +10,6 @@ import { toast } from '@/app/notifications'
 import { currentWorkspaceAtom } from '@/context/workspace-state'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
 import { ownershipTransfer, sendOwnerEmail, verifyOwnerEmail } from '@/service/common'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import MemberSelector from './member-selector'
 
 type Props = Readonly<{
@@ -23,10 +22,6 @@ const STEP = {
   transfer: 'transfer',
 }
 type Step = (typeof STEP)[keyof typeof STEP]
-
-const getErrorMessage = (error: unknown) => {
-  return error instanceof Error ? error.message : ''
-}
 
 const TransferOwnershipModal = ({ onClose, show }: Props) => {
   const { t } = useTranslation(['common', 'workspaceMembers'])
@@ -82,17 +77,15 @@ const TransferOwnershipModal = ({ onClose, show }: Props) => {
       } else {
         toast.error('Verifying email failed')
       }
-    } catch (error) {
-      reportErrorOnce(error, () => toast.error(`Error verifying email: ${getErrorMessage(error)}`))
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     }
   }
   const sendCodeToOriginEmail = async () => {
     try {
       await sendEmail()
       setStep(STEP.verify)
-    } catch {
-      // The base service layer already surfaces the backend error (e.g. rate-limit) as a toast.
-    }
+    } catch {}
   }
   const handleVerifyOriginEmail = async () => {
     await verifyEmailAddress(code, stepToken, () => setStep(STEP.transfer))
@@ -105,10 +98,8 @@ const TransferOwnershipModal = ({ onClose, show }: Props) => {
         token: stepToken,
       })
       globalThis.location.reload()
-    } catch (error) {
-      reportErrorOnce(error, () =>
-        toast.error(`Error ownership transfer: ${getErrorMessage(error)}`),
-      )
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     } finally {
       setIsTransfer(false)
     }

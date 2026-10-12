@@ -25,7 +25,6 @@ import {
   usePipelineTemplateById,
 } from '@/service/use-pipeline'
 import { downloadBlob } from '@/utils/download'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import Actions from './actions'
 import Content from './content'
 import Details from './details'
@@ -76,11 +75,6 @@ const TemplateCard = ({ pipeline, showMoreOperations = true, type }: TemplateCar
         })
         push(`/datasets/${newDataset.dataset_id}/pipeline`)
       },
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(t(($) => $['creation.errorTip'], { ns: 'datasetPipeline' })),
-        )
-      },
     })
   }, [
     getPipelineTemplateInfo,
@@ -111,11 +105,6 @@ const TemplateCard = ({ pipeline, showMoreOperations = true, type }: TemplateCar
         const blob = new Blob([res.data], { type: 'application/yaml' })
         downloadBlob({ data: blob, fileName: `${pipeline.name}.pipeline` })
         toast.success(t(($) => $['exportDSL.successTip'], { ns: 'datasetPipeline' }))
-      },
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(t(($) => $['exportDSL.errorTip'], { ns: 'datasetPipeline' })),
-        )
       },
     })
   }, [t, isExporting, pipeline.id, pipeline.name, exportPipelineDSL])

@@ -25,7 +25,6 @@ import { useImportDSL } from '@/hooks/use-import-dsl'
 import { consoleQuery } from '@/service/console'
 import { AppModeEnum } from '@/types/app'
 import { trackCreateApp } from '@/utils/create-app-tracking'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { hasPermission } from '@/utils/permission'
 import AppCard from '../app-card'
 import Sidebar, { AppCategories, AppCategoryLabel } from './sidebar'
@@ -147,6 +146,7 @@ const Apps = ({ onClose, onCreateFromBlank, templateMode }: AppsProps) => {
     try {
       const detail = await queryClient.query({
         ...consoleQuery.explore.apps.byAppId.get.queryOptions({
+          context: { silent: true },
           input: { params: { app_id: currApp.app_id } },
         }),
         staleTime: 0,
@@ -180,10 +180,8 @@ const Apps = ({ onClose, onCreateFromBlank, templateMode }: AppsProps) => {
           onPending: () => setShowDSLConfirmModal(true),
         },
       )
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' })),
-      )
+    } catch {
+      toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' }))
     }
   }
   const onConfirmDSL = async () => {

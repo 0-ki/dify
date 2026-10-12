@@ -22,7 +22,6 @@ import {
   useTriggerOAuthConfig,
   useTriggerProviderInfo,
 } from '@/service/use-triggers'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { SupportedCreationMethods } from '../../../types'
 import { usePluginStore } from '../../store'
 import { useSubscriptionList } from '../use-subscription-list'
@@ -241,11 +240,9 @@ export const CreateSubscriptionButton = ({
               }
             })
           },
-          onError: (caughtError) => {
-            reportErrorOnce(caughtError, () =>
-              toast.error(
-                t(($) => $['modal.oauth.authorization.authFailed'], { ns: 'pluginTrigger' }),
-              ),
+          onError: () => {
+            toast.error(
+              t(($) => $['modal.oauth.authorization.authFailed'], { ns: 'pluginTrigger' }),
             )
           },
         })

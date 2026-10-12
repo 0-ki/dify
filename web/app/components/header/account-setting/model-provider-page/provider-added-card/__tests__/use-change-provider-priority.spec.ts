@@ -178,7 +178,7 @@ describe('useChangeProviderPriority', () => {
   })
 
   describe('when the mutation is not successful immediately', () => {
-    it('should show an error toast when the mutation fails', async () => {
+    it('leaves request error feedback to the transport when the mutation fails', async () => {
       const queryClient = createConsoleQueryClient()
       const invalidateQueries = vi
         .spyOn(queryClient, 'invalidateQueries')
@@ -193,10 +193,7 @@ describe('useChangeProviderPriority', () => {
       })
 
       await waitFor(() => {
-        expect(mockNotify).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'common.actionMsg.modifiedUnsuccessfully',
-        })
+        expect(mockNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
       })
 
       expect(invalidateQueries).not.toHaveBeenCalled()

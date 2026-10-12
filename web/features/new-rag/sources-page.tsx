@@ -32,7 +32,6 @@ import { toast } from '@/app/notifications'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import Link from '@/next/link'
 import { consoleClient, consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { hasPermission } from '@/utils/permission'
 import { newKnowledgeAddSourcePath } from './routes'
 
@@ -247,10 +246,8 @@ function SourceRow({
       let result: Result
       try {
         result = await mutation()
-      } catch (caughtError) {
-        reportErrorOnce(caughtError, () =>
-          toast.error(t(($) => $['newKnowledge.sourcesErrorDescription'])),
-        )
+      } catch {
+        toast.error(t(($) => $['newKnowledge.sourcesErrorDescription']))
         try {
           await queryClient.invalidateQueries({
             queryKey: consoleQuery.knowledgeFs.getKnowledgeSpacesByIdSources.key(),
@@ -266,9 +263,7 @@ function SourceRow({
         await queryClient.invalidateQueries({
           queryKey: consoleQuery.knowledgeFs.getKnowledgeSpacesByIdSources.key(),
         })
-      } catch {
-        // The accepted mutation is already reflected by the list-owner state.
-      }
+      } catch {}
       return true
     } finally {
       setPendingAction(undefined)
@@ -279,10 +274,13 @@ function SourceRow({
     runAction(
       'sync',
       () =>
-        consoleClient.knowledgeFs.postKnowledgeSpacesByIdSourcesBySourceIdSync({
-          headers: { 'Idempotency-Key': createIdempotencyKey() },
-          params: { id: knowledgeSpaceId, sourceId: source.id },
-        }),
+        consoleClient.knowledgeFs.postKnowledgeSpacesByIdSourcesBySourceIdSync(
+          {
+            headers: { 'Idempotency-Key': createIdempotencyKey() },
+            params: { id: knowledgeSpaceId, sourceId: source.id },
+          },
+          { context: { silent: true } },
+        ),
       () => onSourceChange({ ...source, status: 'syncing' }),
     )
 
@@ -290,13 +288,16 @@ function SourceRow({
     runAction(
       'toggle',
       () =>
-        consoleClient.knowledgeFs.patchKnowledgeSpacesByIdSourcesBySourceId({
-          body: {
-            ...(source.version === undefined ? {} : { expectedVersion: source.version }),
-            status: source.status === 'disabled' ? 'active' : 'disabled',
+        consoleClient.knowledgeFs.patchKnowledgeSpacesByIdSourcesBySourceId(
+          {
+            body: {
+              ...(source.version === undefined ? {} : { expectedVersion: source.version }),
+              status: source.status === 'disabled' ? 'active' : 'disabled',
+            },
+            params: { id: knowledgeSpaceId, sourceId: source.id },
           },
-          params: { id: knowledgeSpaceId, sourceId: source.id },
-        }),
+          { context: { silent: true } },
+        ),
       onSourceChange,
     )
 
@@ -305,12 +306,15 @@ function SourceRow({
       'remove',
       async () => {
         if (source.version === undefined) throw new Error('Source version is required')
-        return consoleClient.knowledgeFs.deleteKnowledgeSpacesByIdSourcesBySourceId({
-          body: { expectedRevision: source.version },
-          headers: { 'idempotency-key': createIdempotencyKey() },
-          params: { id: knowledgeSpaceId, sourceId: source.id },
-          query: { documents: 'keep' },
-        })
+        return consoleClient.knowledgeFs.deleteKnowledgeSpacesByIdSourcesBySourceId(
+          {
+            body: { expectedRevision: source.version },
+            headers: { 'idempotency-key': createIdempotencyKey() },
+            params: { id: knowledgeSpaceId, sourceId: source.id },
+            query: { documents: 'keep' },
+          },
+          { context: { silent: true } },
+        )
       },
       onRemoved,
     )

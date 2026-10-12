@@ -60,7 +60,6 @@ import { useGetUserCanAccessApp } from '@/service/access-control/use-app-access-
 import { consoleClient, consoleQuery } from '@/service/console'
 import { AppModeEnum } from '@/types/app'
 import { getRedirection } from '@/utils/app-redirection'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { getAppACLCapabilities, hasPermission } from '@/utils/permission'
 import { basePath } from '@/utils/var'
 
@@ -157,26 +156,24 @@ function AppCardOperationsMenuItems({
       return
     }
 
-    try {
-      await openAsyncWindow(
-        async () => {
-          const { installed_apps } = await consoleClient.installedApps.get({
+    await openAsyncWindow(
+      async () => {
+        const { installed_apps } = await consoleClient.installedApps.get(
+          {
             query: { app_id: app.id },
-          })
-          if (installed_apps?.length > 0)
-            return `${basePath}${buildInstalledAppPath(installed_apps[0]!.id)}`
-          throw new Error(t(($) => $.notPublishedYet, { ns: 'app' }))
-        },
-        {
-          onError: (error) => {
-            reportErrorOnce(error, () => toast.error(`${error.message || error}`))
           },
+          { context: { silent: true } },
+        )
+        if (installed_apps?.length > 0)
+          return `${basePath}${buildInstalledAppPath(installed_apps[0]!.id)}`
+        throw new Error(t(($) => $.notPublishedYet, { ns: 'app' }))
+      },
+      {
+        onError: (error) => {
+          toast.error(`${error.message || error}`)
         },
-      )
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : `${error}`
-      reportErrorOnce(error, () => toast.error(message))
-    }
+      },
+    )
   }
 
   return (
@@ -319,33 +316,16 @@ export function AppCardInteractions({
   const canCreateApp = hasPermission(workspacePermissionKeys, 'app.create_and_management')
 
   const onConfirmDelete = useCallback(() => {
-    try {
-      deleteApp(
-        { params: { app_id: app.id } },
-        {
-          onSuccess: () => {
-            setActiveDialog(null)
-            setConfirmDeleteInput('')
-          },
-          onError: (error) => {
-            const message = error instanceof Error ? error.message : ''
-            reportErrorOnce(error, () =>
-              toast.error(
-                `${t(($) => $.appDeleteFailed, { ns: 'app' })}${message ? `: ${message}` : ''}`,
-              ),
-            )
-          },
+    deleteApp(
+      { params: { app_id: app.id } },
+      {
+        onSuccess: () => {
+          setActiveDialog(null)
+          setConfirmDeleteInput('')
         },
-      )
-    } catch (error) {
-      const message = error instanceof Error ? error.message : ''
-      reportErrorOnce(error, () =>
-        toast.error(
-          `${t(($) => $.appDeleteFailed, { ns: 'app' })}${message ? `: ${message}` : ''}`,
-        ),
-      )
-    }
-  }, [app.id, deleteApp, t])
+      },
+    )
+  }, [app.id, deleteApp])
 
   const onDeleteDialogOpenChange = useCallback(
     (open: boolean) => {
@@ -427,13 +407,11 @@ export function AppCardInteractions({
           },
         })
         setActiveDialog(null)
-      } catch (e) {
-        reportErrorOnce(e, () =>
-          toast.error(e instanceof Error ? e.message : t(($) => $.editFailed, { ns: 'app' })),
-        )
+      } catch {
+        // The request layer reports this failure. Keep the current UI state.
       }
     },
-    [app.id, t, updateApp],
+    [app.id, updateApp],
   )
 
   const onCopy: DuplicateAppModalProps['onConfirm'] = ({
@@ -442,43 +420,34 @@ export function AppCardInteractions({
     icon,
     icon_background,
   }) => {
-    try {
-      copyApp(
-        {
-          params: { app_id: app.id },
-          body: {
-            name,
-            icon_type,
-            icon,
-            icon_background,
-          },
+    copyApp(
+      {
+        params: { app_id: app.id },
+        body: {
+          name,
+          icon_type,
+          icon,
+          icon_background,
         },
-        {
-          onSuccess: (newApp) => {
-            if (!('mode' in newApp)) {
-              toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' }))
-              return
-            }
+      },
+      {
+        onSuccess: (newApp) => {
+          if (!('mode' in newApp)) {
+            toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' }))
+            return
+          }
 
-            setActiveDialog(null)
-            getRedirection(newApp, push, {
-              currentUserId,
-              resourceMaintainer: newApp.maintainer ?? undefined,
-              workspacePermissionKeys,
-              isRbacEnabled,
-            })
-          },
-          onError: (caughtError) =>
-            reportErrorOnce(caughtError, () =>
-              toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' })),
-            ),
+          setActiveDialog(null)
+          getRedirection(newApp, push, {
+            currentUserId,
+            resourceMaintainer: newApp.maintainer ?? undefined,
+            workspacePermissionKeys,
+            isRbacEnabled,
+          })
         },
-      )
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' })),
-      )
-    }
+      },
+    )
+
     return Promise.resolve()
   }
 
@@ -504,31 +473,10 @@ export function AppCardInteractions({
       if (isTogglingStar) return
 
       const mutateStar = pressed ? starApp : unstarApp
-      try {
-        mutateStar(
-          { params: { app_id: app.id } },
-          {
-            onError: (error) =>
-              reportErrorOnce(error, () =>
-                toast.error(
-                  error instanceof Error
-                    ? error.message
-                    : t(($) => $['studio.starFailed'], { ns: 'app' }),
-                ),
-              ),
-          },
-        )
-      } catch (error) {
-        reportErrorOnce(error, () =>
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : t(($) => $['studio.starFailed'], { ns: 'app' }),
-          ),
-        )
-      }
+
+      mutateStar({ params: { app_id: app.id } })
     },
-    [app.id, isTogglingStar, starApp, t, unstarApp],
+    [app.id, isTogglingStar, starApp, unstarApp],
   )
 
   const shouldShowEditOption = appACLCapabilities.canEdit

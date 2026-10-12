@@ -26,7 +26,6 @@ import {
   useWorkflowVersionHistory,
 } from '@/service/use-workflow'
 import { FlowType } from '@/types/common'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { useHooksStore } from '../../hooks-store'
 import { useDSL } from '../../hooks/use-DSL'
 import { useWorkflowRefreshDraft } from '../../hooks/use-workflow-refresh-draft'
@@ -284,12 +283,7 @@ export const VersionHistoryPanel = ({
         invalidAllLastRun()
         await emitRestoreComplete(item, true)
         await emitWorkflowUpdate()
-      } catch (caughtError) {
-        reportErrorOnce(caughtError, () =>
-          toast.error(
-            t(($) => $['versionHistory.action.restoreFailure'], { ns: 'workflowHistory' }),
-          ),
-        )
+      } catch {
         await emitRestoreComplete(item, false, 'restore failed')
       } finally {
         resetWorkflowVersionHistory()
@@ -323,13 +317,7 @@ export const VersionHistoryPanel = ({
           deleteAllInspectVars()
           invalidAllLastRun()
         },
-        onError: (caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(
-              t(($) => $['versionHistory.action.deleteFailure'], { ns: 'workflowHistory' }),
-            ),
-          )
-        },
+
         onSettled: () => {
           setDeleteConfirmOpen(false)
         },
@@ -337,7 +325,6 @@ export const VersionHistoryPanel = ({
     },
     [
       deleteWorkflow,
-      t,
       resetWorkflowVersionHistory,
       deleteAllInspectVars,
       invalidAllLastRun,
@@ -368,13 +355,7 @@ export const VersionHistoryPanel = ({
             )
               invalidateAppWorkflow(configsMap.flowId)
           },
-          onError: (caughtError) => {
-            reportErrorOnce(caughtError, () =>
-              toast.error(
-                t(($) => $['versionHistory.action.updateFailure'], { ns: 'workflowHistory' }),
-              ),
-            )
-          },
+
           onSettled: () => {
             setEditModalOpen(false)
           },
@@ -387,7 +368,6 @@ export const VersionHistoryPanel = ({
       configsMap?.flowType,
       invalidateAppWorkflow,
       latestVersionId,
-      t,
       updateWorkflow,
       updateVersionUrl,
     ],

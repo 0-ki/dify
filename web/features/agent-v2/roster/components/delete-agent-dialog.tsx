@@ -11,9 +11,7 @@ import {
 } from '@langgenius/dify-ui/alert-dialog'
 import { useMutation } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type DeleteAgentDialogProps = {
   agentId: string
@@ -47,11 +45,6 @@ export function DeleteAgentDialog({
         onSuccess: () => {
           onOpenChange(false)
           onDeleted?.()
-        },
-        onError: (caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(t(($) => $['roster.deleteFailed'], { ns: 'agentRoster' })),
-          )
         },
       },
     )

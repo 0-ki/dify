@@ -14,7 +14,6 @@ import { resolveLLMNodeModel } from '@/app/components/workflow/nodes/llm/utils'
 import { BlockEnum } from '@/app/components/workflow/types'
 import { toast } from '@/app/notifications'
 import { PipelineInputVarType } from '@/models/pipeline'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { useCreateSnippet } from './use-create-snippet'
 
 const DEFAULT_SNIPPET_VIEWPORT = { x: 0, y: 0, zoom: 1 }
@@ -304,14 +303,12 @@ export const useCreateSnippetFromSelection = ({
       const result = getSelectedSnippetGraph(selectedNodes, edges, environmentVariables)
       graph = result.graph
       inputFields = result.inputFields
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(
-          t(($) => $['errorMsg.fieldRequired'], {
-            ns: 'workflow',
-            field: t(($) => $['errorMsg.fields.model'], { ns: 'workflow' }),
-          }),
-        ),
+    } catch {
+      toast.error(
+        t(($) => $['errorMsg.fieldRequired'], {
+          ns: 'workflow',
+          field: t(($) => $['errorMsg.fields.model'], { ns: 'workflow' }),
+        }),
       )
       return
     }

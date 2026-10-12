@@ -41,7 +41,6 @@ import {
 } from '@/config'
 import { asyncRunSafe } from '@/utils'
 import { isClient } from '@/utils/client'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { resolveLoginRedirectTarget } from '@/utils/login-redirect'
 import { basePath } from '@/utils/var'
 import { ApiError } from './api-error'
@@ -1126,7 +1125,7 @@ export const request = async <T>(url: string, options = {}, otherOptions?: IOthe
         return Promise.reject(err)
       }
       if (code === 'init_validate_failed' && !silent) {
-        reportErrorOnce(err, () => toast.error(message, { timeout: 4000 }))
+        toast.error(message, { timeout: 4000 })
         return Promise.reject(err)
       }
       if (code === 'not_init_validated') {
@@ -1151,7 +1150,7 @@ export const request = async <T>(url: string, options = {}, otherOptions?: IOthe
         return Promise.reject(err)
       }
       if (!silent) {
-        reportErrorOnce(err, () => toast.error(message))
+        toast.error(message)
         return Promise.reject(err)
       }
       jumpTo(buildSigninUrlWithRedirect())

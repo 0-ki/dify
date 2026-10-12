@@ -18,7 +18,6 @@ import { toast } from '@/app/notifications'
 import { agentSoulConfigToFormState } from '@/features/agent-v2/agent-composer/conversions'
 import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { usePrepareAgentBuildDraftBeforeRun } from './use-agent-build-draft-run'
 
 const isNotFoundResponse = (error: unknown) => error instanceof ApiError && error.status === 404
@@ -184,7 +183,7 @@ export function useAgentConfigureBuildDraftData({
           return await buildDraftQueryOptions.queryFn(context)
         } catch (error) {
           if (isNotFoundResponse(error)) setSoulSourceOverride('draft')
-          else reportErrorOnce(error, () => toast.error(t(($) => $['api.actionFailed'])))
+          else toast.error(t(($) => $['api.actionFailed']))
           throw error
         }
       },
@@ -341,21 +340,11 @@ export function useAgentConfigureBuildDraftActions({
     if (!forceCheckoutBeforeNextBuildRunRef.current) return prepareBuildDraftBeforeRun()
 
     await saveDraft()
-    try {
-      const buildDraft = await forceCheckoutBuildDraft()
-      forceCheckoutBeforeNextBuildRunRef.current = false
-      return buildDraft
-    } catch (error) {
-      reportErrorOnce(error, () => toast.error(tCommon(($) => $['api.actionFailed'])))
-      throw error
-    }
-  }, [
-    cancelBuildDraftRefresh,
-    forceCheckoutBuildDraft,
-    prepareBuildDraftBeforeRun,
-    saveDraft,
-    tCommon,
-  ])
+
+    const buildDraft = await forceCheckoutBuildDraft()
+    forceCheckoutBeforeNextBuildRunRef.current = false
+    return buildDraft
+  }, [cancelBuildDraftRefresh, forceCheckoutBuildDraft, prepareBuildDraftBeforeRun, saveDraft])
 
   const startFreshBuildSession = useCallback(async () => {
     cancelBuildDraftRefresh()
@@ -364,11 +353,10 @@ export function useAgentConfigureBuildDraftActions({
       await resetBuildChatSession()
       forceCheckoutBeforeNextBuildRunRef.current = true
       return true
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () => toast.error(tCommon(($) => $['api.actionFailed'])))
+    } catch {
       return false
     }
-  }, [cancelBuildDraftRefresh, resetBuildChatSession, setSoulSourceOverride, tCommon])
+  }, [cancelBuildDraftRefresh, resetBuildChatSession, setSoulSourceOverride])
 
   const refreshBuildDraftAfterBuildChat = useCallback(
     (onRefreshed?: () => void) => {
@@ -443,7 +431,6 @@ export function useAgentConfigureBuildDraftActions({
       await exitBuildDraftMode(true)
       toast.success(tCommon(($) => $['api.actionSuccess']))
     } catch {
-      // Each failed request already surfaces its backend error through the console client.
     } finally {
       setIsApplyingBuildDraftWorkflow(false)
     }
@@ -459,8 +446,7 @@ export function useAgentConfigureBuildDraftActions({
       await exitBuildDraftMode(false)
       toast.success(tCommon(($) => $['api.actionSuccess']))
       return true
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () => toast.error(tCommon(($) => $['api.actionFailed'])))
+    } catch {
       return false
     }
   }

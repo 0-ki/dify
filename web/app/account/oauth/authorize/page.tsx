@@ -23,7 +23,6 @@ import { useRouter, useSearchParams } from '@/next/navigation'
 import { consoleQuery } from '@/service/console'
 import { useLogout } from '@/service/use-common'
 import { getAvatarInitial } from '@/utils/avatar'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { buildOAuthCallbackUrl, buildReturnUrl, useSilentAuthorize } from './use-silent-authorize'
 
 export default function OAuthAuthorize() {
@@ -90,7 +89,7 @@ export default function OAuthAuthorize() {
     }),
   )
   const { mutateAsync: authorize, isPending: authorizing } = useMutation(
-    consoleQuery.oauth.provider.authorize.post.mutationOptions(),
+    consoleQuery.oauth.provider.authorize.post.mutationOptions({ context: { silent: true } }),
   )
   const returnUrl = buildReturnUrl('/account/oauth/authorize', `?${searchParams.toString()}`)
   const signInUrl = `/signin?redirect_url=${encodeURIComponent(returnUrl)}`
@@ -123,9 +122,7 @@ export default function OAuthAuthorize() {
     try {
       if (isLoggedIn) await logout()
       else router.push(signInUrl)
-    } catch {
-      // The request layer reports logout failures; keep the current session on this page.
-    }
+    } catch {}
   }
 
   const onAuthorize = async () => {
@@ -135,9 +132,7 @@ export default function OAuthAuthorize() {
       globalThis.location.href = buildOAuthCallbackUrl(redirectUri, code, state)
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error)
-      reportErrorOnce(error, () =>
-        toast.error(`${t(($) => $['error.authorizeFailed'], { ns: 'oauth' })}: ${message}`),
-      )
+      toast.error(`${t(($) => $['error.authorizeFailed'], { ns: 'oauth' })}: ${message}`)
     }
   }
 

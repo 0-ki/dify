@@ -13,7 +13,6 @@ import { API_PREFIX, CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/config'
 import { getDriveFileIconType } from '@/features/agent-v2/file-icon'
 import { consoleQuery } from '@/service/console'
 import { downloadBlob } from '@/utils/download'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 const skillFileContentQueryKey = (url?: string) => ['agent-v2', 'skill-file-content', url] as const
 
@@ -453,10 +452,8 @@ export function useAgentSkillDetail({
         })
         const data = await queryClient.query(getSkillFileContentQueryOptions(result.url))
         downloadBlob({ data, fileName: file.name })
-      } catch (caughtError) {
-        reportErrorOnce(caughtError, () =>
-          toast.error(tCommon(($) => $['operation.downloadFailed'])),
-        )
+      } catch {
+        toast.error(tCommon(($) => $['operation.downloadFailed']))
       } finally {
         setDownloadActionLoadingTarget(null)
       }

@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { useInvalidateAppWorkflow, useUpdateWorkflow } from '@/service/use-workflow'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type VersionInfoUpdate = {
   id?: string
@@ -52,13 +51,7 @@ export function useVersionInfo({
           )
           invalidateAppWorkflow(appId)
         },
-        onError: (caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(
-              t(($) => $['versionHistory.action.updateFailure'], { ns: 'workflowHistory' }),
-            ),
-          )
-        },
+
         onSettled: () => {
           setIsOpen(false)
         },

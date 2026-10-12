@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import useTheme from '@/hooks/use-theme'
 import { Theme } from '@/types/app'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type AudioPlayerProps = Readonly<{
   src?: string // Keep backward compatibility
@@ -159,7 +158,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, srcs }) => {
         if (!isPlaying) {
           setIsPlaying(true)
           audio.play().catch((error) => {
-            reportErrorOnce(error, () => toast.error(`Error playing audio: ${error}`))
+            toast.error(`Error playing audio: ${error}`)
             setIsPlaying(false)
           })
         }

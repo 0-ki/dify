@@ -1110,10 +1110,9 @@ describe('AppCard', () => {
 
       await waitFor(() => {
         expect(mockDeleteAppMutation).toHaveBeenCalled()
-        expect(toastMocks.record).toHaveBeenCalledWith({
-          type: 'error',
-          message: expect.stringContaining('Delete failed'),
-        })
+        expect(toastMocks.record).not.toHaveBeenCalledWith(
+          expect.objectContaining({ type: 'error' }),
+        )
       })
     })
 
@@ -1131,10 +1130,9 @@ describe('AppCard', () => {
 
       await waitFor(() => {
         expect(mockDeleteAppMutation).toHaveBeenCalled()
-        expect(toastMocks.record).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'app.appDeleteFailed',
-        })
+        expect(toastMocks.record).not.toHaveBeenCalledWith(
+          expect.objectContaining({ type: 'error' }),
+        )
       })
     })
 
@@ -1206,10 +1204,9 @@ describe('AppCard', () => {
 
       await waitFor(() => {
         expect(mockCopyApp).toHaveBeenCalled()
-        expect(toastMocks.record).toHaveBeenCalledWith({
-          type: 'error',
-          message: 'app.newApp.appCreateFailed',
-        })
+        expect(toastMocks.record).not.toHaveBeenCalledWith(
+          expect.objectContaining({ type: 'error' }),
+        )
       })
     })
 
@@ -1434,10 +1431,9 @@ describe('AppCard', () => {
 
       await waitFor(() => {
         expect(mockUpdateAppMutation).toHaveBeenCalled()
-        expect(toastMocks.record).toHaveBeenCalledWith({
-          type: 'error',
-          message: expect.stringContaining('Edit failed'),
-        })
+        expect(toastMocks.record).not.toHaveBeenCalledWith(
+          expect.objectContaining({ type: 'error' }),
+        )
       })
     })
 
@@ -1459,7 +1455,9 @@ describe('AppCard', () => {
 
       await waitFor(() => {
         expect(mockUpdateAppMutation).toHaveBeenCalled()
-        expect(toastMocks.record).toHaveBeenCalledWith({ type: 'error', message: 'app.editFailed' })
+        expect(toastMocks.record).not.toHaveBeenCalledWith(
+          expect.objectContaining({ type: 'error' }),
+        )
       })
     })
   })

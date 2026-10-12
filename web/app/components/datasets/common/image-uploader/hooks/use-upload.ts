@@ -6,7 +6,6 @@ import { v4 as uuid4 } from 'uuid'
 import { fileUpload, getFileUploadErrorMessage } from '@/app/components/base/file-uploader/utils'
 import { toast } from '@/app/notifications'
 import { useFileUploadConfig } from '@/service/use-common'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { ACCEPT_TYPES } from '../constants'
 import { useFileStore } from '../store'
 import { getFileType, getFileUploadConfig, traverseFileEntry } from '../utils'
@@ -157,7 +156,7 @@ export const useUpload = () => {
               t(($) => $['fileUploader.uploadFromComputerUploadError'], { ns: 'common' }),
               t,
             )
-            reportErrorOnce(error, () => toast.error(errorMessage))
+            toast.error(errorMessage)
             handleUpdateFile({ ...uploadingFile, progress: -1 })
           },
         })
@@ -206,7 +205,7 @@ export const useUpload = () => {
                 t(($) => $['fileUploader.uploadFromComputerUploadError'], { ns: 'common' }),
                 t,
               )
-              reportErrorOnce(error, () => toast.error(errorMessage))
+              toast.error(errorMessage)
               handleUpdateFile({ ...uploadingFile, progress: -1 })
             },
           })

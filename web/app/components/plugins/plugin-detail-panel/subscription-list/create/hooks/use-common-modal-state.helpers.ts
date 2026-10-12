@@ -6,8 +6,6 @@ import type { TriggerSubscriptionBuilder } from '@/app/components/workflow/block
 import type { BuildTriggerSubscriptionPayload } from '@/service/use-triggers'
 import { useEffect, useRef } from 'react'
 import { SupportedCreationMethods } from '@/app/components/plugins/types'
-import { toast } from '@/app/notifications'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { isPrivateOrLocalAddress } from '@/utils/urlValidation'
 
 type FormValuesResult = {
@@ -146,9 +144,6 @@ export const useInitializeSubscriptionBuilder = ({
         setSubscriptionBuilder(response.subscription_builder)
       } catch (error) {
         console.error('createBuilder error:', error)
-        reportErrorOnce(error, () =>
-          toast.error(t(($) => $['modal.errors.createFailed'], { ns: 'pluginTrigger' })),
-        )
       }
     }
 

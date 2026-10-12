@@ -10,7 +10,6 @@ import { toast } from '@/app/notifications'
 import useDocumentTitle from '@/hooks/use-document-title'
 import { useRouter } from '@/next/navigation'
 import { createExternalKnowledgeBase } from '@/service/datasets'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 const ExternalKnowledgeBaseConnector = () => {
   const [loading, setLoading] = useState(false)
@@ -36,9 +35,7 @@ const ExternalKnowledgeBaseConnector = () => {
       }
     } catch (error) {
       console.error('Error creating external knowledge base:', error)
-      reportErrorOnce(error, () =>
-        toast.error(t(($) => $['externalKnowledgeForm.connectedFailed'], { ns: 'dataset' })),
-      )
+      toast.error(t(($) => $['externalKnowledgeForm.connectedFailed'], { ns: 'dataset' }))
     }
     setLoading(false)
   }

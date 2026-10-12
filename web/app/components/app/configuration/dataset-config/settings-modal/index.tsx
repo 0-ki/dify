@@ -32,7 +32,6 @@ import { DatasetPermission } from '@/models/datasets'
 import { consoleQuery } from '@/service/console'
 import { updateDatasetSetting } from '@/service/datasets'
 import { useMembers } from '@/service/use-common'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { RetrievalChangeTip, RetrievalSection } from './retrieval-section'
 
 type SettingsModalProps = {
@@ -187,10 +186,8 @@ const SettingsModal: FC<SettingsModalProps> = ({
         indexing_technique: indexMethod,
         retrieval_model_dict: retrievalConfig,
       })
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-      )
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     } finally {
       setLoading(false)
     }

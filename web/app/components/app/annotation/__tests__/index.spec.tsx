@@ -320,7 +320,7 @@ describe('Annotation', () => {
     })
   })
 
-  it('should show an error notification when batch deletion fails', async () => {
+  it('leaves request error feedback to the transport when batch deletion fails', async () => {
     const annotation = createAnnotation()
     fetchAnnotationListMock.mockResolvedValue({ data: [annotation], total: 1 })
     const error = new Error('failed')
@@ -341,10 +341,7 @@ describe('Annotation', () => {
     })
 
     await waitFor(() => {
-      expect(mockNotify).toHaveBeenCalledWith({
-        type: 'error',
-        message: error.message,
-      })
+      expect(mockNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
       expect(latestListProps.selectedIds).toEqual([annotation.id])
     })
   })

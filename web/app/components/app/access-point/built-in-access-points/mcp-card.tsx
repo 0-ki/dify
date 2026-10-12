@@ -19,7 +19,6 @@ import { AccessPointCard } from '@/app/components/base/access-point/card'
 import { AccessPointUrl } from '@/app/components/base/access-point/url'
 import MCPServerModal from '@/app/components/tools/mcp/mcp-server-modal'
 import { BlockEnum } from '@/app/components/workflow/types'
-import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
 import {
   useInvalidateMCPServerDetail,
@@ -27,7 +26,6 @@ import {
   useRefreshMCPServerCode,
 } from '@/service/use-tools'
 import { AppModeEnum } from '@/types/app'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { useAccessPointStatusLabel } from '../shared/use-access-point-status-label'
 import { getPublishedWorkflowNodes, isAdvancedApp } from '../shared/utils'
 
@@ -67,11 +65,6 @@ export function MCPAccessPointCard({
         id: `app-mcp-toggle:${appInfo.id}`,
       },
       onSuccess: () => invalidateServerDetail(appInfo.id),
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-        )
-      },
     }),
   )
   const { mutateAsync: refreshServerCode, isPending: regenerating } = useRefreshMCPServerCode()

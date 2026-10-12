@@ -9,7 +9,6 @@ import { useStoreApi } from 'reactflow'
 import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
 import { useIncrementSnippetUseCountMutation } from '@/service/use-snippets'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { CUSTOM_EDGE, NESTED_ELEMENT_Z_INDEX, NODE_WIDTH_X_OFFSET, X_OFFSET } from '../../constants'
 import { useNodesSyncDraft } from '../../hooks/use-nodes-sync-draft'
 import { useWorkflowHistory, WorkflowHistoryEvent } from '../../hooks/use-workflow-history'
@@ -416,6 +415,7 @@ export const useInsertSnippet = () => {
       try {
         const workflow = await queryClient.query(
           consoleQuery.snippets.bySnippetId.workflows.publish.get.queryOptions({
+            context: { silent: true },
             input: {
               params: { snippet_id: snippetId },
             },
@@ -574,10 +574,8 @@ export const useInsertSnippet = () => {
         })
         return true
       } catch (error) {
-        reportErrorOnce(error, () =>
-          toast.error(
-            error instanceof Error ? error.message : t(($) => $.createFailed, { ns: 'snippet' }),
-          ),
+        toast.error(
+          error instanceof Error ? error.message : t(($) => $.createFailed, { ns: 'snippet' }),
         )
         return false
       }

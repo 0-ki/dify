@@ -3,11 +3,8 @@
 import type { AppDetailWithSite } from '@dify/contracts/api/console/apps/types.gen'
 import type { AccessPointAvailability } from '@/app/components/base/access-point/status'
 import { useMutation } from '@tanstack/react-query'
-import { useTranslation } from 'react-i18next'
 import { getAccessPointStatus } from '@/app/components/base/access-point/status'
-import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { ServiceApiCardView } from '../shared/service-api-card-view'
 import { getBuiltInAccessUrls } from '../shared/utils'
 
@@ -24,16 +21,10 @@ export function ServiceApiAccessPointCard({
   canManage,
   highlighted,
 }: ServiceApiAccessPointCardProps) {
-  const { t } = useTranslation(['common'])
   const toggleApiMutation = useMutation(
     consoleQuery.apps.byAppId.apiEnable.post.mutationOptions({
       scope: {
         id: `app-service-api-toggle:${appInfo.id}`,
-      },
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-        )
       },
     }),
   )

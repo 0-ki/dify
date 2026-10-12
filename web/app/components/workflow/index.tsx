@@ -56,7 +56,6 @@ import {
   useAllWorkflowTools,
 } from '@/service/use-tools'
 import { fetchAllInspectVars } from '@/service/workflow'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import CandidateNode from './candidate-node'
 import UserCursors from './collaboration/components/user-cursors'
 import { collaborationManager } from './collaboration/core/collaboration-manager'
@@ -360,14 +359,12 @@ export const Workflow: FC<WorkflowProps> = memo(
       if (isCollaborationEnabled && !collaborationManager.canFlushGraphOnPageClose()) return
 
       handleSyncWorkflowDraft(true, true, {
-        onError: (caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(
-              t(($) => $['common.draftSaveFailed'], { ns: 'workflow' }),
-              {
-                timeout: 0,
-              },
-            ),
+        onError: () => {
+          toast.error(
+            t(($) => $['common.draftSaveFailed'], { ns: 'workflow' }),
+            {
+              timeout: 0,
+            },
           )
         },
       })

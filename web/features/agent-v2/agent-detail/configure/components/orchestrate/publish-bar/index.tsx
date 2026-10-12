@@ -25,7 +25,6 @@ import {
 import { useFormatTimeFromNow } from '@/hooks/use-format-time-from-now'
 import useTimestamp from '@/hooks/use-timestamp'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { AgentVersionRestore } from '../../version-restore'
 import { AgentPublishImpactDetails } from './publish-impact-details'
 import { AgentPublishSuccess } from './publish-success'
@@ -174,8 +173,8 @@ export function AgentConfigurePublishBar({
         ...workflowReferencesQueryOptions,
         staleTime: 0,
       })
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () => toast.error(tCommon(($) => $['api.actionFailed'])))
+    } catch {
+      toast.error(tCommon(($) => $['api.actionFailed']))
       return
     }
     const references = referencesResponse?.data ?? []

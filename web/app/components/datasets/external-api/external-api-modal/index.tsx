@@ -18,7 +18,6 @@ import { memo, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { createExternalAPI } from '@/service/datasets'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import Form from './Form'
 
 type AddExternalAPIModalProps = {
@@ -114,7 +113,6 @@ const AddExternalAPIModal: FC<AddExternalAPIModalProps> = ({
       onCancel()
     } catch (error) {
       console.error('Error saving/updating external API:', error)
-      reportErrorOnce(error, () => toast.error('Failed to save/update External API'))
     } finally {
       setLoading(false)
     }

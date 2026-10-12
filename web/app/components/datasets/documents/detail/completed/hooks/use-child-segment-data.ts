@@ -16,7 +16,6 @@ import {
   useUpdateChildSegment,
 } from '@/service/knowledge/use-segment'
 import { useInvalid } from '@/service/use-base'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { useDocumentContext } from '../../context'
 
 type UseChildSegmentDataOptions = {
@@ -145,11 +144,6 @@ export const useChildSegmentData = (
             } else {
               resetChildList()
             }
-          },
-          onError: (caughtError) => {
-            reportErrorOnce(caughtError, () =>
-              toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-            )
           },
         },
       )

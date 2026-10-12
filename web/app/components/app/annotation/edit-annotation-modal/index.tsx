@@ -27,7 +27,6 @@ import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import useTimestamp from '@/hooks/use-timestamp'
 import { editAnnotation } from '@/service/annotation'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import EditItem, { EditItemType } from './edit-item'
 
 type Props = Readonly<{
@@ -64,22 +63,15 @@ const EditAnnotationModal: FC<Props> = ({
     let postAnswer = answer
     if (type === EditItemType.Query) postQuery = editedContent
     else postAnswer = editedContent
-    try {
-      await editAnnotation(appId, annotationId, {
-        message_id: messageId,
-        question: postQuery,
-        answer: postAnswer,
-      })
-      onEdited(postQuery, postAnswer)
 
-      toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }) as string)
-    } catch (error) {
-      const fallbackMessage = t(($) => $['api.actionFailed'], { ns: 'common' }) as string
-      const message = error instanceof Error && error.message ? error.message : fallbackMessage
-      reportErrorOnce(error, () => toast.error(message))
-      // Re-throw to preserve edit mode behavior for UI components
-      throw error
-    }
+    await editAnnotation(appId, annotationId, {
+      message_id: messageId,
+      question: postQuery,
+      answer: postAnswer,
+    })
+    onEdited(postQuery, postAnswer)
+
+    toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }) as string)
   }
   const removeActionsRef = useRef<AlertDialogActions>(null)
   if (!isShow) return null

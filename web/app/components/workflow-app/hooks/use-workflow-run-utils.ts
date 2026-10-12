@@ -11,7 +11,6 @@ import { toast } from '@/app/notifications'
 import { handleStream, post } from '@/service/base'
 import { ContentType } from '@/service/fetch'
 import { AppModeEnum } from '@/types/app'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type HandleRunMode = TriggerType
 export type HandleRunOptions = {
@@ -368,6 +367,7 @@ export const runTriggerDebug = async ({
         },
         {
           needAllResponseContent: true,
+          silent: true,
         },
       )
 
@@ -391,7 +391,7 @@ export const runTriggerDebug = async ({
             `handleRun: ${debugLabel.toLowerCase()} debug response parse error`,
             jsonError,
           )
-          reportErrorOnce(jsonError, () => toast.error(`${debugLabel} debug request failed`))
+          toast.error(`${debugLabel} debug request failed`)
           clearAbortController()
           clearListeningState()
           return
@@ -456,7 +456,7 @@ export const runTriggerDebug = async ({
 
       if (error instanceof Error) {
         const errorMessage = error.message
-        reportErrorOnce(error, () => toast.error(errorMessage))
+        toast.error(errorMessage)
         clearAbortController()
         setWorkflowRunningData(createFailedWorkflowState(errorMessage))
       }

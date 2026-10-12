@@ -21,7 +21,6 @@ import { useParams, usePathname } from '@/next/navigation'
 import { uploadRemoteFileInfo } from '@/service/common'
 import { uploadHumanInputFormLocalFile, uploadHumanInputFormRemoteFileInfo } from '@/service/share'
 import { TransferMethod } from '@/types/app'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { formatFileSize } from '@/utils/format'
 import { useFileStore } from './store'
 import { useFileUploadContext } from './upload-context'
@@ -192,7 +191,7 @@ export const useFile = (fileConfig: FileUpload, noNeedToCheckEnable = true) => {
               t(($) => $['fileUploader.uploadFromComputerUploadError'], { ns: 'common' }),
               t,
             )
-            reportErrorOnce(error, () => toast.error(errorMessage))
+            toast.error(errorMessage)
             handleUpdateFile({ ...uploadingFile, progress: -1 })
           },
         }
@@ -244,8 +243,8 @@ export const useFile = (fileConfig: FileUpload, noNeedToCheckEnable = true) => {
       let remoteUpload
       if (isHumanInputFormPage) remoteUpload = uploadHumanInputFormRemoteFileInfo(formToken!, url)
       else if (remoteUploadUrl)
-        remoteUpload = uploadRemoteFileInfo(url, !!params.token, undefined, remoteUploadUrl)
-      else remoteUpload = uploadRemoteFileInfo(url, !!params.token)
+        remoteUpload = uploadRemoteFileInfo(url, !!params.token, true, remoteUploadUrl)
+      else remoteUpload = uploadRemoteFileInfo(url, !!params.token, true)
 
       remoteUpload
         .then((res) => {
@@ -279,10 +278,8 @@ export const useFile = (fileConfig: FileUpload, noNeedToCheckEnable = true) => {
             handleRemoveFile(uploadingFile.id)
           else handleUpdateFile(newFile)
         })
-        .catch((caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(t(($) => $['fileUploader.pasteFileLinkInvalid'], { ns: 'common' })),
-          )
+        .catch(() => {
+          toast.error(t(($) => $['fileUploader.pasteFileLinkInvalid'], { ns: 'common' }))
           handleRemoveFile(uploadingFile.id)
         })
     },
@@ -375,7 +372,7 @@ export const useFile = (fileConfig: FileUpload, noNeedToCheckEnable = true) => {
                 t(($) => $['fileUploader.uploadFromComputerUploadError'], { ns: 'common' }),
                 t,
               )
-              reportErrorOnce(error, () => toast.error(errorMessage))
+              toast.error(errorMessage)
               handleUpdateFile({ ...uploadingFile, progress: -1 })
             },
           }

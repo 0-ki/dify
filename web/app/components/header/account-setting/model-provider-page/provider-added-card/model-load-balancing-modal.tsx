@@ -23,7 +23,6 @@ import { LoadingPlaceholder } from '@/app/components/base/loading-placeholder'
 import { SwitchCredentialInLoadBalancing } from '@/app/components/header/account-setting/model-provider-page/model-auth'
 import { toast } from '@/app/notifications'
 import { useGetModelCredential, useUpdateModelLoadBalancingConfig } from '@/service/use-models'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { ConfigurationMethodEnum, FormTypeEnum } from '../declarations'
 import { useRefreshModel } from '../hooks'
 import { useAuth } from '../model-auth/hooks/use-auth'
@@ -172,14 +171,8 @@ const ModelLoadBalancingModal = ({
           )?.error || t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }),
         )
       }
-    } catch (error) {
-      reportErrorOnce(error, () =>
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }),
-        ),
-      )
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     } finally {
       setLoading(false)
     }

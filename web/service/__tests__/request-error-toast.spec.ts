@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { toast } from '@/app/notifications'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { ApiError } from '../api-error'
 // oxlint-disable-next-line no-restricted-imports -- Exercise the shared request transport and its notification behavior.
 import { base } from '../fetch'
@@ -210,44 +209,32 @@ describe('request error feedback ownership', () => {
     vi.clearAllMocks()
   })
 
-  const requestWithCallers = (silent = false) =>
-    base('/feedback', { method: 'POST' }, { silent })
-      .catch((error: unknown) => {
-        reportErrorOnce(error, () => toast.error('Caller feedback'))
-        throw error
-      })
-      .catch((error: unknown) => {
-        reportErrorOnce(error, () => toast.error('Outer feedback'))
-        throw error
-      })
+  const requestWithCallers = () => base('/feedback', { method: 'POST' })
 
   it.each([
     [() => Response.json({ message: 'Permission denied' }, { status: 403 }), 'Permission denied'],
     [() => new Response('<html>Bad gateway</html>', { status: 502 }), 'HTTP 502'],
     [() => new Response(null, { status: 503 }), 'HTTP 503'],
-  ] as const)(
-    'keeps HTTP feedback with the request owner through multiple catches',
-    async (response, message) => {
-      vi.spyOn(globalThis, 'fetch').mockImplementation(async () => response())
-      await expect(requestWithCallers()).rejects.toBeInstanceOf(ApiError)
-      expect(toast.error).toHaveBeenCalledExactlyOnceWith(message)
-    },
-  )
+  ] as const)('reports HTTP errors at the request boundary', async (response, message) => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => response())
+    await expect(requestWithCallers()).rejects.toBeInstanceOf(ApiError)
+    expect(toast.error).toHaveBeenCalledExactlyOnceWith(message)
+  })
 
-  it('gives a silent request to its caller without reporting again after a rethrow', async () => {
+  it('leaves silent requests to their caller', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       Response.json({ message: 'Rejected' }, { status: 400 }),
     )
-    await expect(requestWithCallers(true)).rejects.toBeInstanceOf(ApiError)
-    expect(toast.error).toHaveBeenCalledExactlyOnceWith('Caller feedback')
+    await expect(base('/feedback', { method: 'POST' }, { silent: true })).rejects.toBeInstanceOf(
+      ApiError,
+    )
+    expect(toast.error).not.toHaveBeenCalled()
   })
 
   it('reports a network failure once and preserves its transport type', async () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'))
     await expect(requestWithCallers()).rejects.toMatchObject({ name: 'NetworkError' })
     expect(toast.error).toHaveBeenCalledOnce()
-    expect(toast.error).not.toHaveBeenCalledWith('Caller feedback')
-    expect(toast.error).not.toHaveBeenCalledWith('Outer feedback')
   })
 
   it('does not turn cancellation into a notification at any layer', async () => {

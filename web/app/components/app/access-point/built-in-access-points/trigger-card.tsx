@@ -12,14 +12,12 @@ import { AccessPointCard, AccessPointEmptyContent } from '@/app/components/base/
 import BlockIcon from '@/app/components/workflow/block-icon'
 import { useTriggerStatusStore } from '@/app/components/workflow/store/trigger-status'
 import { BlockEnum } from '@/app/components/workflow/types'
-import { toast } from '@/app/notifications'
 import { useDocLink } from '@/context/i18n'
 import Link from '@/next/link'
 import { consoleQuery } from '@/service/console'
 import { useAppTriggers, useInvalidateAppTriggers } from '@/service/use-tools'
 import { useAllTriggerPlugins } from '@/service/use-triggers'
 import { canFindTool } from '@/utils'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { useAccessPointStatusLabel } from '../shared/use-access-point-status-label'
 
 function TriggerIcon({
@@ -72,11 +70,6 @@ function TriggerAccessPointItem({
         id: `app-trigger-toggle:${appId}:${trigger.id}`,
       },
       onSuccess: () => invalidateTriggers(appId),
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-        )
-      },
     }),
   )
   const pendingEnabled = updateTriggerMutation.variables?.body.enable_trigger

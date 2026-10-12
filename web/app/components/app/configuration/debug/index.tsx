@@ -45,7 +45,6 @@ import { consoleQuery } from '@/service/console'
 import { sendCompletionMessage } from '@/service/debug'
 import { AppSourceType } from '@/service/share'
 import { AppModeEnum, ModelModeType, TransferMethod } from '@/types/app'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { formatBooleanInputs, promptVariablesToUserInputsForm } from '@/utils/model-config'
 import GroupName from '../base/group-name'
 import CannotQueryDataset from '../base/warning-mask/cannot-query-dataset'
@@ -281,10 +280,8 @@ const Debug: FC<IDebug> = ({
         retriever_resource: citationConfig,
         external_data_tools: externalDataToolsConfig,
       }
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(t(($) => $['api.actionFailed'], { ns: 'common' })),
-      )
+    } catch {
+      toast.error(t(($) => $['api.actionFailed'], { ns: 'common' }))
       return false
     }
 

@@ -600,7 +600,7 @@ describe('RenameDatasetModal', () => {
       })
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('common.actionMsg.modifiedUnsuccessfully')
+        expect(mockToast.error).not.toHaveBeenCalled()
       })
     })
 
@@ -616,7 +616,7 @@ describe('RenameDatasetModal', () => {
       })
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('common.actionMsg.modifiedUnsuccessfully')
+        expect(mockToast.error).not.toHaveBeenCalled()
       })
 
       expect(handleSuccess).not.toHaveBeenCalled()
@@ -634,7 +634,7 @@ describe('RenameDatasetModal', () => {
       })
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalled()
+        expect(mockToast.error).not.toHaveBeenCalled()
       })
 
       expect(handleClose).not.toHaveBeenCalled()
@@ -652,7 +652,7 @@ describe('RenameDatasetModal', () => {
 
       // Wait for error handling to complete
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalled()
+        expect(mockToast.error).not.toHaveBeenCalled()
       })
 
       // Save button should be enabled again
@@ -1242,7 +1242,7 @@ describe('RenameDatasetModal', () => {
       })
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('common.actionMsg.modifiedUnsuccessfully')
+        expect(mockToast.error).not.toHaveBeenCalled()
       })
 
       // Button should be re-enabled after error

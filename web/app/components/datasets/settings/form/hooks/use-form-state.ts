@@ -22,7 +22,6 @@ import { consoleQuery } from '@/service/console'
 import { updateDatasetSetting } from '@/service/datasets'
 import { useInvalidDatasetList } from '@/service/knowledge/use-dataset'
 import { useMembers } from '@/service/use-common'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { getDatasetACLCapabilities } from '@/utils/permission'
 import { checkShowMultiModalTip } from '../../utils'
 
@@ -224,10 +223,8 @@ export const useFormState = () => {
         await mutateDatasets()
         invalidDatasetList()
       }
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-      )
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     } finally {
       setLoading(false)
     }

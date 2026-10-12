@@ -17,7 +17,6 @@ import { login } from '@/service/common'
 import { consoleQuery } from '@/service/console'
 import { setWebAppAccessToken } from '@/service/webapp-auth'
 import { encryptPassword } from '@/utils/encryption'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { replaceLoginRedirect } from '@/utils/login-redirect.client'
 import { basePath } from '@/utils/var'
 import { resolvePostLoginRedirect } from '../utils/post-login-redirect'
@@ -78,9 +77,7 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup }: MailAndP
       }
     } catch (error) {
       if (hasErrorCode(error, 'authentication_failed'))
-        reportErrorOnce(error, () =>
-          toast.error(t(($) => $['error.invalidEmailOrPassword'], { ns: 'login' })),
-        )
+        toast.error(t(($) => $['error.invalidEmailOrPassword'], { ns: 'login' }))
     } finally {
       setIsLoading(false)
     }

@@ -1,13 +1,9 @@
 import type { Credential, ModelProvider } from '../../declarations'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { toast } from '@/app/notifications'
 import { useActiveProviderCredential } from '@/service/use-models'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { useUpdateModelList, useUpdateModelProviders } from '../../hooks'
 
 export function useActivateCredential(provider: ModelProvider) {
-  const { t } = useTranslation(['common'])
   const updateModelProviders = useUpdateModelProviders()
   const updateModelList = useUpdateModelList()
   const { mutate, isPending } = useActiveProviderCredential(provider.provider)
@@ -32,16 +28,13 @@ export function useActivateCredential(provider: ModelProvider) {
             updateModelProviders()
             supportedModelTypesRef.current.forEach((type) => updateModelList(type))
           },
-          onError: (caughtError) => {
+          onError: () => {
             setOptimisticId(undefined)
-            reportErrorOnce(caughtError, () =>
-              toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-            )
           },
         },
       )
     },
-    [mutate, t, updateModelProviders, updateModelList],
+    [mutate, updateModelProviders, updateModelList],
   )
   return {
     selectedCredentialId,

@@ -7,10 +7,8 @@ import { Input } from '@langgenius/dify-ui/input'
 import { useAtomValue } from 'jotai'
 import { useId, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from '@/app/notifications'
 import { currentWorkspaceAtom, isCurrentWorkspaceOwnerAtom } from '@/context/workspace-state'
 import { updateWorkspaceInfo } from '@/service/common'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type IEditWorkspaceModalProps = {
   onCancel: () => void
@@ -46,10 +44,8 @@ const EditWorkspaceModal = ({ onCancel }: IEditWorkspaceModalProps) => {
         },
       })
       location.assign(`${location.origin}`)
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' })),
-      )
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     } finally {
       setIsSubmitting(false)
     }

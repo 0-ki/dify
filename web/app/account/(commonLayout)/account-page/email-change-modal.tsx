@@ -11,7 +11,6 @@ import { toast } from '@/app/notifications'
 import { ApiError } from '@/service/api-error'
 import { checkEmailExisted, resetEmail, sendVerifyCode, verifyEmail } from '@/service/common'
 import { useLogout } from '@/service/use-common'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type Props = {
   onClose: () => void
@@ -28,11 +27,6 @@ const STEP = {
 type Step = (typeof STEP)[keyof typeof STEP]
 
 const emailPattern = /^[\w.!#$%&'*+\-/=?^`{|}~]+@(?:[\w-]+\.)+[\w-]{2,}$/
-
-function getErrorMessage(error: unknown) {
-  if (error instanceof Error) return error.message
-  return ''
-}
 
 const EmailChangeModal = ({ onClose, email }: Props) => {
   const { t } = useTranslation(['common', 'accountSettings'])
@@ -79,10 +73,8 @@ const EmailChangeModal = ({ onClose, email }: Props) => {
       })
       startCount()
       if (res.data) setStepToken(res.data)
-    } catch (error) {
-      reportErrorOnce(error, () =>
-        toast.error(`Error sending verification code: ${getErrorMessage(error)}`),
-      )
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     }
   }
 
@@ -104,8 +96,8 @@ const EmailChangeModal = ({ onClose, email }: Props) => {
       } else {
         toast.error('Verifying email failed')
       }
-    } catch (error) {
-      reportErrorOnce(error, () => toast.error(`Error verifying email: ${getErrorMessage(error)}`))
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     }
   }
 
@@ -184,8 +176,8 @@ const EmailChangeModal = ({ onClose, email }: Props) => {
         token: lastToken,
       })
       await logout()
-    } catch (error) {
-      reportErrorOnce(error, () => toast.error(`Error changing email: ${getErrorMessage(error)}`))
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     }
   }
 

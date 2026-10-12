@@ -8,7 +8,6 @@ import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { hasPermission } from '@/utils/permission'
 import { ConfigurationMethodEnum } from '../declarations'
 import { useLazyModelProviderDetail } from '../hooks'
@@ -113,11 +112,9 @@ const ModelList: FC<ModelListProps> = ({ provider, models, onCollapse, onChange 
       setIsModelLoadBalancingModalLoading(true)
       try {
         await loadModelLoadBalancingModal()
-      } catch (caughtError) {
+      } catch {
         setModelLoadBalancingModalProps(null)
-        reportErrorOnce(caughtError, () =>
-          toast.error(t(($) => $['api.actionFailed'], { ns: 'common' })),
-        )
+        toast.error(t(($) => $['api.actionFailed'], { ns: 'common' }))
       } finally {
         setIsModelLoadBalancingModalLoading(false)
       }

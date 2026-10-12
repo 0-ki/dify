@@ -239,7 +239,6 @@ describe('useCommonModalState', () => {
       },
       expect.objectContaining({
         onSuccess: expect.any(Function),
-        onError: expect.any(Function),
       }),
     )
   })

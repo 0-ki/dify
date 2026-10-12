@@ -10,7 +10,6 @@ import { toast } from '@/app/notifications'
 import { useEventEmitterContextContext } from '@/context/event-emitter'
 import { useParams } from '@/next/navigation'
 import { consoleClient, consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { useNodesSyncDraftByCanEdit } from './use-nodes-sync-draft'
 
 type DoSyncWorkflowDraft = ReturnType<typeof useNodesSyncDraft>['doSyncWorkflowDraft']

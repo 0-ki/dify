@@ -13,7 +13,6 @@ import {
   PUBLIC_API_PREFIX,
   WEB_APP_SHARE_CODE_HEADER_NAME,
 } from '@/config'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { ApiError } from './api-error'
 import { shouldSuppressAppDeletionErrorToast } from './app-deletion'
 import { clearRequestErrorToasts, notifyRequestError } from './request-error-toast'
@@ -57,8 +56,7 @@ const afterResponseErrorCode = (otherOptions: IOtherOptions): AfterResponseHook 
         !otherOptions.silent &&
         !shouldSuppressAppDeletionErrorToast(request.url, response.status)
 
-      if (shouldNotifyError)
-        reportErrorOnce(error, () => notifyRequestError(request, error.message))
+      if (shouldNotifyError) notifyRequestError(request, error.message)
 
       if (response.status === 403 && errorData?.code === 'already_setup')
         globalThis.location.href = `${globalThis.location.origin}/signin`
@@ -189,7 +187,7 @@ async function base<T>(
     },
   }).catch((error: unknown) => {
     if (!otherOptions.silent && (error instanceof NetworkError || error instanceof TimeoutError))
-      reportErrorOnce(error, () => notifyRequestError(error.request, error.message))
+      notifyRequestError(error.request, error.message)
     throw error
   })
 

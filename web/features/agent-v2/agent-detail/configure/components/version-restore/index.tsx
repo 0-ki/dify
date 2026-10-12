@@ -20,7 +20,6 @@ import { toast } from '@/app/notifications'
 import { useAgentPermissions } from '@/features/agent-v2/permissions'
 import { deploymentEditionAtom } from '@/features/system-features/state'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type RestoreActions = {
   requestRestore: (version: AgentConfigSnapshotSummaryResponse) => void
@@ -81,11 +80,6 @@ export function AgentVersionRestore({
         await onRestored?.()
         setStage('closed')
         toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }))
-      },
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(t(($) => $['api.actionFailed'], { ns: 'common' })),
-        )
       },
     }),
   )

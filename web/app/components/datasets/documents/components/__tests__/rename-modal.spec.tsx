@@ -174,7 +174,7 @@ describe('RenameModal', () => {
         // onSaved and onClose should not be called on error
         expect(handleSaved).not.toHaveBeenCalled()
         expect(handleClose).not.toHaveBeenCalled()
-        expect(mockToastError).toHaveBeenCalledWith('API Error')
+        expect(mockToastError).not.toHaveBeenCalled()
       })
     })
   })

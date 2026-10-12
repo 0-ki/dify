@@ -10,7 +10,6 @@ import { useEventEmitterContextContext } from '@/context/event-emitter'
 import { consoleClient } from '@/service/console'
 import { fetchWorkflowDraft } from '@/service/workflow'
 import { downloadBlob } from '@/utils/download'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { useNodesSyncDraftByCanEdit } from './use-nodes-sync-draft'
 
 type DoSyncWorkflowDraft = ReturnType<typeof useNodesSyncDraft>['doSyncWorkflowDraft']
@@ -50,8 +49,8 @@ const useDSLBase = (doSyncWorkflowDraft: DoSyncWorkflowDraft) => {
 
       try {
         return await exportPipeline(include)
-      } catch (caughtError) {
-        reportErrorOnce(caughtError, () => toast.error(t(($) => $.exportFailed, { ns: 'app' })))
+      } catch {
+        toast.error(t(($) => $.exportFailed, { ns: 'app' }))
         return false
       }
     },
@@ -75,8 +74,8 @@ const useDSLBase = (doSyncWorkflowDraft: DoSyncWorkflowDraft) => {
           data: list,
         },
       } satisfies ExportSecretEnvironmentEvent)
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () => toast.error(t(($) => $.exportFailed, { ns: 'app' })))
+    } catch {
+      toast.error(t(($) => $.exportFailed, { ns: 'app' }))
     }
   }, [eventEmitter, handleExportDSL, t, workflowStore])
   return {

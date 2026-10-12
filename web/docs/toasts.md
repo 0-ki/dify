@@ -39,7 +39,7 @@ A success toast is appropriate when the result is not on screen: a background jo
 ## Errors
 
 - The request layer owns the default feedback for HTTP and network failures unless the request is `silent`; see [request layer]. HTTP failures use the server message or an HTTP-status fallback for empty, malformed, or proxy responses. Authentication recovery owns 401 responses. Cancellations are silent.
-- Use `reportErrorOnce(error, () => toast.error(...))` from `@/utils/error-feedback` when an existing failure handler needs a toast. The first reporter owns that error object, including across rethrows and multiple mutation callbacks. Preserve the error object when rethrowing. Distinct failed requests remain distinct failures; this is not message-based deduplication. GET retry suppression remains owned by the request layer.
+- Choose the feedback owner when creating the request. Remove duplicate notifications from `catch` and `onError` handlers when the request layer already reports the failure; retain rollback, cleanup, and recovery there. A component that owns custom feedback must make its request `silent`. Do not use runtime error-object deduplication to coordinate competing owners. GET retry suppression remains owned by the request layer.
 - To present a request error differently, make the request `silent` (`{ context: { silent: true } }` for generated clients) and show the error inline. A `silent` request with no other error presentation fails without any feedback.
 - Failures that never reach the request layer, such as a rejected clipboard write or a client-side exception, still need their own feedback.
 - Client-side validation belongs at the field through the [form contract], never in a toast.

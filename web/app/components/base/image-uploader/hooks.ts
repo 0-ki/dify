@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { toast } from '@/app/notifications'
 import { useParams } from '@/next/navigation'
 import { ALLOW_FILE_EXTENSIONS, TransferMethod } from '@/types/app'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { getImageUploadErrorMessage, imageUpload } from './utils'
 
 export const useImageFiles = () => {
@@ -104,7 +103,7 @@ export const useImageFiles = () => {
               t(($) => $['imageUploader.uploadFromComputerUploadError'], { ns: 'common' }),
               t,
             )
-            reportErrorOnce(error, () => toast.error(errorMessage))
+            toast.error(errorMessage)
             const newFiles = [
               ...files.slice(0, index),
               { ...currentImageFile, progress: -1 },
@@ -189,7 +188,7 @@ export const useLocalFileUploader = ({
                   t(($) => $['imageUploader.uploadFromComputerUploadError'], { ns: 'common' }),
                   t,
                 )
-                reportErrorOnce(error, () => toast.error(errorMessage))
+                toast.error(errorMessage)
                 onUpload({ ...imageFile, progress: -1 })
               },
             },

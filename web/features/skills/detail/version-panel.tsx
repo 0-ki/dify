@@ -35,10 +35,8 @@ import { Textarea } from '@langgenius/dify-ui/textarea'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from '@/app/notifications'
 import useTimestamp from '@/hooks/use-timestamp'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { RestoreVersionDialogContent } from './restore-version-dialog-content'
 import { getSkillVersionTitle, invalidateSkillDetail } from './shared'
 
@@ -245,11 +243,6 @@ function VersionRow({
         onSuccess: () => {
           setRenameOpen(false)
           invalidateVersions()
-        },
-        onError: (caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(t(($) => $['skillManagement.detail.renameVersionFailed'])),
-          )
         },
       },
     )

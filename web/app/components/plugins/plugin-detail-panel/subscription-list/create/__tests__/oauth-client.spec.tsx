@@ -406,7 +406,7 @@ describe('OAuthClientSettingsModal', () => {
         onSuccess()
       })
       mockInitiateOAuth.mockImplementation((provider, { onError }) => {
-        onError(new Error('OAuth failed'))
+        onError?.(new Error('OAuth failed'))
       })
 
       render(<OAuthClientSettingsModal {...defaultProps} />)
@@ -503,7 +503,7 @@ describe('OAuthClientSettingsModal', () => {
       expect(mockOnOpenChange).toHaveBeenCalledWith(false)
     })
 
-    it('should show error toast when remove fails', () => {
+    it('leaves request error feedback to the transport when remove fails', () => {
       const configWithCustomEnabled = createMockOAuthConfig({
         system_configured: false,
         custom_enabled: true,
@@ -511,7 +511,7 @@ describe('OAuthClientSettingsModal', () => {
       })
 
       mockDeleteOAuth.mockImplementation((provider, { onError }) => {
-        onError(new Error('Delete failed'))
+        onError?.(new Error('Delete failed'))
       })
 
       render(<OAuthClientSettingsModal {...defaultProps} oauthConfig={configWithCustomEnabled} />)
@@ -519,10 +519,7 @@ describe('OAuthClientSettingsModal', () => {
       const removeButton = screen.getByText('common.operation.remove')
       fireEvent.click(removeButton)
 
-      expect(mockToastNotify).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'Delete failed',
-      })
+      expect(mockToastNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
     })
   })
 
@@ -642,7 +639,7 @@ describe('OAuthClientSettingsModal', () => {
         })
       })
       mockVerifyBuilder.mockImplementation((params, { onError }) => {
-        onError(new Error('Verify failed'))
+        onError?.(new Error('Verify failed'))
       })
 
       render(<OAuthClientSettingsModal {...defaultProps} />)
@@ -948,7 +945,7 @@ describe('OAuthClientSettingsModal', () => {
         onSuccess()
       })
       mockInitiateOAuth.mockImplementation((provider, { onError }) => {
-        onError(new Error('OAuth failed'))
+        onError?.(new Error('OAuth failed'))
       })
 
       render(<OAuthClientSettingsModal {...defaultProps} />)

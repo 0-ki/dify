@@ -131,9 +131,6 @@
     },
     "react/only-export-components": {
       "count": 1
-    },
-    "typescript/no-explicit-any": {
-      "count": 2
     }
   },
   "web/app/components/app/annotation/edit-annotation-modal/edit-item/index.tsx": {
@@ -168,7 +165,7 @@
       "count": 1
     },
     "typescript/no-explicit-any": {
-      "count": 5
+      "count": 4
     }
   },
   "web/app/components/app/annotation/view-annotation-modal/index.tsx": {

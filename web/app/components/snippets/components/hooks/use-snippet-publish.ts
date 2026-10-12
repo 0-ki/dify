@@ -8,7 +8,6 @@ import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
 import { usePublishSnippetWorkflowMutation } from '@/service/use-snippet-workflows'
 import { useResetWorkflowVersionHistory } from '@/service/use-workflow'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type UseSnippetPublishOptions = {
   snippetId: string
@@ -43,10 +42,7 @@ export const useSnippetPublish = ({ snippetId }: UseSnippetPublishOptions) => {
       resetWorkflowVersionHistory()
       toast.success(t(($) => $.publishSuccess))
       return true
-    } catch (error) {
-      reportErrorOnce(error, () =>
-        toast.error(error instanceof Error ? error.message : t(($) => $.publishFailed)),
-      )
+    } catch {
       return false
     }
   }, [

@@ -147,7 +147,7 @@ describe('ImportSnippetDSLDialog', () => {
     await user.click(screen.getByRole('button', { name: 'common.operation.create' }))
 
     await waitFor(() => {
-      expect(toastMocks.error).toHaveBeenCalledWith('invalid yaml')
+      expect(toastMocks.error).not.toHaveBeenCalled()
       expect(onClose).not.toHaveBeenCalled()
     })
   })

@@ -13,7 +13,6 @@ import { toast } from '@/app/notifications'
 import { deploymentEditionAtom } from '@/features/system-features/state'
 import { annotationBatchImport, checkAnnotationBatchImportProgress } from '@/service/annotation'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import CSVDownloader from './csv-downloader'
 import CSVUploader from './csv-uploader'
 
@@ -71,12 +70,8 @@ const BatchModal: FC<IBatchModalProps> = ({ appId, isShow, onCancel, onAdded }) 
         onAdded()
         onCancel()
       }
-    } catch (e: any) {
-      reportErrorOnce(e, () =>
-        toast.error(
-          `${t(($) => $['batchModal.runError'], { ns: 'appAnnotation' })}${'message' in e ? `: ${e.message}` : ''}`,
-        ),
-      )
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     }
   }
 
@@ -90,12 +85,8 @@ const BatchModal: FC<IBatchModalProps> = ({ appId, isShow, onCancel, onAdded }) 
       })
       setImportStatus(res.job_status)
       checkProcess(res.job_id)
-    } catch (e: any) {
-      reportErrorOnce(e, () =>
-        toast.error(
-          `${t(($) => $['batchModal.runError'], { ns: 'appAnnotation' })}${'message' in e ? `: ${e.message}` : ''}`,
-        ),
-      )
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     }
   }
 

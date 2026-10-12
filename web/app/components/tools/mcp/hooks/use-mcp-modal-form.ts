@@ -7,7 +7,6 @@ import { v4 as uuid } from 'uuid'
 import { MCPAuthMethod } from '@/app/components/tools/types'
 import { toast } from '@/app/notifications'
 import { uploadRemoteFileInfo } from '@/service/common'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 const DEFAULT_ICON = { type: 'emoji', icon: '🔗', background: '#6366F1' } satisfies IconPickerValue
 const extractFileId = (url: string) => {
@@ -141,7 +140,7 @@ export const useMCPModalForm = (data?: ToolWithProvider) => {
           errorMessage = e.message
         }
         console.error('Failed to fetch remote icon:', e)
-        reportErrorOnce(e, () => toast.warning(errorMessage))
+        toast.warning(errorMessage)
       } finally {
         if (!isStale()) setIsFetchingIcon(false)
       }

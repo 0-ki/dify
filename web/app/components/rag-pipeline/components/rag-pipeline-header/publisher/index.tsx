@@ -16,7 +16,6 @@ import {
   useInvalidCustomizedTemplateList,
   usePublishAsCustomizedPipeline,
 } from '@/service/use-pipeline'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import PublishAsKnowledgePipelineModal from '../../publish-as-knowledge-pipeline-modal'
 import { Popup } from './popup'
 
@@ -81,10 +80,8 @@ const Publisher = () => {
           },
         )
         invalidCustomizedTemplateList()
-      } catch (caughtError) {
-        reportErrorOnce(caughtError, () =>
-          toast.error(t(($) => $['publishTemplate.error.message'], { ns: 'datasetPipeline' })),
-        )
+      } catch {
+        // The request layer reports this failure. Keep the current UI state.
       } finally {
         setIsPublishingAsCustomizedPipeline(false)
         hidePublishAsKnowledgePipelineModal()

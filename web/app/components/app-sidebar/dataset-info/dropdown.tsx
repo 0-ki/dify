@@ -33,7 +33,6 @@ import { datasetDetailQueryKeyPrefix, useInvalidDatasetList } from '@/service/kn
 import { useInvalid } from '@/service/use-base'
 import { useExportPipelineDSL } from '@/service/use-pipeline'
 import { downloadBlob } from '@/utils/download'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { getDatasetACLCapabilities } from '@/utils/permission'
 import RenameDatasetModal from '../../datasets/rename-modal'
 
@@ -41,9 +40,6 @@ type DropDownProps = {
   expand: boolean
   triggerClassName?: string
 }
-
-const getErrorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : 'Unknown error'
 
 const DropDown = ({ expand, triggerClassName }: DropDownProps) => {
   const { t } = useTranslation(['app', 'common', 'dataset', 'datasetPipeline', 'navigation'])
@@ -109,11 +105,11 @@ const DropDown = ({ expand, triggerClassName }: DropDownProps) => {
         })
         const file = new Blob([data], { type: 'application/yaml' })
         downloadBlob({ data: file, fileName: `${name}.pipeline` })
-      } catch (caughtError) {
-        reportErrorOnce(caughtError, () => toast.error(t(($) => $.exportFailed, { ns: 'app' })))
+      } catch {
+        // The request layer reports this failure. Keep the current UI state.
       }
     },
-    [dataset, exportPipelineConfig, t],
+    [dataset, exportPipelineConfig],
   )
 
   const detectIsUsedByApp = useCallback(async () => {
@@ -125,8 +121,10 @@ const DropDown = ({ expand, triggerClassName }: DropDownProps) => {
           : t(($) => $.deleteDatasetConfirmContent, { ns: 'dataset' })!,
       )
       setShowConfirmDelete(true)
-    } catch (e: unknown) {
-      toast.error(getErrorMessage(e))
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : t(($) => $.unknownError, { ns: 'dataset' }),
+      )
     }
   }, [dataset.id, t])
 

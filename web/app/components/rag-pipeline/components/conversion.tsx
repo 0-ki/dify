@@ -21,7 +21,6 @@ import { useParams } from '@/next/navigation'
 import { datasetDetailQueryKeyPrefix } from '@/service/knowledge/use-dataset'
 import { useInvalid } from '@/service/use-base'
 import { useConvertDatasetToPipeline } from '@/service/use-pipeline'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { getDatasetACLCapabilities } from '@/utils/permission'
 import PipelineScreenShot from './screenshot'
 
@@ -59,11 +58,6 @@ const Conversion = () => {
         } else if (res.status === 'failed') {
           toast.error(t(($) => $['conversion.errorMessage'], { ns: 'datasetPipeline' }))
         }
-      },
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(t(($) => $['conversion.errorMessage'], { ns: 'datasetPipeline' })),
-        )
       },
     })
   }, [canConvertDataset, convert, datasetId, invalidDatasetDetail, t])

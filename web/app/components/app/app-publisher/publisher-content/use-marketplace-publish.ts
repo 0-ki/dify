@@ -1,11 +1,7 @@
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { toast } from '@/app/notifications'
 import { publishToCreatorsPlatform } from '@/service/apps'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 export function useMarketplacePublish(appId?: string) {
-  const { t } = useTranslation(['workflow'])
   const [isPublishing, setIsPublishing] = useState(false)
 
   async function publish() {
@@ -15,10 +11,8 @@ export function useMarketplacePublish(appId?: string) {
     try {
       const response = await publishToCreatorsPlatform({ appID: appId })
       if (response.redirect_url) window.open(response.redirect_url, '_blank')
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(t(($) => $['common.publishToMarketplaceFailed'], { ns: 'workflow' })),
-      )
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     } finally {
       setIsPublishing(false)
     }

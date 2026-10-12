@@ -99,7 +99,7 @@ const useNodesSyncDraftBase = (getNodesReadOnly: () => boolean) => {
           !notRefreshWhenSyncError
         )
           handleRefreshWorkflowDraft()
-        callback?.onError?.(error)
+        callback?.onError?.()
       } finally {
         callback?.onSettled?.()
       }

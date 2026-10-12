@@ -25,7 +25,6 @@ import { CopyFeedback } from '@/app/components/base/copy-feedback'
 import { toast } from '@/app/notifications'
 import useTimestamp from '@/hooks/use-timestamp'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 export function AgentApiKeyModal({
   agentId,
@@ -69,11 +68,6 @@ export function AgentApiKeyModal({
         })
         toast.success(tCommon(($) => $['actionMsg.modifiedSuccessfully']))
       },
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(tCommon(($) => $['actionMsg.modifiedUnsuccessfully'])),
-        )
-      },
     }),
   )
   const deleteApiKeyMutation = useMutation(
@@ -91,11 +85,6 @@ export function AgentApiKeyModal({
           }),
         })
         toast.success(tCommon(($) => $['actionMsg.modifiedSuccessfully']))
-      },
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(tCommon(($) => $['actionMsg.modifiedUnsuccessfully'])),
-        )
       },
     }),
   )

@@ -55,7 +55,6 @@ import Link from '@/next/link'
 import { useRouter } from '@/next/navigation'
 import { consoleQuery } from '@/service/console'
 import { downloadBlob } from '@/utils/download'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { formatFileSize } from '@/utils/format'
 import { fetchSkillArchiveBlob } from './client'
 import { SkillReferencesList, SkillReferencesListSkeleton } from './detail/skill-metadata'
@@ -308,11 +307,6 @@ function DeleteSkillDialog({
           invalidateSkillListQueries(queryClient)
           onOpenChange(false)
         },
-        onError: (caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(t(($) => $['skillManagement.deleteFailed'])),
-          )
-        },
       },
     )
   }
@@ -430,8 +424,8 @@ function SkillCard({
     onSuccess: (blob) => {
       downloadBlob({ data: blob, fileName: `${skill.name}.zip` })
     },
-    onError: (caughtError) => {
-      reportErrorOnce(caughtError, () => toast.error(tCommon(($) => $['operation.downloadFailed'])))
+    onError: () => {
+      toast.error(tCommon(($) => $['operation.downloadFailed']))
     },
   })
   const isDraft = !skill.latest_published_version_id
@@ -454,11 +448,6 @@ function SkillCard({
         onSuccess: (copiedSkill) => {
           invalidateSkillListQueries(queryClient)
           router.push(`/skills/${copiedSkill.id}?rename=true`)
-        },
-        onError: (caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(t(($) => $['skillManagement.duplicateFailed'])),
-          )
         },
       },
     )
@@ -1098,18 +1087,14 @@ export default function SkillsPage() {
             return
           }
           if (errorCode === 'skill_limit_exceeded') {
-            reportErrorOnce(error, () =>
-              toast.error(t(($) => $['skillManagement.errors.workspaceLimit'])),
-            )
+            toast.error(t(($) => $['skillManagement.errors.workspaceLimit']))
             return
           }
           if (errorCode === 'missing_skill_md') {
-            reportErrorOnce(error, () =>
-              toast.error(t(($) => $['skillManagement.errors.missingSkillMd'])),
-            )
+            toast.error(t(($) => $['skillManagement.errors.missingSkillMd']))
             return
           }
-          reportErrorOnce(error, () => toast.error(t(($) => $['skillManagement.importFailed'])))
+          toast.error(t(($) => $['skillManagement.importFailed']))
         },
       },
     )

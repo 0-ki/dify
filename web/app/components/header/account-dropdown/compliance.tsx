@@ -25,7 +25,6 @@ import { toast } from '@/app/notifications'
 import { getDocDownloadUrl } from '@/service/common'
 import { consoleQuery } from '@/service/console'
 import { downloadUrl } from '@/utils/download'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import PremiumBadge from '../../base/premium-badge'
 import { MenuItemContent } from './menu-item-content'
 
@@ -123,9 +122,7 @@ function ComplianceDocRowItem({ icon, label, docName }: ComplianceDocRowItemProp
         toast.success(t(($) => $['operation.downloadSuccess'], { ns: 'common' }))
       } catch (error) {
         console.error(error)
-        reportErrorOnce(error, () =>
-          toast.error(t(($) => $['operation.downloadFailed'], { ns: 'common' })),
-        )
+        toast.error(t(($) => $['operation.downloadFailed'], { ns: 'common' }))
       }
     },
   })

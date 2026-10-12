@@ -22,12 +22,10 @@ import { Uploader } from '@/app/components/app/create-from-dsl-modal/uploader'
 import { toast } from '@/app/notifications'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import { useRouter } from '@/next/navigation'
-import { ApiError } from '@/service/api-error'
 import {
   useConfirmSnippetImportMutation,
   useImportSnippetDSLMutation,
 } from '@/service/use-snippets'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { canCreateAndModifySnippets } from './utils/permission'
 
 type ImportSnippetDSLDialogProps = {
@@ -189,10 +187,8 @@ function ImportSnippetDSLDialog({ isOpen, onClose }: ImportSnippetDSLDialogProps
       })
 
       handleImportResponse(response)
-    } catch (error) {
-      // HTTP error notifications are owned by the request layer.
-      if (!(error instanceof ApiError) && error instanceof Error && error.message)
-        reportErrorOnce(error, () => toast.error(error.message))
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     }
   }, [
     canCreateAndModifySnippet,
@@ -209,10 +205,8 @@ function ImportSnippetDSLDialog({ isOpen, onClose }: ImportSnippetDSLDialogProps
     try {
       const response = await confirmSnippetImportMutation.mutateAsync({ importId })
       handleImportResponse(response)
-    } catch (error) {
-      // HTTP error notifications are owned by the request layer.
-      if (!(error instanceof ApiError) && error instanceof Error && error.message)
-        reportErrorOnce(error, () => toast.error(error.message))
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     }
   }, [canCreateAndModifySnippet, confirmSnippetImportMutation, handleImportResponse, importId])
 

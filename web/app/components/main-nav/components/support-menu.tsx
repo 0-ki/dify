@@ -17,7 +17,6 @@ import { SUPPORT_EMAIL_ADDRESS, ZENDESK_WIDGET_KEY } from '@/config'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 export default function SupportMenu() {
   const { t } = useTranslation(['billing', 'common'])
@@ -85,10 +84,8 @@ export default function SupportMenu() {
         <DropdownMenuItem
           className="mx-0 h-8 gap-1 px-3 py-1"
           onClick={() => {
-            void zendeskRuntime.open(deploymentEdition).catch((caughtError) => {
-              reportErrorOnce(caughtError, () =>
-                toast.error(t(($) => $['api.actionFailed'], { ns: 'common' })),
-              )
+            void zendeskRuntime.open(deploymentEdition).catch(() => {
+              toast.error(t(($) => $['api.actionFailed'], { ns: 'common' }))
             })
           }}
         >

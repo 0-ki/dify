@@ -28,7 +28,6 @@ import {
 } from '@/features/agent-v2/agent-composer/store'
 import { agentComposerToolPresentationIdentitiesAtom } from '@/features/agent-v2/agent-composer/store-modules/tools'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import {
   getAgentToolPublishIssue,
   useAgentToolPresentation,
@@ -321,7 +320,7 @@ export function useAgentConfigureSync({
         silent: false,
       })
     } catch (error) {
-      reportErrorOnce(error, () => toast.error(tCommon(($) => $['api.actionFailed'])))
+      toast.error(tCommon(($) => $['api.actionFailed']))
       throw error
     } finally {
       explicitlySavingDraftKeysRef.current.delete(draftKey)

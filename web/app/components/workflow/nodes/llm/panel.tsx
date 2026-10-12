@@ -24,7 +24,6 @@ import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
 import { FlowType } from '@/types/common'
 import { fetchAndMergeValidCompletionParams } from '@/utils/completion-params'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { extractPluginId } from '../../utils/plugin'
 import ConfigVision from '../_base/components/config-vision'
 import VarReferencePicker from '../_base/components/variable/var-reference-picker'
@@ -142,13 +141,8 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({ id, data }) => {
               `${t(($) => $['modelProvider.parametersInvalidRemoved'], { ns: 'modelProvider' })}: ${keys.map((k) => `${k} (${removedDetails[k]})`).join(', ')}`,
             )
           handleModelChanged(model, filtered)
-        } catch (caughtError) {
-          if (
-            modelSelectionRequestGenerationRef.current !== requestGeneration ||
-            modelSelectionKeyRef.current !== baselineSelectionKey
-          )
-            return
-          reportErrorOnce(caughtError, () => toast.error(t(($) => $.error, { ns: 'common' })))
+        } catch {
+          // The request layer reports this failure. Keep the current UI state.
         }
       })()
     },
@@ -193,13 +187,8 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({ id, data }) => {
               `${t(($) => $['modelProvider.parametersInvalidRemoved'], { ns: 'modelProvider' })}: ${keys.map((key) => `${key} (${removedDetails[key]})`).join(', ')}`,
             )
           handleModelSelectorChange(modelSelector, filtered)
-        } catch (caughtError) {
-          if (
-            modelSelectionRequestGenerationRef.current !== requestGeneration ||
-            modelSelectionKeyRef.current !== baselineSelectionKey
-          )
-            return
-          reportErrorOnce(caughtError, () => toast.error(t(($) => $.error, { ns: 'common' })))
+        } catch {
+          // The request layer reports this failure. Keep the current UI state.
         }
       })()
     },

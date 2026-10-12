@@ -436,10 +436,13 @@ describe('SourcesPage', () => {
     await user.click(screen.getByRole('menuitem', { name: 'dataset.newKnowledge.syncNow' }))
 
     await waitFor(() =>
-      expect(clientMock.syncSource).toHaveBeenCalledWith({
-        headers: { 'Idempotency-Key': expect.any(String) },
-        params: { id: 'space-1', sourceId: 'source-1' },
-      }),
+      expect(clientMock.syncSource).toHaveBeenCalledWith(
+        {
+          headers: { 'Idempotency-Key': expect.any(String) },
+          params: { id: 'space-1', sourceId: 'source-1' },
+        },
+        { context: { silent: true } },
+      ),
     )
     expect(
       within(screen.getByRole('row', { name: /Product documentation/ })).getByText(
@@ -480,19 +483,25 @@ describe('SourcesPage', () => {
     await user.click(activeSourceActions)
     await user.click(screen.getByRole('menuitem', { name: 'dataset.newKnowledge.disableSource' }))
     await waitFor(() =>
-      expect(clientMock.patchSource).toHaveBeenCalledWith({
-        body: { expectedVersion: 3, status: 'disabled' },
-        params: { id: 'space-1', sourceId: 'active-source' },
-      }),
+      expect(clientMock.patchSource).toHaveBeenCalledWith(
+        {
+          body: { expectedVersion: 3, status: 'disabled' },
+          params: { id: 'space-1', sourceId: 'active-source' },
+        },
+        { context: { silent: true } },
+      ),
     )
 
     await user.click(disabledSourceActions)
     await user.click(screen.getByRole('menuitem', { name: 'dataset.enable' }))
     await waitFor(() =>
-      expect(clientMock.patchSource).toHaveBeenLastCalledWith({
-        body: { expectedVersion: 3, status: 'active' },
-        params: { id: 'space-1', sourceId: 'disabled' },
-      }),
+      expect(clientMock.patchSource).toHaveBeenLastCalledWith(
+        {
+          body: { expectedVersion: 3, status: 'active' },
+          params: { id: 'space-1', sourceId: 'disabled' },
+        },
+        { context: { silent: true } },
+      ),
     )
   })
 
@@ -536,10 +545,13 @@ describe('SourcesPage', () => {
     await user.click(screen.getByRole('menuitem', { name: 'dataset.enable' }))
 
     await waitFor(() =>
-      expect(clientMock.patchSource).toHaveBeenLastCalledWith({
-        body: { expectedVersion: 4, status: 'active' },
-        params: { id: 'space-1', sourceId: 'source-1' },
-      }),
+      expect(clientMock.patchSource).toHaveBeenLastCalledWith(
+        {
+          body: { expectedVersion: 4, status: 'active' },
+          params: { id: 'space-1', sourceId: 'source-1' },
+        },
+        { context: { silent: true } },
+      ),
     )
   })
 
@@ -558,12 +570,15 @@ describe('SourcesPage', () => {
     expect(clientMock.deleteSource).not.toHaveBeenCalled()
     await user.click(screen.getByRole('button', { name: 'dataset.newKnowledge.removeSource' }))
     await waitFor(() =>
-      expect(clientMock.deleteSource).toHaveBeenCalledWith({
-        body: { expectedRevision: 3 },
-        headers: { 'idempotency-key': expect.any(String) },
-        params: { id: 'space-1', sourceId: 'source-1' },
-        query: { documents: 'keep' },
-      }),
+      expect(clientMock.deleteSource).toHaveBeenCalledWith(
+        {
+          body: { expectedRevision: 3 },
+          headers: { 'idempotency-key': expect.any(String) },
+          params: { id: 'space-1', sourceId: 'source-1' },
+          query: { documents: 'keep' },
+        },
+        { context: { silent: true } },
+      ),
     )
     expect(screen.queryByText('Product documentation')).not.toBeInTheDocument()
   })

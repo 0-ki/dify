@@ -21,7 +21,6 @@ import { toast } from '@/app/notifications'
 import { API_PREFIX } from '@/config'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { consoleQuery } from '@/service/console'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 const numberFormatter = new Intl.NumberFormat()
 const byteFormatter = new Intl.NumberFormat(undefined, {
@@ -370,11 +369,6 @@ function WorkflowArchiveMonthRow({ archive }: { archive: WorkflowRunArchiveMonth
             task.status === 'ready'
               ? t(($) => $['archives.action.downloadReady'], { ns: 'appLog' })
               : t(($) => $['archives.action.prepareStarted'], { ns: 'appLog' }),
-          )
-        },
-        onError: (caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(t(($) => $['archives.action.prepareFailed'], { ns: 'appLog' })),
           )
         },
       },

@@ -111,7 +111,7 @@ describe('DeleteConfirm', () => {
       }),
     )
 
-    expect(mockToastError).toHaveBeenCalledWith('network error')
+    expect(mockToastError).not.toHaveBeenCalled()
   })
 
   it('should ignore form submission while deletion is pending', async () => {

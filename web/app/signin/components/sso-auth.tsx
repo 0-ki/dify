@@ -14,13 +14,6 @@ type SSOAuthProps = {
   protocol: SsoProtocol
 }
 
-// The request layer already toasts HTTP errors whose JSON body carries a message.
-const hasNotifiedRequestError = (error: unknown) =>
-  error instanceof ApiError &&
-  error.status !== 401 &&
-  ((typeof error.data?.message === 'string' && !!error.data.message) ||
-    (typeof error.data?.error === 'string' && !!error.data.error))
-
 const SSOAuth: FC<SSOAuthProps> = ({ protocol }) => {
   const router = useRouter()
   const { t } = useTranslation(['login'])
@@ -30,8 +23,10 @@ const SSOAuth: FC<SSOAuthProps> = ({ protocol }) => {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSSOError = async (error: unknown) => {
-    if (hasNotifiedRequestError(error)) return
-    toast.error(t(($) => $['error.ssoFailed'], { ns: 'login' }))
+    if (error instanceof Error && error.name === 'AbortError') return
+    toast.error(
+      error instanceof ApiError ? error.message : t(($) => $['error.ssoFailed'], { ns: 'login' }),
+    )
   }
 
   const handleSSOLogin = () => {

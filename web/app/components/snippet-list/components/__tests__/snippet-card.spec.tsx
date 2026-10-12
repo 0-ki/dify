@@ -348,7 +348,7 @@ describe('SnippetCard', () => {
       fireEvent.click(await screen.findByRole('menuitem', { name: 'snippet.menu.exportSnippet' }))
 
       await waitFor(() => {
-        expect(mockToastError).toHaveBeenCalledWith('snippet.exportFailed')
+        expect(mockToastError).not.toHaveBeenCalled()
       })
       expect(mockDownloadBlob).not.toHaveBeenCalled()
     })
@@ -382,7 +382,6 @@ describe('SnippetCard', () => {
           },
           expect.objectContaining({
             onSuccess: expect.any(Function),
-            onError: expect.any(Function),
           }),
         )
         expect(mockOnRefresh).toHaveBeenCalled()
@@ -419,7 +418,7 @@ describe('SnippetCard', () => {
           }),
           expect.any(Object),
         )
-        expect(mockToastError).toHaveBeenCalledWith('Update failed')
+        expect(mockToastError).not.toHaveBeenCalled()
       })
       expect(mockOnRefresh).not.toHaveBeenCalled()
     })
@@ -446,7 +445,6 @@ describe('SnippetCard', () => {
           },
           expect.objectContaining({
             onSuccess: expect.any(Function),
-            onError: expect.any(Function),
           }),
         )
         expect(mockOnRefresh).toHaveBeenCalled()
@@ -471,7 +469,7 @@ describe('SnippetCard', () => {
       fireEvent.click(screen.getByRole('button', { name: 'snippet.menu.deleteSnippet' }))
 
       await waitFor(() => {
-        expect(mockToastError).toHaveBeenCalledWith('Delete failed')
+        expect(mockToastError).not.toHaveBeenCalled()
       })
       expect(mockOnRefresh).not.toHaveBeenCalled()
     })

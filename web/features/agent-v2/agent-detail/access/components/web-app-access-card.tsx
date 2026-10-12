@@ -24,7 +24,6 @@ import { toast } from '@/app/notifications'
 import { getAgentACLCapabilities } from '@/features/agent-v2/acl'
 import { consoleQuery } from '@/service/console'
 import { AppModeEnum } from '@/types/app'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { getAgentWebAppUrl } from '../../web-app-access'
 import { useWebAppAccessControl } from './use-web-app-access-control'
 
@@ -99,11 +98,6 @@ export function WebAppAccessCard({
               : agentDetail,
         )
       },
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(tCommon(($) => $['actionMsg.modifiedUnsuccessfully'])),
-        )
-      },
     }),
   )
   const resetAccessTokenMutation = useMutation(
@@ -123,11 +117,6 @@ export function WebAppAccessCard({
               },
             }
           },
-        )
-      },
-      onError: (caughtError) => {
-        reportErrorOnce(caughtError, () =>
-          toast.error(tCommon(($) => $['actionMsg.generatedUnsuccessfully'])),
         )
       },
     }),
@@ -202,10 +191,7 @@ export function WebAppAccessCard({
       void queryClient.invalidateQueries({ queryKey: agentDetailQueryKey })
       toast.success(tCommon(($) => $['actionMsg.modifiedSuccessfully']))
       return true
-    } catch (caughtError) {
-      reportErrorOnce(caughtError, () =>
-        toast.error(tCommon(($) => $['actionMsg.modifiedUnsuccessfully'])),
-      )
+    } catch {
       return false
     }
   }

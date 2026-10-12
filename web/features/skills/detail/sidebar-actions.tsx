@@ -26,7 +26,6 @@ import { toast } from '@/app/notifications'
 import { useRouter } from '@/next/navigation'
 import { consoleQuery } from '@/service/console'
 import { downloadBlob } from '@/utils/download'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { fetchSkillArchiveBlob } from '../client'
 import { SkillReferencesList, SkillReferencesListSkeleton } from './skill-metadata'
 
@@ -99,11 +98,6 @@ function SkillDetailDeleteDialog({
           invalidateSkillListQueries(queryClient)
           onOpenChange(false)
           router.push('/skills')
-        },
-        onError: (caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(t(($) => $['skillManagement.deleteFailed'])),
-          )
         },
       },
     )
@@ -218,8 +212,8 @@ export function SkillDetailSidebarActions({
     onSuccess: (blob) => {
       downloadBlob({ data: blob, fileName: `${detail.name}.zip` })
     },
-    onError: (caughtError) => {
-      reportErrorOnce(caughtError, () => toast.error(tCommon(($) => $['operation.downloadFailed'])))
+    onError: () => {
+      toast.error(tCommon(($) => $['operation.downloadFailed']))
     },
   })
 
@@ -236,11 +230,6 @@ export function SkillDetailSidebarActions({
         onSuccess: (copiedSkill) => {
           invalidateSkillListQueries(queryClient)
           router.push(`/skills/${copiedSkill.id}?rename=true`)
-        },
-        onError: (caughtError) => {
-          reportErrorOnce(caughtError, () =>
-            toast.error(t(($) => $['skillManagement.duplicateFailed'])),
-          )
         },
       },
     )

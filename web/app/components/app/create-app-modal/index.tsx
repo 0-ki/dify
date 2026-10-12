@@ -32,7 +32,6 @@ import { consoleQuery } from '@/service/console'
 import { AppModeEnum } from '@/types/app'
 import { getRedirection } from '@/utils/app-redirection'
 import { trackCreateApp } from '@/utils/create-app-tracking'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { hasPermission } from '@/utils/permission'
 import { basePath } from '@/utils/var'
 import { CreateAppDialogShell } from '../create-app-dialog-shell'
@@ -130,9 +129,7 @@ function CreateApp({ onClose, onCreateFromTemplate, defaultAppMode }: CreateAppP
 
       try {
         await trackCreateApp({ source: 'studio_blank', appMode })
-      } catch {
-        // Analytics should not turn a successful app creation into a failed flow.
-      }
+      } catch {}
 
       onClose()
       getRedirection(app, push, {
@@ -141,14 +138,8 @@ function CreateApp({ onClose, onCreateFromTemplate, defaultAppMode }: CreateAppP
         workspacePermissionKeys,
         isRbacEnabled,
       })
-    } catch (error) {
-      reportErrorOnce(error, () =>
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : t(($) => $['newApp.appCreateFailed'], { ns: 'app' }),
-        ),
-      )
+    } catch {
+      // The request layer reports this failure. Keep the current UI state.
     } finally {
       creatingRef.current = false
       setIsCreating(false)

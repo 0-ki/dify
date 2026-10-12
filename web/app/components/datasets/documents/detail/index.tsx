@@ -35,7 +35,6 @@ import {
 } from '@/service/knowledge/use-segment'
 import { useInvalid } from '@/service/use-base'
 import { segmentImportStatus } from '@/types/dataset'
-import { reportErrorOnce } from '@/utils/error-feedback'
 import { getDatasetACLCapabilities } from '@/utils/permission'
 import Operations from '../components/operations'
 import StatusItem from '../status-item'
@@ -104,14 +103,6 @@ const DocumentDetail: FC<DocumentDetailProps> = ({ datasetId, documentId }) => {
           if (res.job_status === segmentImportStatus.error)
             toast.error(`${t(($) => $['list.batchModal.runError'], { ns: 'datasetDocuments' })}`)
         },
-        onError: (e) => {
-          const message = 'message' in e ? `: ${e.message}` : ''
-          reportErrorOnce(e, () =>
-            toast.error(
-              `${t(($) => $['list.batchModal.runError'], { ns: 'datasetDocuments' })}${message}`,
-            ),
-          )
-        },
       },
     )
   }
@@ -127,14 +118,6 @@ const DocumentDetail: FC<DocumentDetailProps> = ({ datasetId, documentId }) => {
         onSuccess: (res) => {
           setImportStatus(res.job_status)
           checkProcess(res.job_id)
-        },
-        onError: (e) => {
-          const message = 'message' in e ? `: ${e.message}` : ''
-          reportErrorOnce(e, () =>
-            toast.error(
-              `${t(($) => $['list.batchModal.runError'], { ns: 'datasetDocuments' })}${message}`,
-            ),
-          )
         },
       },
     )

@@ -678,7 +678,7 @@ describe('SettingsModal', () => {
 
       // Assert
       await waitFor(() => {
-        expect(toastMocks.call).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+        expect(toastMocks.call).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
       })
     })
   })

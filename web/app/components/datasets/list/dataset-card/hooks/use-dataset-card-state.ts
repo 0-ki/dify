@@ -7,7 +7,6 @@ import { useRouter } from '@/next/navigation'
 import { consoleQuery } from '@/service/console'
 import { useExportPipelineDSL } from '@/service/use-pipeline'
 import { downloadBlob } from '@/utils/download'
-import { reportErrorOnce } from '@/utils/error-feedback'
 
 type ModalState = {
   showRenameModal: boolean
@@ -78,13 +77,13 @@ export const useDatasetCardState = ({ dataset, onSuccess }: UseDatasetCardStateO
         })
         const file = new Blob([data], { type: 'application/yaml' })
         downloadBlob({ data: file, fileName: `${name}.pipeline` })
-      } catch (caughtError) {
-        reportErrorOnce(caughtError, () => toast.error(t(($) => $.exportFailed, { ns: 'app' })))
+      } catch {
+        // The request layer reports this failure. Keep the current UI state.
       } finally {
         setExporting(false)
       }
     },
-    [dataset, exportPipelineConfig, exporting, t],
+    [dataset, exportPipelineConfig, exporting],
   )
 
   // Delete flow handlers
@@ -111,10 +110,8 @@ export const useDatasetCardState = ({ dataset, onSuccess }: UseDatasetCardStateO
         showConfirmDelete: true,
       }))
     } catch (e: unknown) {
-      reportErrorOnce(e, () =>
-        toast.error(
-          (e instanceof Error ? e.message : '') || t(($) => $.unknownError, { ns: 'dataset' }),
-        ),
+      toast.error(
+        (e instanceof Error ? e.message : '') || t(($) => $.unknownError, { ns: 'dataset' }),
       )
     }
   }, [dataset.id, queryClient, t])

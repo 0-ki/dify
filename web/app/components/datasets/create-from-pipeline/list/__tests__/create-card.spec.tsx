@@ -122,7 +122,7 @@ describe('CreateCard', () => {
 
     it('should handle error callback', async () => {
       mockCreateEmptyDataset.mockImplementation((_data, callbacks) => {
-        callbacks.onError(new Error('Create failed'))
+        callbacks.onError?.(new Error('Create failed'))
         return Promise.resolve()
       })
 

@@ -23,7 +23,7 @@ export type AvailableNodesMetaData = {
 }
 export type SyncDraftCallback = {
   onSuccess?: () => void
-  onError?: (error: unknown) => void
+  onError?: () => void
   onSettled?: () => void
 }
 
