@@ -59,6 +59,9 @@ const Conversion = () => {
           toast.error(t(($) => $['conversion.errorMessage'], { ns: 'datasetPipeline' }))
         }
       },
+      onError: () => {
+        toast.error(t(($) => $['conversion.errorMessage'], { ns: 'datasetPipeline' }))
+      },
     })
   }, [canConvertDataset, convert, datasetId, invalidDatasetDetail, t])
   const handleShowConfirmModal = useCallback(() => {

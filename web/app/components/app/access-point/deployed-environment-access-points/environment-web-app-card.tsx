@@ -103,6 +103,9 @@ export function EnvironmentWebAppCard({
       scope: {
         id: `environment-web-app-toggle:${appId}:${environmentId}`,
       },
+      onError: () => {
+        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+      },
     }),
   )
   const resetAccessTokenMutation = useMutation(
@@ -112,6 +115,9 @@ export function EnvironmentWebAppCard({
           queryClient.setQueryData(siteQueryOptions.queryKey, updatedSite)
           setShowRegenerate(false)
           toast.success(t(($) => $['actionMsg.generatedSuccessfully'], { ns: 'common' }))
+        },
+        onError: () => {
+          toast.error(t(($) => $['actionMsg.generatedUnsuccessfully'], { ns: 'common' }))
         },
       },
     ),

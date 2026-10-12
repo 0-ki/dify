@@ -85,11 +85,10 @@ export default function OAuthAuthorize() {
       input: hasOAuthParams
         ? { body: { client_id: clientId, redirect_uri: redirectUri } }
         : skipToken,
-      context: { silent: true },
     }),
   )
   const { mutateAsync: authorize, isPending: authorizing } = useMutation(
-    consoleQuery.oauth.provider.authorize.post.mutationOptions({ context: { silent: true } }),
+    consoleQuery.oauth.provider.authorize.post.mutationOptions(),
   )
   const returnUrl = buildReturnUrl('/account/oauth/authorize', `?${searchParams.toString()}`)
   const signInUrl = `/signin?redirect_url=${encodeURIComponent(returnUrl)}`
@@ -122,7 +121,9 @@ export default function OAuthAuthorize() {
     try {
       if (isLoggedIn) await logout()
       else router.push(signInUrl)
-    } catch {}
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError') toast.error(error.message)
+    }
   }
 
   const onAuthorize = async () => {

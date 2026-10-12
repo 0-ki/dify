@@ -138,11 +138,16 @@ const Annotation: FC<Props> = (props) => {
   }
 
   const handleBatchDelete = async () => {
-    await delAnnotations(appDetail.id, selectedIds)
-    toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }))
-    fetchList()
-    setControlUpdateList(Date.now())
-    setSelectedIds([])
+    try {
+      await delAnnotations(appDetail.id, selectedIds)
+      toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }))
+      fetchList()
+      setControlUpdateList(Date.now())
+      setSelectedIds([])
+    } catch (e: any) {
+      toast.error(e.message || t(($) => $['api.actionFailed'], { ns: 'common' }))
+      throw e
+    }
   }
 
   const handleView = (item: AnnotationItem) => {

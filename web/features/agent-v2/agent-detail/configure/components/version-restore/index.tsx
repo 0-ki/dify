@@ -81,6 +81,9 @@ export function AgentVersionRestore({
         setStage('closed')
         toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }))
       },
+      onError: () => {
+        toast.error(t(($) => $['api.actionFailed'], { ns: 'common' }))
+      },
     }),
   )
 

@@ -58,6 +58,9 @@ export const TagManagementModal = ({
           toast.success(t(($) => $['tag.created'], { ns: 'common' }))
           setName('')
         },
+        onError: () => {
+          toast.error(t(($) => $['tag.failed'], { ns: 'common' }))
+        },
       },
     )
   }

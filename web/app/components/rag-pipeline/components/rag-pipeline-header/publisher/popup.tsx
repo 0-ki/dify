@@ -170,7 +170,7 @@ export function Popup({
           }
         }
       } catch {
-        // The request layer reports this failure. Keep the current UI state.
+        toast.error(t(($) => $['publishPipeline.error.message'], { ns: 'datasetPipeline' }))
       } finally {
         if (startedPublishing) hidePublishing()
         if (confirmVisible) handleHideConfirm()

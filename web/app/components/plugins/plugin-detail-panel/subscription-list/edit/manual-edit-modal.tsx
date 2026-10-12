@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { BaseForm } from '@/app/components/base/form/components/base'
 import { FormTypeEnum } from '@/app/components/base/form/types'
 import { ReadmeEntrance } from '@/app/components/plugins/readme-panel/entrance'
+import { toast } from '@/app/notifications'
 import { useUpdateTriggerSubscription } from '@/service/use-triggers'
 import { usePluginStore } from '../../store'
 import { useSubscriptionList } from '../use-subscription-list'
@@ -49,6 +50,15 @@ export const ManualEditModal = ({ onClose, subscription, pluginDetail }: Props) 
 
   const { mutate: updateSubscription, isPending: isUpdating } = useUpdateTriggerSubscription()
 
+  const getErrorMessage = (error: unknown, fallback: string) => {
+    if (error instanceof Error && error.message) return error.message
+    if (typeof error === 'object' && error && 'message' in error) {
+      const message = (error as { message?: string }).message
+      if (typeof message === 'string' && message) return message
+    }
+    return fallback
+  }
+
   const propertiesSchema = useMemo<ParametersSchema[]>(
     () => detail?.declaration?.trigger?.subscription_schema || [],
     [detail?.declaration?.trigger?.subscription_schema],
@@ -83,6 +93,14 @@ export const ManualEditModal = ({ onClose, subscription, pluginDetail }: Props) 
         onSuccess: () => {
           refetch?.()
           onClose()
+        },
+        onError: (error: unknown) => {
+          toast.error(
+            getErrorMessage(
+              error,
+              t(($) => $['subscription.list.item.actions.edit.error'], { ns: 'pluginTrigger' }),
+            ),
+          )
         },
       },
     )

@@ -407,7 +407,7 @@ describe('EditAnnotationModal', () => {
 
   // Error Handling (CRITICAL for coverage)
   describe('Error Handling', () => {
-    it('leaves request error feedback to the transport and skip callbacks when editAnnotation fails', async () => {
+    it('should show error toast and skip callbacks when editAnnotation fails', async () => {
       // Arrange
       const mockOnEdited = vi.fn()
       const props = {
@@ -437,7 +437,7 @@ describe('EditAnnotationModal', () => {
 
       // Assert
       await waitFor(() => {
-        expect(toastErrorSpy).not.toHaveBeenCalled()
+        expect(toastErrorSpy).toHaveBeenCalledWith('API Error')
       })
       expect(mockOnEdited).not.toHaveBeenCalled()
 
@@ -447,7 +447,7 @@ describe('EditAnnotationModal', () => {
       expect(screen.getByRole('button', { name: 'common.operation.save' }))!.toBeInTheDocument()
     })
 
-    it('leaves request error feedback to the transport when editAnnotation error is not an Error instance', async () => {
+    it('should show fallback error message when editAnnotation error is not an Error instance', async () => {
       // Arrange
       const mockOnEdited = vi.fn()
       const props = {
@@ -475,7 +475,7 @@ describe('EditAnnotationModal', () => {
 
       // Assert
       await waitFor(() => {
-        expect(toastErrorSpy).not.toHaveBeenCalled()
+        expect(toastErrorSpy).toHaveBeenCalledWith('common.api.actionFailed')
       })
       expect(mockOnEdited).not.toHaveBeenCalled()
 

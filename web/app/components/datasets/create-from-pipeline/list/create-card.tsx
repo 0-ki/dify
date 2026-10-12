@@ -28,6 +28,9 @@ const CreateCard = () => {
           push(`/datasets/${id}/pipeline`)
         }
       },
+      onError: () => {
+        toast.error(t(($) => $['creation.errorTip'], { ns: 'datasetPipeline' }))
+      },
     })
   }, [createEmptyDataset, push, invalidDatasetList, t])
 

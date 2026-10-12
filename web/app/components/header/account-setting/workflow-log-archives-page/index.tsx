@@ -371,6 +371,9 @@ function WorkflowArchiveMonthRow({ archive }: { archive: WorkflowRunArchiveMonth
               : t(($) => $['archives.action.prepareStarted'], { ns: 'appLog' }),
           )
         },
+        onError: () => {
+          toast.error(t(($) => $['archives.action.prepareFailed'], { ns: 'appLog' }))
+        },
       },
     )
   }

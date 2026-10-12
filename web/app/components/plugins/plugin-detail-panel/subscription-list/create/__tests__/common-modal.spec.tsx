@@ -372,13 +372,16 @@ describe('CommonCreateModal', () => {
       })
     })
 
-    it('leaves request error feedback to the transport when builder creation fails', async () => {
+    it('should show error toast when builder creation fails', async () => {
       mockCreateBuilder.mockRejectedValueOnce(new Error('Creation failed'))
 
       render(<CommonCreateModal {...defaultProps} />)
 
       await waitFor(() => {
-        expect(mockToastNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+        expect(mockToastNotify).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'pluginTrigger.modal.errors.createFailed',
+        })
       })
     })
   })
@@ -657,7 +660,7 @@ describe('CommonCreateModal', () => {
       mockUsePluginStore.mockReturnValue(detailWithCredentials)
       const existingBuilder = createMockSubscriptionBuilder()
       mockVerifyCredentials.mockImplementation((params, { onError }) => {
-        onError?.(new Error('Verification failed'))
+        onError(new Error('Verification failed'))
       })
 
       render(<CommonCreateModal {...defaultProps} builder={existingBuilder} />)
@@ -709,7 +712,7 @@ describe('CommonCreateModal', () => {
     it('should show error toast when buildSubscription fails', async () => {
       const builder = createMockSubscriptionBuilder()
       mockBuildSubscription.mockImplementation((params, { onError }) => {
-        onError?.(new Error('Build failed'))
+        onError(new Error('Build failed'))
       })
 
       render(
@@ -806,7 +809,7 @@ describe('CommonCreateModal', () => {
   })
 
   describe('UpdateBuilder Error Handling', () => {
-    it('leaves request error feedback to the transport when updateBuilder fails', async () => {
+    it('should show error toast when updateBuilder fails', async () => {
       const detailWithManualSchema = createMockPluginDetail({
         declaration: {
           trigger: {
@@ -820,7 +823,7 @@ describe('CommonCreateModal', () => {
       })
       mockUsePluginStore.mockReturnValue(detailWithManualSchema)
       mockUpdateBuilder.mockImplementation((params, { onError }) => {
-        onError?.(new Error('Update failed'))
+        onError(new Error('Update failed'))
       })
 
       render(<CommonCreateModal {...defaultProps} createType={SupportedCreationMethods.MANUAL} />)
@@ -840,7 +843,11 @@ describe('CommonCreateModal', () => {
       })
 
       await waitFor(() => {
-        expect(mockToastNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+        expect(mockToastNotify).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: 'error',
+          }),
+        )
       })
     })
   })
@@ -1210,6 +1217,153 @@ describe('CommonCreateModal', () => {
 
       // buildSubscription should not be called when validation fails
       expect(mockBuildSubscription).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('Error Message Parsing', () => {
+    it('should use parsed error message when available for verify error', async () => {
+      mockParsePluginErrorMessage.mockResolvedValue('Custom parsed error')
+
+      const detailWithCredentials = createMockPluginDetail({
+        declaration: {
+          trigger: {
+            subscription_constructor: {
+              credentials_schema: [{ name: 'api_key', type: 'secret', required: true }],
+            },
+          },
+        },
+      })
+      mockUsePluginStore.mockReturnValue(detailWithCredentials)
+      mockVerifyCredentials.mockImplementation((params, { onError }) => {
+        onError(new Error('Raw error'))
+      })
+      const builder = createMockSubscriptionBuilder()
+
+      render(<CommonCreateModal {...defaultProps} builder={builder} />)
+
+      fireEvent.click(screen.getByTestId('modal-confirm'))
+
+      await waitFor(() => {
+        expect(mockVerifyCredentials).toHaveBeenCalledWith(
+          expect.objectContaining({
+            provider: 'test-provider',
+            subscriptionBuilderId: builder.id,
+          }),
+          expect.objectContaining({
+            onSuccess: expect.any(Function),
+            onError: expect.any(Function),
+          }),
+        )
+      })
+
+      await waitFor(() => {
+        expect(mockParsePluginErrorMessage).toHaveBeenCalledWith(expect.any(Error))
+      })
+    })
+
+    it('should use parsed error message when available for build error', async () => {
+      mockParsePluginErrorMessage.mockResolvedValue('Custom build error')
+
+      const builder = createMockSubscriptionBuilder()
+      mockBuildSubscription.mockImplementation((params, { onError }) => {
+        onError(new Error('Raw build error'))
+      })
+
+      render(
+        <CommonCreateModal
+          {...defaultProps}
+          createType={SupportedCreationMethods.MANUAL}
+          builder={builder}
+        />,
+      )
+
+      fireEvent.click(screen.getByTestId('modal-confirm'))
+
+      await waitFor(() => {
+        expect(mockParsePluginErrorMessage).toHaveBeenCalled()
+      })
+
+      await waitFor(() => {
+        expect(mockToastNotify).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'Custom build error',
+        })
+      })
+    })
+
+    it('should use fallback error message when parsePluginErrorMessage returns null', async () => {
+      mockParsePluginErrorMessage.mockResolvedValue(null)
+
+      const builder = createMockSubscriptionBuilder()
+      mockBuildSubscription.mockImplementation((params, { onError }) => {
+        onError(new Error('Raw error'))
+      })
+
+      render(
+        <CommonCreateModal
+          {...defaultProps}
+          createType={SupportedCreationMethods.MANUAL}
+          builder={builder}
+        />,
+      )
+
+      fireEvent.click(screen.getByTestId('modal-confirm'))
+
+      await waitFor(() => {
+        expect(mockToastNotify).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'pluginTrigger.subscription.createFailed',
+        })
+      })
+    })
+
+    it('should use parsed error message for update builder error', async () => {
+      mockParsePluginErrorMessage.mockResolvedValue('Custom update error')
+
+      const detailWithManualSchema = createMockPluginDetail({
+        declaration: {
+          trigger: {
+            subscription_schema: [{ name: 'webhook_url', type: 'text', required: true }],
+            subscription_constructor: {
+              credentials_schema: [],
+              parameters: [],
+            },
+          },
+        },
+      })
+      mockUsePluginStore.mockReturnValue(detailWithManualSchema)
+      mockUpdateBuilder.mockImplementation((params, { onError }) => {
+        onError(new Error('Update failed'))
+      })
+
+      render(<CommonCreateModal {...defaultProps} createType={SupportedCreationMethods.MANUAL} />)
+
+      // Wait for createBuilder to complete and state to update
+      await waitFor(() => {
+        expect(mockCreateBuilder).toHaveBeenCalled()
+      })
+
+      // Allow React to process the state update from createBuilder
+      await act(async () => {})
+
+      const input = screen.getByTestId('form-field-webhook_url')
+      fireEvent.change(input, { target: { value: 'https://example.com/webhook' } })
+
+      // Wait for updateBuilder to be called, then check the toast
+      await waitFor(() => {
+        expect(mockUpdateBuilder).toHaveBeenCalled()
+      })
+
+      await waitFor(() => {
+        expect(mockUpdateBuilder).toHaveBeenCalled()
+      })
+
+      await waitFor(() => {
+        expect(mockToastNotify).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'Custom update error',
+        })
+      })
     })
   })
 

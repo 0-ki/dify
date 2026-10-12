@@ -5,6 +5,7 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Markdown } from '@/app/components/base/markdown'
+import { toast } from '@/app/notifications'
 import { useDatasetDetailContextWithSelector } from '@/context/dataset-detail'
 import { usePreviewOnlineDocument } from '@/service/use-pipeline'
 import { formatNumberAbbreviated } from '@/utils/format'
@@ -25,7 +26,7 @@ const OnlineDocumentPreview = ({
   const { t } = useTranslation(['datasetPipeline'])
   const [content, setContent] = useState('')
   const pipelineId = useDatasetDetailContextWithSelector((state) => state.dataset?.pipeline_id)
-  const { mutate: getOnlineDocumentContent, isPending } = usePreviewOnlineDocument()
+  const { mutateAsync: getOnlineDocumentContent, isPending } = usePreviewOnlineDocument()
   const dataSourceStore = useDataSourceStore()
 
   useEffect(() => {
@@ -42,6 +43,9 @@ const OnlineDocumentPreview = ({
       {
         onSuccess(data) {
           setContent(data.content)
+        },
+        onError(error) {
+          toast.error(error.message)
         },
       },
     )

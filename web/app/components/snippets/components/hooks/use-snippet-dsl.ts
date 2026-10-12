@@ -1,4 +1,6 @@
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import { toast } from '@/app/notifications'
 import { useExportSnippetMutation } from '@/service/use-snippets'
 import { downloadBlob } from '@/utils/download'
 
@@ -8,6 +10,7 @@ type UseSnippetDSLOptions = {
 }
 
 export const useSnippetDSL = ({ snippetId, snippetName }: UseSnippetDSLOptions) => {
+  const { t } = useTranslation(['snippet'])
   const exportSnippetMutation = useExportSnippetMutation()
 
   const handleExportDSL = useCallback(
@@ -21,10 +24,10 @@ export const useSnippetDSL = ({ snippetId, snippetName }: UseSnippetDSLOptions) 
         const file = new Blob([data], { type: 'application/yaml' })
         downloadBlob({ data: file, fileName: `${snippetName}.yml` })
       } catch {
-        // The request layer reports this failure. Keep the current UI state.
+        toast.error(t(($) => $.exportFailed))
       }
     },
-    [exportSnippetMutation, snippetId, snippetName],
+    [exportSnippetMutation, snippetId, snippetName, t],
   )
 
   return { handleExportDSL }

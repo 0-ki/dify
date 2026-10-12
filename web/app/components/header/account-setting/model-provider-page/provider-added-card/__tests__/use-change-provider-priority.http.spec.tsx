@@ -58,7 +58,7 @@ it.each([
   [() => new Response('<html>Bad gateway</html>', { status: 502 }), 'HTTP 502'],
   [() => new Response(null, { status: 503 }), 'HTTP 503'],
 ])(
-  'shows exactly one request-owned notification for an HTTP failure',
+  'shows exactly one business-hook notification for an HTTP failure',
   async (response, message) => {
     const network = vi.fn<typeof fetch>().mockImplementation(async () => response())
     vi.stubGlobal('fetch', network)
@@ -73,7 +73,7 @@ it.each([
   },
 )
 
-it('reports network failure once without a second component notification', async () => {
+it('reports network failure once from the business hook', async () => {
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
   const { client, result } = renderPriority()
   act(() => result.current.handleChangePriority(PreferredProviderTypeEnum.system))

@@ -171,8 +171,12 @@ const ModelLoadBalancingModal = ({
           )?.error || t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }),
         )
       }
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }),
+      )
     } finally {
       setLoading(false)
     }

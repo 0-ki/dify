@@ -241,6 +241,7 @@ export function AgentFileUploadDialog({
     uploadedFile: FileResponse,
     options: {
       onSuccess: (committedFile: AgentConfigFileUploadResponse) => void
+      onError: () => void
     },
   ) => {
     const body = {
@@ -298,7 +299,13 @@ export function AgentFileUploadDialog({
               setFile(undefined)
               onOpenChange(false)
             },
+            onError: () => {
+              toast.error(t(($) => $['agentDetail.configure.files.upload.failed']))
+            },
           })
+        },
+        onError: () => {
+          toast.error(t(($) => $['agentDetail.configure.files.upload.failed']))
         },
       },
     )

@@ -23,6 +23,10 @@ const STEP = {
 }
 type Step = (typeof STEP)[keyof typeof STEP]
 
+const getErrorMessage = (error: unknown) => {
+  return error instanceof Error ? error.message : ''
+}
+
 const TransferOwnershipModal = ({ onClose, show }: Props) => {
   const { t } = useTranslation(['common', 'workspaceMembers'])
   const verificationCodeInputId = React.useId()
@@ -77,15 +81,17 @@ const TransferOwnershipModal = ({ onClose, show }: Props) => {
       } else {
         toast.error('Verifying email failed')
       }
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      toast.error(`Error verifying email: ${getErrorMessage(error)}`)
     }
   }
   const sendCodeToOriginEmail = async () => {
     try {
       await sendEmail()
       setStep(STEP.verify)
-    } catch {}
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError') toast.error(error.message)
+    }
   }
   const handleVerifyOriginEmail = async () => {
     await verifyEmailAddress(code, stepToken, () => setStep(STEP.transfer))
@@ -98,8 +104,8 @@ const TransferOwnershipModal = ({ onClose, show }: Props) => {
         token: stepToken,
       })
       globalThis.location.reload()
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      toast.error(`Error ownership transfer: ${getErrorMessage(error)}`)
     } finally {
       setIsTransfer(false)
     }

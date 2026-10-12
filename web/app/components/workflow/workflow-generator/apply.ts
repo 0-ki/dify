@@ -99,19 +99,16 @@ export const applyToNewApp = async ({
   const appMode = MODE_TO_APP_MODE[mode]
   const name = (appName ?? '').trim() || deriveAppName(instruction)
   const appIcon = (icon ?? '').trim() || '🤖'
-  const app = await consoleClient.apps.post(
-    {
-      body: {
-        name,
-        mode: appMode,
-        icon_type: 'emoji',
-        icon: appIcon,
-        icon_background: '#FFEAD5',
-        description: instruction.trim().slice(0, 200),
-      },
+  const app = await consoleClient.apps.post({
+    body: {
+      name,
+      mode: appMode,
+      icon_type: 'emoji',
+      icon: appIcon,
+      icon_background: '#FFEAD5',
+      description: instruction.trim().slice(0, 200),
     },
-    { context: { silent: true } },
-  )
+  })
 
   // Sync the generated graph into the brand-new app's draft. ``createApp``
   // already succeeded so the app exists; if the sync fails (network blip,
@@ -132,10 +129,7 @@ export const applyToNewApp = async ({
     })
   } catch (syncErr) {
     try {
-      await consoleClient.apps.byAppId.delete(
-        { params: { app_id: app.id } },
-        { context: { silent: true } },
-      )
+      await consoleClient.apps.byAppId.delete({ params: { app_id: app.id } })
     } catch (deleteErr) {
       throw new WorkflowApplyOrphanError(app.id, deleteErr)
     }

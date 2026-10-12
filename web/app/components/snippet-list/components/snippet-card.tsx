@@ -25,6 +25,7 @@ import {
   canCreateAndModifySnippets,
   canManageSnippets,
 } from '@/app/components/snippets/utils/permission'
+import { toast } from '@/app/notifications'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import { TagSelector } from '@/features/tag-management/components/tag-selector'
 import Link from '@/next/link'
@@ -97,7 +98,7 @@ const SnippetCard = ({
       const file = new Blob([data], { type: 'application/yaml' })
       downloadBlob({ data: file, fileName: `${snippet.name}.yml` })
     } catch {
-      // The request layer reports this failure. Keep the current UI state.
+      toast.error(t(($) => $.exportFailed))
     }
   }
 
@@ -110,6 +111,9 @@ const SnippetCard = ({
         onSuccess: () => {
           setIsDeleteDialogOpen(false)
           onRefresh?.()
+        },
+        onError: (error) => {
+          toast.error(error instanceof Error ? error.message : t(($) => $.deleteFailed))
         },
       },
     )
@@ -128,6 +132,9 @@ const SnippetCard = ({
         onSuccess: () => {
           setIsEditDialogOpen(false)
           onRefresh?.()
+        },
+        onError: (error) => {
+          toast.error(error instanceof Error ? error.message : t(($) => $.editFailed))
         },
       },
     )

@@ -52,6 +52,7 @@ export const TagItemEditor = ({ tag, onTagsChange }: TagItemEditorProps) => {
           onTagsChange?.()
         },
         onError: () => {
+          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
           setIsEditing(false)
         },
       },
@@ -71,6 +72,9 @@ export const TagItemEditor = ({ tag, onTagsChange }: TagItemEditorProps) => {
         onSuccess: () => {
           toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
           onTagsChange?.()
+        },
+        onError: () => {
+          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
         },
       },
     )

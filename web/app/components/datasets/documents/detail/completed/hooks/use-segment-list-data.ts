@@ -213,6 +213,9 @@ export const useSegmentListData = (
             updateSegmentsInCache(targetIds, (seg) => ({ ...seg, enabled: enable }))
             refreshChunkListWithStatusChanged()
           },
+          onError: () => {
+            toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+          },
         },
       )
     },
@@ -237,6 +240,9 @@ export const useSegmentListData = (
             toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
             resetList()
             if (!segId) clearSelection()
+          },
+          onError: () => {
+            toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
           },
         },
       )

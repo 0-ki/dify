@@ -486,9 +486,7 @@ function WorkflowGeneratorModal() {
         // Sync failed AND we couldn't roll back. Route the user to /apps so
         // the orphan is still discoverable — they can delete it by hand.
         toast.error(
-          t(($) => $['workflowGenerator.errors.apply_failed_orphan'], {
-            ns: 'workflowGenerator',
-          }),
+          t(($) => $['workflowGenerator.errors.apply_failed_orphan'], { ns: 'workflowGenerator' }),
         )
         closeGenerator()
         router.push('/apps')

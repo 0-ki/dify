@@ -233,7 +233,7 @@ describe('AgentLogDetail', () => {
       renderComponent()
 
       await waitFor(() => {
-        expect(mockToast.error).not.toHaveBeenCalled()
+        expect(mockToast.error).toHaveBeenCalledWith('API Error')
       })
     })
 

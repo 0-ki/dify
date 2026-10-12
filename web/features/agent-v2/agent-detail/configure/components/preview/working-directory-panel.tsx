@@ -270,9 +270,6 @@ export function AgentWorkingDirectoryPanel({
               path: toSandboxApiPath(path),
             },
           },
-          context: {
-            silent: true,
-          },
         })
       : consoleQuery.apps.byAppId.workflowRuns.byWorkflowRunId.agentNodes.byNodeId.sandbox.files.get.queryOptions(
           {
@@ -286,9 +283,6 @@ export function AgentWorkingDirectoryPanel({
                 node_execution_id: source.nodeExecutionId,
                 path: toSandboxApiPath(path),
               },
-            },
-            context: {
-              silent: true,
             },
           },
         )
@@ -377,9 +371,6 @@ export function AgentWorkingDirectoryPanel({
                 },
               }
             : skipToken,
-          context: {
-            silent: true,
-          },
         })
       : consoleQuery.apps.byAppId.workflowRuns.byWorkflowRunId.agentNodes.byNodeId.sandbox.files.read.get.queryOptions(
           {
@@ -396,9 +387,6 @@ export function AgentWorkingDirectoryPanel({
                   },
                 }
               : skipToken,
-            context: {
-              silent: true,
-            },
           },
         )
   const fileReadQuery = useQuery({
@@ -501,8 +489,8 @@ export function AgentWorkingDirectoryPanel({
           })
           downloadUrl({ url: result.url, fileName: selectedWorkingDirectoryFile.name })
           toast.success(tCommon(($) => $['operation.downloadSuccess']))
-        } catch {
-          // The generated client reports the mutation failure through its shared error handler.
+        } catch (error) {
+          if (error instanceof Error && error.name !== 'AbortError') toast.error(error.message)
         } finally {
           setDownloadActionLoadingTarget(null)
         }
@@ -524,8 +512,8 @@ export function AgentWorkingDirectoryPanel({
         })
         downloadUrl({ url: result.url, fileName: selectedWorkingDirectoryFile.name })
         toast.success(tCommon(($) => $['operation.downloadSuccess']))
-      } catch {
-        // The generated client reports the mutation failure through its shared error handler.
+      } catch (error) {
+        if (error instanceof Error && error.name !== 'AbortError') toast.error(error.message)
       } finally {
         setDownloadActionLoadingTarget(null)
       }

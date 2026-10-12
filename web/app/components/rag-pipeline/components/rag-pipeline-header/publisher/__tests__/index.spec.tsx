@@ -727,9 +727,10 @@ describe('publisher', () => {
         fireEvent.click(publishButton)
 
         await waitFor(() => {
-          expect(toastMocks.call).not.toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'error' }),
-          )
+          expect(toastMocks.call).toHaveBeenCalledWith({
+            type: 'error',
+            message: 'datasetPipeline.publishPipeline.error.message',
+          })
         })
       })
 
@@ -752,9 +753,10 @@ describe('publisher', () => {
         fireEvent.click(screen.getByTestId('modal-confirm'))
 
         await waitFor(() => {
-          expect(toastMocks.call).not.toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'error' }),
-          )
+          expect(toastMocks.call).toHaveBeenCalledWith({
+            type: 'error',
+            message: 'datasetPipeline.publishTemplate.error.message',
+          })
         })
       })
 
@@ -972,9 +974,10 @@ describe('publisher', () => {
         fireEvent.click(publishButton)
 
         await waitFor(() => {
-          expect(toastMocks.call).not.toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'error' }),
-          )
+          expect(toastMocks.call).toHaveBeenCalledWith({
+            type: 'error',
+            message: 'datasetPipeline.publishPipeline.error.message',
+          })
         })
 
         await waitFor(() => {
@@ -1020,9 +1023,10 @@ describe('publisher', () => {
         fireEvent.click(publishButton)
 
         await waitFor(() => {
-          expect(toastMocks.call).not.toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'error' }),
-          )
+          expect(toastMocks.call).toHaveBeenCalledWith({
+            type: 'error',
+            message: 'datasetPipeline.publishPipeline.error.message',
+          })
         })
       })
     })

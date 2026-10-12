@@ -68,6 +68,9 @@ export function AgentApiKeyModal({
         })
         toast.success(tCommon(($) => $['actionMsg.modifiedSuccessfully']))
       },
+      onError: () => {
+        toast.error(tCommon(($) => $['actionMsg.modifiedUnsuccessfully']))
+      },
     }),
   )
   const deleteApiKeyMutation = useMutation(
@@ -85,6 +88,9 @@ export function AgentApiKeyModal({
           }),
         })
         toast.success(tCommon(($) => $['actionMsg.modifiedSuccessfully']))
+      },
+      onError: () => {
+        toast.error(tCommon(($) => $['actionMsg.modifiedUnsuccessfully']))
       },
     }),
   )

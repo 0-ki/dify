@@ -118,7 +118,7 @@ describe('useSnippetPublish', () => {
         await result.current.handlePublish()
       })
 
-      expect(toast.error).not.toHaveBeenCalled()
+      expect(toast.error).toHaveBeenCalledWith('publish failed')
     })
   })
 

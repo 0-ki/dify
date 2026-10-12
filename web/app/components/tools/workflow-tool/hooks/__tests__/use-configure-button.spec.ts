@@ -415,7 +415,7 @@ describe('useConfigureButton', () => {
       })
 
       expect(mockCreateWorkflowToolProvider).not.toHaveBeenCalled()
-      expect(mockToastNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+      expect(mockToastNotify).toHaveBeenCalledWith({ type: 'error', message: 'Publish failed' })
     })
 
     it('should create provider, invalidate caches, refresh, and notify configured', async () => {
@@ -442,7 +442,7 @@ describe('useConfigureButton', () => {
       expect(onConfigured).toHaveBeenCalled()
     })
 
-    it('leaves request error feedback to the transport on failure', async () => {
+    it('should show error toast on failure', async () => {
       mockCreateWorkflowToolProvider.mockRejectedValue(new Error('Create failed'))
       const { result } = renderHook(() => useConfigureButton(createDefaultOptions()))
 
@@ -454,7 +454,7 @@ describe('useConfigureButton', () => {
         )
       })
 
-      expect(mockToastNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+      expect(mockToastNotify).toHaveBeenCalledWith({ type: 'error', message: 'Create failed' })
     })
   })
 
@@ -491,7 +491,7 @@ describe('useConfigureButton', () => {
       expect(onConfigured).toHaveBeenCalled()
     })
 
-    it('leaves request error feedback to the transport when publish fails', async () => {
+    it('should show error toast when publish fails', async () => {
       const handlePublish = vi.fn().mockRejectedValue(new Error('Publish failed'))
       const { result } = renderHook(() =>
         useConfigureButton(
@@ -509,10 +509,10 @@ describe('useConfigureButton', () => {
         )
       })
 
-      expect(mockToastNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+      expect(mockToastNotify).toHaveBeenCalledWith({ type: 'error', message: 'Publish failed' })
     })
 
-    it('leaves request error feedback to the transport when save fails', async () => {
+    it('should show error toast when save fails', async () => {
       mockSaveWorkflowToolProvider.mockRejectedValue(new Error('Save failed'))
       const { result } = renderHook(() =>
         useConfigureButton(createDefaultOptions({ published: true })),
@@ -525,7 +525,7 @@ describe('useConfigureButton', () => {
         )
       })
 
-      expect(mockToastNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+      expect(mockToastNotify).toHaveBeenCalledWith({ type: 'error', message: 'Save failed' })
     })
   })
 

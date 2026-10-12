@@ -8,6 +8,7 @@ import * as React from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LoadingPlaceholder } from '@/app/components/base/loading-placeholder'
+import { toast } from '@/app/notifications'
 import { fetchAgentLogDetail } from '@/service/log'
 import ResultPanel from './result'
 import TracingPanel from './tracing'
@@ -102,9 +103,9 @@ function AgentLogContent({
         setRunDetail(data)
         setLoading(false)
       },
-      () => {
+      (error) => {
         if (!active) return
-
+        toast.error(error instanceof Error ? error.message : String(error))
         setLoading(false)
       },
     )

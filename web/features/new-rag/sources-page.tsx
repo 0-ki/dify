@@ -263,7 +263,9 @@ function SourceRow({
         await queryClient.invalidateQueries({
           queryKey: consoleQuery.knowledgeFs.getKnowledgeSpacesByIdSources.key(),
         })
-      } catch {}
+      } catch {
+        // The accepted mutation is already reflected by the list-owner state.
+      }
       return true
     } finally {
       setPendingAction(undefined)
@@ -274,13 +276,10 @@ function SourceRow({
     runAction(
       'sync',
       () =>
-        consoleClient.knowledgeFs.postKnowledgeSpacesByIdSourcesBySourceIdSync(
-          {
-            headers: { 'Idempotency-Key': createIdempotencyKey() },
-            params: { id: knowledgeSpaceId, sourceId: source.id },
-          },
-          { context: { silent: true } },
-        ),
+        consoleClient.knowledgeFs.postKnowledgeSpacesByIdSourcesBySourceIdSync({
+          headers: { 'Idempotency-Key': createIdempotencyKey() },
+          params: { id: knowledgeSpaceId, sourceId: source.id },
+        }),
       () => onSourceChange({ ...source, status: 'syncing' }),
     )
 
@@ -288,16 +287,13 @@ function SourceRow({
     runAction(
       'toggle',
       () =>
-        consoleClient.knowledgeFs.patchKnowledgeSpacesByIdSourcesBySourceId(
-          {
-            body: {
-              ...(source.version === undefined ? {} : { expectedVersion: source.version }),
-              status: source.status === 'disabled' ? 'active' : 'disabled',
-            },
-            params: { id: knowledgeSpaceId, sourceId: source.id },
+        consoleClient.knowledgeFs.patchKnowledgeSpacesByIdSourcesBySourceId({
+          body: {
+            ...(source.version === undefined ? {} : { expectedVersion: source.version }),
+            status: source.status === 'disabled' ? 'active' : 'disabled',
           },
-          { context: { silent: true } },
-        ),
+          params: { id: knowledgeSpaceId, sourceId: source.id },
+        }),
       onSourceChange,
     )
 
@@ -306,15 +302,12 @@ function SourceRow({
       'remove',
       async () => {
         if (source.version === undefined) throw new Error('Source version is required')
-        return consoleClient.knowledgeFs.deleteKnowledgeSpacesByIdSourcesBySourceId(
-          {
-            body: { expectedRevision: source.version },
-            headers: { 'idempotency-key': createIdempotencyKey() },
-            params: { id: knowledgeSpaceId, sourceId: source.id },
-            query: { documents: 'keep' },
-          },
-          { context: { silent: true } },
-        )
+        return consoleClient.knowledgeFs.deleteKnowledgeSpacesByIdSourcesBySourceId({
+          body: { expectedRevision: source.version },
+          headers: { 'idempotency-key': createIdempotencyKey() },
+          params: { id: knowledgeSpaceId, sourceId: source.id },
+          query: { documents: 'keep' },
+        })
       },
       onRemoved,
     )

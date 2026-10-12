@@ -14,6 +14,7 @@ import { Input } from '@langgenius/dify-ui/input'
 import { useMutation } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
 
 type EditAccountNameFormProps = {
@@ -68,8 +69,9 @@ export function EditAccountNameDialog({ name }: { name: string }) {
     try {
       await updateProfile.mutateAsync({ body: { name } })
       actionsRef.current?.close()
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError' && error.message)
+        toast.error(error.message)
     }
   }
 

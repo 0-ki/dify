@@ -53,9 +53,7 @@ export function useDocumentReindex({
   const acceptedTaskIdRef = useRef<string | undefined>(undefined)
   const invalidatedTerminalTaskRef = useRef<string | undefined>(undefined)
   const { mutateAsync: reindexDocument } = useMutation(
-    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocumentsBulkReindex.mutationOptions({
-      context: { silent: true },
-    }),
+    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocumentsBulkReindex.mutationOptions(),
   )
   const taskStatus = useDocumentTaskStatus({
     documentId,

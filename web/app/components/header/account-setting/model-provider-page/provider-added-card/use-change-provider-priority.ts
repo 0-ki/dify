@@ -1,6 +1,8 @@
 import type { ModelProviderSummaryResponse } from '@dify/contracts/api/console/workspaces/types.gen'
 import type { ModelProvider, PreferredProviderTypeEnum } from '../declarations'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
 import { ConfigurationMethodEnum } from '../declarations'
 import { useUpdateModelList, useUpdateModelProviders } from '../hooks'
@@ -8,6 +10,7 @@ import { useUpdateModelList, useUpdateModelProviders } from '../hooks'
 export function useChangeProviderPriority(
   provider: ModelProvider | ModelProviderSummaryResponse | undefined,
 ) {
+  const { t } = useTranslation(['common'])
   const queryClient = useQueryClient()
   const updateModelList = useUpdateModelList()
   const updateModelProviders = useUpdateModelProviders()
@@ -34,6 +37,12 @@ export function useChangeProviderPriority(
             if (method === ConfigurationMethodEnum.predefinedModel)
               provider?.supported_model_types.forEach((modelType) => updateModelList(modelType))
           })
+        },
+        onError: (error) => {
+          if (error.name === 'AbortError') return
+          toast.error(
+            error.message || t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }),
+          )
         },
       },
     ),

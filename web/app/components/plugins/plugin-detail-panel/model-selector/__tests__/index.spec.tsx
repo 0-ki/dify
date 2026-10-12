@@ -840,7 +840,7 @@ describe('ModelParameterModal', () => {
         })
       })
 
-      it('leaves request error feedback to the transport when fetchAndMergeValidCompletionParams fails', async () => {
+      it('should show error toast when fetchAndMergeValidCompletionParams fails', async () => {
         // Arrange
         const setModel = vi.fn()
         const textGenModel = createModel({
@@ -867,9 +867,7 @@ describe('ModelParameterModal', () => {
 
         // Assert
         await waitFor(() => {
-          expect(mockToastNotify).not.toHaveBeenCalledWith(
-            expect.objectContaining({ type: 'error' }),
-          )
+          expect(mockToastNotify).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
         })
       })
     })

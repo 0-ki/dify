@@ -156,24 +156,26 @@ function AppCardOperationsMenuItems({
       return
     }
 
-    await openAsyncWindow(
-      async () => {
-        const { installed_apps } = await consoleClient.installedApps.get(
-          {
+    try {
+      await openAsyncWindow(
+        async () => {
+          const { installed_apps } = await consoleClient.installedApps.get({
             query: { app_id: app.id },
-          },
-          { context: { silent: true } },
-        )
-        if (installed_apps?.length > 0)
-          return `${basePath}${buildInstalledAppPath(installed_apps[0]!.id)}`
-        throw new Error(t(($) => $.notPublishedYet, { ns: 'app' }))
-      },
-      {
-        onError: (error) => {
-          toast.error(`${error.message || error}`)
+          })
+          if (installed_apps?.length > 0)
+            return `${basePath}${buildInstalledAppPath(installed_apps[0]!.id)}`
+          throw new Error(t(($) => $.notPublishedYet, { ns: 'app' }))
         },
-      },
-    )
+        {
+          onError: (error) => {
+            toast.error(`${error.message || error}`)
+          },
+        },
+      )
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : `${error}`
+      toast.error(message)
+    }
   }
 
   return (
@@ -316,16 +318,27 @@ export function AppCardInteractions({
   const canCreateApp = hasPermission(workspacePermissionKeys, 'app.create_and_management')
 
   const onConfirmDelete = useCallback(() => {
-    deleteApp(
-      { params: { app_id: app.id } },
-      {
-        onSuccess: () => {
-          setActiveDialog(null)
-          setConfirmDeleteInput('')
+    try {
+      deleteApp(
+        { params: { app_id: app.id } },
+        {
+          onSuccess: () => {
+            setActiveDialog(null)
+            setConfirmDeleteInput('')
+          },
+          onError: (error) => {
+            const message = error instanceof Error ? error.message : ''
+            toast.error(
+              `${t(($) => $.appDeleteFailed, { ns: 'app' })}${message ? `: ${message}` : ''}`,
+            )
+          },
         },
-      },
-    )
-  }, [app.id, deleteApp])
+      )
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      toast.error(`${t(($) => $.appDeleteFailed, { ns: 'app' })}${message ? `: ${message}` : ''}`)
+    }
+  }, [app.id, deleteApp, t])
 
   const onDeleteDialogOpenChange = useCallback(
     (open: boolean) => {
@@ -407,11 +420,11 @@ export function AppCardInteractions({
           },
         })
         setActiveDialog(null)
-      } catch {
-        // The request layer reports this failure. Keep the current UI state.
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : t(($) => $.editFailed, { ns: 'app' }))
       }
     },
-    [app.id, updateApp],
+    [app.id, t, updateApp],
   )
 
   const onCopy: DuplicateAppModalProps['onConfirm'] = ({
@@ -420,34 +433,38 @@ export function AppCardInteractions({
     icon,
     icon_background,
   }) => {
-    copyApp(
-      {
-        params: { app_id: app.id },
-        body: {
-          name,
-          icon_type,
-          icon,
-          icon_background,
+    try {
+      copyApp(
+        {
+          params: { app_id: app.id },
+          body: {
+            name,
+            icon_type,
+            icon,
+            icon_background,
+          },
         },
-      },
-      {
-        onSuccess: (newApp) => {
-          if (!('mode' in newApp)) {
-            toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' }))
-            return
-          }
+        {
+          onSuccess: (newApp) => {
+            if (!('mode' in newApp)) {
+              toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' }))
+              return
+            }
 
-          setActiveDialog(null)
-          getRedirection(newApp, push, {
-            currentUserId,
-            resourceMaintainer: newApp.maintainer ?? undefined,
-            workspacePermissionKeys,
-            isRbacEnabled,
-          })
+            setActiveDialog(null)
+            getRedirection(newApp, push, {
+              currentUserId,
+              resourceMaintainer: newApp.maintainer ?? undefined,
+              workspacePermissionKeys,
+              isRbacEnabled,
+            })
+          },
+          onError: () => toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' })),
         },
-      },
-    )
-
+      )
+    } catch {
+      toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' }))
+    }
     return Promise.resolve()
   }
 
@@ -473,10 +490,25 @@ export function AppCardInteractions({
       if (isTogglingStar) return
 
       const mutateStar = pressed ? starApp : unstarApp
-
-      mutateStar({ params: { app_id: app.id } })
+      try {
+        mutateStar(
+          { params: { app_id: app.id } },
+          {
+            onError: (error) =>
+              toast.error(
+                error instanceof Error
+                  ? error.message
+                  : t(($) => $['studio.starFailed'], { ns: 'app' }),
+              ),
+          },
+        )
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : t(($) => $['studio.starFailed'], { ns: 'app' }),
+        )
+      }
     },
-    [app.id, isTogglingStar, starApp, unstarApp],
+    [app.id, isTogglingStar, starApp, t, unstarApp],
   )
 
   const shouldShowEditOption = appACLCapabilities.canEdit

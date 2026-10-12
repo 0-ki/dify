@@ -97,14 +97,16 @@ const EducationApplyPage = ({ plan, token }: EducationApplyPageProps) => {
     try {
       await openAsyncWindow(
         async () => {
-          const res = await consoleClient.billing.invoices.get(undefined, {
-            context: { silent: true },
-          })
+          const res = await consoleClient.billing.invoices.get()
           if (res.url) return res.url
 
           throw new Error('Failed to open billing page')
         },
-        { onError: (error) => toast.error(error.message) },
+        {
+          onError: (err) => {
+            toast.error(err.message || String(err))
+          },
+        },
       )
     } finally {
       setIsOpeningBillingPortal(false)
@@ -123,7 +125,7 @@ const EducationApplyPage = ({ plan, token }: EducationApplyPageProps) => {
       await switchWorkspaceMutation.mutateAsync({ body: { tenant_id: tenantId } })
       globalThis.location.reload()
     } catch {
-      // The request layer reports this failure. Keep the current UI state.
+      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
     }
   }
 

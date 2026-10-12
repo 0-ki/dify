@@ -82,6 +82,9 @@ function EnvironmentAccessControlContainer({
           queryClient.setQueryData(siteQueryOptions.queryKey, updatedSite)
           void queryClient.invalidateQueries({ queryKey: subjectsQueryOptions.queryKey })
         },
+        onError: () => {
+          toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+        },
       },
     ),
   )

@@ -166,9 +166,6 @@ export function useAgentConfigureBuildDraftData({
     input: {
       params: buildDraftQueryInput.params,
     },
-    context: {
-      silent: true,
-    },
   })
   const buildDraftQuery = useQuery(
     queryOptions({
@@ -340,11 +337,21 @@ export function useAgentConfigureBuildDraftActions({
     if (!forceCheckoutBeforeNextBuildRunRef.current) return prepareBuildDraftBeforeRun()
 
     await saveDraft()
-
-    const buildDraft = await forceCheckoutBuildDraft()
-    forceCheckoutBeforeNextBuildRunRef.current = false
-    return buildDraft
-  }, [cancelBuildDraftRefresh, forceCheckoutBuildDraft, prepareBuildDraftBeforeRun, saveDraft])
+    try {
+      const buildDraft = await forceCheckoutBuildDraft()
+      forceCheckoutBeforeNextBuildRunRef.current = false
+      return buildDraft
+    } catch (error) {
+      toast.error(tCommon(($) => $['api.actionFailed']))
+      throw error
+    }
+  }, [
+    cancelBuildDraftRefresh,
+    forceCheckoutBuildDraft,
+    prepareBuildDraftBeforeRun,
+    saveDraft,
+    tCommon,
+  ])
 
   const startFreshBuildSession = useCallback(async () => {
     cancelBuildDraftRefresh()
@@ -354,9 +361,10 @@ export function useAgentConfigureBuildDraftActions({
       forceCheckoutBeforeNextBuildRunRef.current = true
       return true
     } catch {
+      toast.error(tCommon(($) => $['api.actionFailed']))
       return false
     }
-  }, [cancelBuildDraftRefresh, resetBuildChatSession, setSoulSourceOverride])
+  }, [cancelBuildDraftRefresh, resetBuildChatSession, setSoulSourceOverride, tCommon])
 
   const refreshBuildDraftAfterBuildChat = useCallback(
     (onRefreshed?: () => void) => {
@@ -430,7 +438,8 @@ export function useAgentConfigureBuildDraftActions({
       })
       await exitBuildDraftMode(true)
       toast.success(tCommon(($) => $['api.actionSuccess']))
-    } catch {
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError') toast.error(error.message)
     } finally {
       setIsApplyingBuildDraftWorkflow(false)
     }
@@ -447,6 +456,7 @@ export function useAgentConfigureBuildDraftActions({
       toast.success(tCommon(($) => $['api.actionSuccess']))
       return true
     } catch {
+      toast.error(tCommon(($) => $['api.actionFailed']))
       return false
     }
   }

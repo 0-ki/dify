@@ -487,7 +487,7 @@ describe('SkillDetailPage metadata', () => {
     await user.click(screen.getByRole('menuitem', { name: 'common.operation.duplicate' }))
 
     await waitFor(() => {
-      expect(mocks.toastError).not.toHaveBeenCalled()
+      expect(mocks.toastError).toHaveBeenCalledWith('skill.skillManagement.duplicateFailed')
     })
     expect(mocks.routerPush).not.toHaveBeenCalled()
     expect(screen.getByRole('button', { name: 'common.operation.rename' })).toHaveTextContent(

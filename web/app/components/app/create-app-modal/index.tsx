@@ -129,7 +129,9 @@ function CreateApp({ onClose, onCreateFromTemplate, defaultAppMode }: CreateAppP
 
       try {
         await trackCreateApp({ source: 'studio_blank', appMode })
-      } catch {}
+      } catch {
+        // Analytics should not turn a successful app creation into a failed flow.
+      }
 
       onClose()
       getRedirection(app, push, {
@@ -138,8 +140,12 @@ function CreateApp({ onClose, onCreateFromTemplate, defaultAppMode }: CreateAppP
         workspacePermissionKeys,
         isRbacEnabled,
       })
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t(($) => $['newApp.appCreateFailed'], { ns: 'app' }),
+      )
     } finally {
       creatingRef.current = false
       setIsCreating(false)

@@ -111,6 +111,7 @@ export const createModelChangeHandler =
 
       setCompletionParams(filtered)
     } catch {
+      toast.error(t(($) => $.error, { ns: 'common' }))
       setCompletionParams({})
     }
   }

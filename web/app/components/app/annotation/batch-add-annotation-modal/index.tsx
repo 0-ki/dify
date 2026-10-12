@@ -70,8 +70,10 @@ const BatchModal: FC<IBatchModalProps> = ({ appId, isShow, onCancel, onAdded }) 
         onAdded()
         onCancel()
       }
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (e: any) {
+      toast.error(
+        `${t(($) => $['batchModal.runError'], { ns: 'appAnnotation' })}${'message' in e ? `: ${e.message}` : ''}`,
+      )
     }
   }
 
@@ -85,8 +87,10 @@ const BatchModal: FC<IBatchModalProps> = ({ appId, isShow, onCancel, onAdded }) 
       })
       setImportStatus(res.job_status)
       checkProcess(res.job_id)
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (e: any) {
+      toast.error(
+        `${t(($) => $['batchModal.runError'], { ns: 'appAnnotation' })}${'message' in e ? `: ${e.message}` : ''}`,
+      )
     }
   }
 

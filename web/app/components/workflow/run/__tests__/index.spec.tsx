@@ -227,7 +227,8 @@ describe('RunPanel', () => {
     )
 
     await waitFor(() => {
-      expect(mockToastError).not.toHaveBeenCalled()
+      expect(mockToastError).toHaveBeenCalledWith('detail boom')
+      expect(mockToastError).toHaveBeenCalledWith('tracing boom')
     })
   })
 

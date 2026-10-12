@@ -290,6 +290,7 @@ function DetailPanel({ appDetail, detail, onClose, onFeedback }: IDetailPanel) {
         toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
         return true
       } catch {
+        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
         return false
       }
     },
@@ -653,6 +654,7 @@ const CompletionConversationDetailComp: FC<ConversationDetailProps> = ({
       toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
       return true
     } catch {
+      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
       return false
     }
   }
@@ -704,6 +706,7 @@ const ChatConversationDetailComp: FC<ConversationDetailProps> = ({
       toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
       return true
     } catch {
+      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
       return false
     }
   }

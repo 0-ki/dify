@@ -208,19 +208,13 @@ export function DocumentsPage({ knowledgeSpaceId }: { knowledgeSpaceId: string }
   const [uploading, setUploading] = useState(false)
   const [reindexing, setReindexing] = useState(false)
   const { mutateAsync: uploadDocument } = useMutation(
-    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocuments.mutationOptions({
-      context: { silent: true },
-    }),
+    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocuments.mutationOptions(),
   )
   const { mutateAsync: bulkUploadDocuments } = useMutation(
-    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocumentsBulk.mutationOptions({
-      context: { silent: true },
-    }),
+    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocumentsBulk.mutationOptions(),
   )
   const { mutateAsync: reindexDocuments } = useMutation(
-    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocumentsBulkReindex.mutationOptions({
-      context: { silent: true },
-    }),
+    consoleQuery.knowledgeFs.postKnowledgeSpacesByIdDocumentsBulkReindex.mutationOptions(),
   )
 
   const documentsQuery = useInfiniteQuery(

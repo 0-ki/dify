@@ -235,7 +235,10 @@ describe('AddExternalAPIModal', () => {
       fireEvent.click(saveButton)
 
       await waitFor(() => {
-        expect(mockNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+        expect(mockNotify).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'Failed to save/update External API',
+        })
       })
 
       consoleSpy.mockRestore()

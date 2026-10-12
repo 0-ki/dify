@@ -26,6 +26,7 @@ import {
 } from '@/app/components/header/account-setting/query-params'
 import LicenseBadge from '@/app/components/header/license-badge'
 import { buildIntegrationPath } from '@/app/components/integrations/routes'
+import { toast } from '@/app/notifications'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import Link from '@/next/link'
@@ -310,7 +311,7 @@ export function WorkspaceCard() {
       await switchWorkspaceMutation.mutateAsync({ body: { tenant_id } })
       location.assign(`${location.origin}${basePath}`)
     } catch {
-      // The request layer reports this failure. Keep the current UI state.
+      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
     }
   }
 

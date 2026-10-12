@@ -9,6 +9,7 @@ import { useBoolean } from 'ahooks'
 import * as React from 'react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from '@/app/notifications'
 import { renameDocumentName } from '@/service/datasets'
 
 type Props = Readonly<{
@@ -38,8 +39,8 @@ const RenameModal: FC<Props> = ({ documentId, datasetId, name, onClose, onSaved 
       })
       onSaved()
       onClose()
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      if (error) toast.error(error instanceof Error ? error.message : String(error))
     } finally {
       setSaveLoadingFalse()
     }

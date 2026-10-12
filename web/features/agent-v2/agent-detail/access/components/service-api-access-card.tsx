@@ -48,6 +48,9 @@ export function ServiceApiAccessCard({ agentId }: { agentId: string }) {
               : agentDetail,
         )
       },
+      onError: () => {
+        toast.error(tCommon(($) => $['actionMsg.modifiedUnsuccessfully']))
+      },
     }),
   )
   const accessReady = Boolean(apiAccess?.access_ready)

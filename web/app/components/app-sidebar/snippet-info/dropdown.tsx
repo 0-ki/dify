@@ -73,7 +73,7 @@ const SnippetInfoDropdown = ({ snippet }: SnippetInfoDropdownProps) => {
       const file = new Blob([data], { type: 'application/yaml' })
       downloadBlob({ data: file, fileName: `${snippet.name}.yml` })
     } catch {
-      // The request layer reports this failure. Keep the current UI state.
+      toast.error(t(($) => $.exportFailed))
     }
   }, [canCreateAndModifySnippet, exportSnippetMutation, snippet.id, snippet.name, t])
 
@@ -91,6 +91,9 @@ const SnippetInfoDropdown = ({ snippet }: SnippetInfoDropdownProps) => {
           onSuccess: () => {
             setIsEditDialogOpen(false)
           },
+          onError: (error) => {
+            toast.error(error instanceof Error ? error.message : t(($) => $.editFailed))
+          },
         },
       )
     },
@@ -107,6 +110,9 @@ const SnippetInfoDropdown = ({ snippet }: SnippetInfoDropdownProps) => {
           toast.success(t(($) => $.deleted))
           setIsDeleteDialogOpen(false)
           replace('/snippets')
+        },
+        onError: (error) => {
+          toast.error(error instanceof Error ? error.message : t(($) => $.deleteFailed))
         },
       },
     )

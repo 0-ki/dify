@@ -41,6 +41,9 @@ type DropDownProps = {
   triggerClassName?: string
 }
 
+const getErrorMessage = async (error: unknown) =>
+  error instanceof Error ? error.message : 'Unknown error'
+
 const DropDown = ({ expand, triggerClassName }: DropDownProps) => {
   const { t } = useTranslation(['app', 'common', 'dataset', 'datasetPipeline', 'navigation'])
   const { push, replace } = useRouter()
@@ -106,10 +109,10 @@ const DropDown = ({ expand, triggerClassName }: DropDownProps) => {
         const file = new Blob([data], { type: 'application/yaml' })
         downloadBlob({ data: file, fileName: `${name}.pipeline` })
       } catch {
-        // The request layer reports this failure. Keep the current UI state.
+        toast.error(t(($) => $.exportFailed, { ns: 'app' }))
       }
     },
-    [dataset, exportPipelineConfig],
+    [dataset, exportPipelineConfig, t],
   )
 
   const detectIsUsedByApp = useCallback(async () => {
@@ -121,10 +124,8 @@ const DropDown = ({ expand, triggerClassName }: DropDownProps) => {
           : t(($) => $.deleteDatasetConfirmContent, { ns: 'dataset' })!,
       )
       setShowConfirmDelete(true)
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t(($) => $.unknownError, { ns: 'dataset' }),
-      )
+    } catch (e: unknown) {
+      toast.error(await getErrorMessage(e))
     }
   }, [dataset.id, t])
 

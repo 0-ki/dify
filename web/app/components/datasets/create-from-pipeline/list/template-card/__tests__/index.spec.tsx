@@ -296,7 +296,7 @@ describe('TemplateCard', () => {
 
     it('should show error toast on creation failure', async () => {
       mockCreateDataset.mockImplementation((_data, callbacks) => {
-        callbacks.onError?.(new Error('Creation failed'))
+        callbacks.onError(new Error('Creation failed'))
         return Promise.resolve()
       })
 
@@ -305,7 +305,7 @@ describe('TemplateCard', () => {
       fireEvent.click(chooseButton)
 
       await waitFor(() => {
-        expect(mockToastError).not.toHaveBeenCalled()
+        expect(mockToastError).toHaveBeenCalledWith(expect.any(String))
       })
     })
   })
@@ -474,7 +474,7 @@ describe('TemplateCard', () => {
 
     it('should show error toast on export failure', async () => {
       mockExportPipelineDSL.mockImplementation((_id, callbacks) => {
-        callbacks.onError?.(new Error('Export failed'))
+        callbacks.onError(new Error('Export failed'))
         return Promise.resolve()
       })
 
@@ -483,7 +483,7 @@ describe('TemplateCard', () => {
       fireEvent.click(exportButton)
 
       await waitFor(() => {
-        expect(mockToastError).not.toHaveBeenCalled()
+        expect(mockToastError).toHaveBeenCalledWith(expect.any(String))
       })
     })
 

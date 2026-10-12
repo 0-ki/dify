@@ -103,6 +103,12 @@ const DocumentDetail: FC<DocumentDetailProps> = ({ datasetId, documentId }) => {
           if (res.job_status === segmentImportStatus.error)
             toast.error(`${t(($) => $['list.batchModal.runError'], { ns: 'datasetDocuments' })}`)
         },
+        onError: (e) => {
+          const message = 'message' in e ? `: ${e.message}` : ''
+          toast.error(
+            `${t(($) => $['list.batchModal.runError'], { ns: 'datasetDocuments' })}${message}`,
+          )
+        },
       },
     )
   }
@@ -118,6 +124,12 @@ const DocumentDetail: FC<DocumentDetailProps> = ({ datasetId, documentId }) => {
         onSuccess: (res) => {
           setImportStatus(res.job_status)
           checkProcess(res.job_id)
+        },
+        onError: (e) => {
+          const message = 'message' in e ? `: ${e.message}` : ''
+          toast.error(
+            `${t(($) => $['list.batchModal.runError'], { ns: 'datasetDocuments' })}${message}`,
+          )
         },
       },
     )

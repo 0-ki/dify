@@ -168,8 +168,9 @@ export function ChangePasswordDialog({ isPasswordSet }: { isPasswordSet: boolean
       await updatePassword.mutateAsync({ body: password })
       toast.success(t(($) => $['actionMsg.modifiedSuccessfully'], { ns: 'common' }))
       actionsRef.current?.close()
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError' && error.message)
+        toast.error(error.message)
     }
   }
 

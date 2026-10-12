@@ -175,7 +175,7 @@ const ModelParameterModal: FC<ModelParameterModalProps> = ({
           )
         }
       } catch {
-        // The request layer reports this failure. Keep the current UI state.
+        toast.error(t(($) => $.error, { ns: 'common' }))
       }
     }
 

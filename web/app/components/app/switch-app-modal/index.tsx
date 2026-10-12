@@ -26,6 +26,7 @@ import {
   IconPickerTrigger,
 } from '@/app/components/base/icon-picker'
 import AppsFull from '@/app/components/billing/apps-full-in-dialog'
+import { toast } from '@/app/notifications'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { useRouter } from '@/next/navigation'
 import { consoleQuery } from '@/service/console'
@@ -114,7 +115,7 @@ const SwitchAppModal = ({ show, sourceApp, onClose }: SwitchAppModalProps) => {
         { isRbacEnabled },
       )
     } catch {
-      // The request layer reports this failure. Keep the current UI state.
+      toast.error(t(($) => $['newApp.appCreateFailed'], { ns: 'app' }))
     }
   }
 

@@ -1157,7 +1157,7 @@ describe('AgentConfigurePage', () => {
       await user.click(confirmButton)
 
       await waitFor(() => {
-        expect(toastMock.error).not.toHaveBeenCalled()
+        expect(toastMock.error).toHaveBeenCalledWith('common.api.actionFailed')
       })
       expect(confirmButton).not.toHaveAttribute('aria-disabled', 'true')
       expect(onUrlUpdate).not.toHaveBeenCalled()
@@ -1396,7 +1396,7 @@ describe('AgentConfigurePage', () => {
       await user.click(screen.getByRole('button', { name: 'build mode' }))
 
       await waitFor(() => {
-        expect(toastMock.error).not.toHaveBeenCalled()
+        expect(toastMock.error).toHaveBeenCalledWith('common.api.actionFailed')
       })
       expect(screen.getByRole('region', { name: 'preview-chat' })).toBeInTheDocument()
       expect(mocks.saveComposerDraft).not.toHaveBeenCalled()
@@ -1436,7 +1436,7 @@ describe('AgentConfigurePage', () => {
       await user.click(screen.getByRole('button', { name: 'send build message' }))
 
       await waitFor(() => {
-        expect(toastMock.error).not.toHaveBeenCalled()
+        expect(toastMock.error).toHaveBeenCalledWith('common.api.actionFailed')
       })
       expect(mocks.checkoutBuildDraft).toHaveBeenCalledWith(
         {

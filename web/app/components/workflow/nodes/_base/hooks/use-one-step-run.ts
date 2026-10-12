@@ -474,7 +474,7 @@ const useOneStepRun = <T>({
           _singleRunningStatus: NodeRunningStatus.Failed,
         },
       })
-
+      toast.error(t(($) => $['common.scheduleTriggerRunFailed'], { ns: 'workflow' }))
       throw error
     }
   }, [flowId, id, handleNodeDataUpdate, data, t])
@@ -558,6 +558,7 @@ const useOneStepRun = <T>({
           return null
         if (controller.signal.aborted) return null
 
+        toast.error(t(($) => $['common.webhookDebugRequestFailed'], { ns: 'workflow' }))
         cancelWebhookSingleRun()
         if (error instanceof Error) throw error
         throw new Error(String(error))
@@ -876,8 +877,9 @@ const useOneStepRun = <T>({
               _iterationResult = newIterationRunResult
               setIterationRunResult(newIterationRunResult)
             },
-            onError: () => {
+            onError: (message) => {
               if (isPausedRef.current) return
+              if (!message.startsWith('AbortError')) toast.error(message)
               handleNodeDataUpdate({
                 id,
                 data: {
@@ -976,8 +978,9 @@ const useOneStepRun = <T>({
               _loopResult = newLoopRunResult
               setLoopRunResult(newLoopRunResult)
             },
-            onError: () => {
+            onError: (message) => {
               if (isPausedRef.current) return
+              if (!message.startsWith('AbortError')) toast.error(message)
               handleNodeDataUpdate({
                 id,
                 data: {

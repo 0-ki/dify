@@ -284,6 +284,7 @@ export const VersionHistoryPanel = ({
         await emitRestoreComplete(item, true)
         await emitWorkflowUpdate()
       } catch {
+        toast.error(t(($) => $['versionHistory.action.restoreFailure'], { ns: 'workflowHistory' }))
         await emitRestoreComplete(item, false, 'restore failed')
       } finally {
         resetWorkflowVersionHistory()
@@ -317,7 +318,9 @@ export const VersionHistoryPanel = ({
           deleteAllInspectVars()
           invalidAllLastRun()
         },
-
+        onError: () => {
+          toast.error(t(($) => $['versionHistory.action.deleteFailure'], { ns: 'workflowHistory' }))
+        },
         onSettled: () => {
           setDeleteConfirmOpen(false)
         },
@@ -325,6 +328,7 @@ export const VersionHistoryPanel = ({
     },
     [
       deleteWorkflow,
+      t,
       resetWorkflowVersionHistory,
       deleteAllInspectVars,
       invalidAllLastRun,
@@ -355,7 +359,11 @@ export const VersionHistoryPanel = ({
             )
               invalidateAppWorkflow(configsMap.flowId)
           },
-
+          onError: () => {
+            toast.error(
+              t(($) => $['versionHistory.action.updateFailure'], { ns: 'workflowHistory' }),
+            )
+          },
           onSettled: () => {
             setEditModalOpen(false)
           },
@@ -368,6 +376,7 @@ export const VersionHistoryPanel = ({
       configsMap?.flowType,
       invalidateAppWorkflow,
       latestVersionId,
+      t,
       updateWorkflow,
       updateVersionUrl,
     ],

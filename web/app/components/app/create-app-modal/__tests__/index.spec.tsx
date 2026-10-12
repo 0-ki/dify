@@ -222,7 +222,7 @@ describe('CreateAppModal', () => {
     fireEvent.click(screen.getByRole('button', { name: /app\.newApp\.Create/ }))
 
     await waitFor(() => expect(mockCreateApp).toHaveBeenCalled())
-    expect(mockToastError).not.toHaveBeenCalled()
+    expect(mockToastError).toHaveBeenCalledWith('boom')
     expect(onClose).not.toHaveBeenCalled()
   })
 

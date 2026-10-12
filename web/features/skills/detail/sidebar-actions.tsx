@@ -99,6 +99,9 @@ function SkillDetailDeleteDialog({
           onOpenChange(false)
           router.push('/skills')
         },
+        onError: () => {
+          toast.error(t(($) => $['skillManagement.deleteFailed']))
+        },
       },
     )
   }
@@ -230,6 +233,9 @@ export function SkillDetailSidebarActions({
         onSuccess: (copiedSkill) => {
           invalidateSkillListQueries(queryClient)
           router.push(`/skills/${copiedSkill.id}?rename=true`)
+        },
+        onError: () => {
+          toast.error(t(($) => $['skillManagement.duplicateFailed']))
         },
       },
     )

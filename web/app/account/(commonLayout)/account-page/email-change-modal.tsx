@@ -28,6 +28,15 @@ type Step = (typeof STEP)[keyof typeof STEP]
 
 const emailPattern = /^[\w.!#$%&'*+\-/=?^`{|}~]+@(?:[\w-]+\.)+[\w-]{2,}$/
 
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    return typeof message === 'string' ? message : ''
+  }
+  return ''
+}
+
 const EmailChangeModal = ({ onClose, email }: Props) => {
   const { t } = useTranslation(['common', 'accountSettings'])
   const [step, setStep] = useState<Step>(STEP.start)
@@ -73,8 +82,8 @@ const EmailChangeModal = ({ onClose, email }: Props) => {
       })
       startCount()
       if (res.data) setStepToken(res.data)
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      toast.error(`Error sending verification code: ${getErrorMessage(error)}`)
     }
   }
 
@@ -96,8 +105,8 @@ const EmailChangeModal = ({ onClose, email }: Props) => {
       } else {
         toast.error('Verifying email failed')
       }
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      toast.error(`Error verifying email: ${getErrorMessage(error)}`)
     }
   }
 
@@ -176,8 +185,8 @@ const EmailChangeModal = ({ onClose, email }: Props) => {
         token: lastToken,
       })
       await logout()
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      toast.error(`Error changing email: ${getErrorMessage(error)}`)
     }
   }
 

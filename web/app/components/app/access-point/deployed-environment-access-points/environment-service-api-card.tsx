@@ -1,6 +1,8 @@
 'use client'
 
 import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import { toast } from '@/app/notifications'
 import { consoleQuery } from '@/service/console'
 import { ServiceApiCardView } from '../shared/service-api-card-view'
 
@@ -17,6 +19,7 @@ export function EnvironmentServiceApiCard({
   canManageAccessPoint,
   highlighted,
 }: EnvironmentServiceApiCardProps) {
+  const { t } = useTranslation(['common'])
   const { data: appMode } = useSuspenseQuery(
     consoleQuery.apps.byAppId.get.queryOptions({
       input: { params: { app_id: appId } },
@@ -37,6 +40,9 @@ export function EnvironmentServiceApiCard({
     consoleQuery.enterprise.appDeploy.accessService.updateEnvironmentApi.mutationOptions({
       scope: {
         id: `environment-service-api-toggle:${appId}:${environmentId}`,
+      },
+      onError: () => {
+        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
       },
     }),
   )

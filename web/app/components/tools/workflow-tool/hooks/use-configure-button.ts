@@ -191,8 +191,8 @@ export function useConfigureButton(options: UseConfigureButtonOptions) {
       invalidateDetail(workflowAppId)
       toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }))
       onConfigured?.()
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (e) {
+      toast.error((e as Error).message)
     }
   }
 
@@ -211,8 +211,8 @@ export function useConfigureButton(options: UseConfigureButtonOptions) {
       invalidateDetail(workflowAppId)
       toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }))
       onConfigured?.()
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (e) {
+      toast.error((e as Error).message)
     }
   }
 

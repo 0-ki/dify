@@ -360,7 +360,7 @@ describe('EmptyDatasetCreationModal', () => {
       })
     })
 
-    it('leaves request error feedback to the transport on API failure', async () => {
+    it('should show error notification on API failure', async () => {
       mockCreateEmptyDataset.mockRejectedValue(new Error('API Error'))
       const mockOnHide = vi.fn()
       render(<EmptyDatasetCreationModal show={true} onHide={mockOnHide} />)
@@ -371,7 +371,10 @@ describe('EmptyDatasetCreationModal', () => {
       fireEvent.click(confirmButton)
 
       await waitFor(() => {
-        expect(mockNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+        expect(mockNotify).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'datasetCreation.stepOne.modal.failed',
+        })
       })
     })
 
@@ -404,7 +407,7 @@ describe('EmptyDatasetCreationModal', () => {
       fireEvent.click(confirmButton)
 
       await waitFor(() => {
-        expect(mockNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+        expect(mockNotify).toHaveBeenCalled()
       })
       expect(mockInvalidDatasetList).not.toHaveBeenCalled()
     })
@@ -455,7 +458,7 @@ describe('EmptyDatasetCreationModal', () => {
       fireEvent.click(confirmButton)
 
       await waitFor(() => {
-        expect(mockNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+        expect(mockNotify).toHaveBeenCalled()
       })
       expect(mockPush).not.toHaveBeenCalled()
     })
@@ -689,7 +692,10 @@ describe('EmptyDatasetCreationModal', () => {
         // 1. API was called
         expect(mockCreateEmptyDataset).toHaveBeenCalled()
         // 2. Error notification shown
-        expect(mockNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+        expect(mockNotify).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'datasetCreation.stepOne.modal.failed',
+        })
       })
 
       // 3. These should NOT happen on error

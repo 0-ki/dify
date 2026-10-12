@@ -113,6 +113,7 @@ const AddExternalAPIModal: FC<AddExternalAPIModalProps> = ({
       onCancel()
     } catch (error) {
       console.error('Error saving/updating external API:', error)
+      toast.error('Failed to save/update External API')
     } finally {
       setLoading(false)
     }

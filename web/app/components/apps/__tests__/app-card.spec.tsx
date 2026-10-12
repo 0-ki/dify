@@ -1110,9 +1110,10 @@ describe('AppCard', () => {
 
       await waitFor(() => {
         expect(mockDeleteAppMutation).toHaveBeenCalled()
-        expect(toastMocks.record).not.toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'error' }),
-        )
+        expect(toastMocks.record).toHaveBeenCalledWith({
+          type: 'error',
+          message: expect.stringContaining('Delete failed'),
+        })
       })
     })
 
@@ -1130,9 +1131,10 @@ describe('AppCard', () => {
 
       await waitFor(() => {
         expect(mockDeleteAppMutation).toHaveBeenCalled()
-        expect(toastMocks.record).not.toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'error' }),
-        )
+        expect(toastMocks.record).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'app.appDeleteFailed',
+        })
       })
     })
 
@@ -1204,9 +1206,10 @@ describe('AppCard', () => {
 
       await waitFor(() => {
         expect(mockCopyApp).toHaveBeenCalled()
-        expect(toastMocks.record).not.toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'error' }),
-        )
+        expect(toastMocks.record).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'app.newApp.appCreateFailed',
+        })
       })
     })
 
@@ -1431,9 +1434,10 @@ describe('AppCard', () => {
 
       await waitFor(() => {
         expect(mockUpdateAppMutation).toHaveBeenCalled()
-        expect(toastMocks.record).not.toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'error' }),
-        )
+        expect(toastMocks.record).toHaveBeenCalledWith({
+          type: 'error',
+          message: expect.stringContaining('Edit failed'),
+        })
       })
     })
 
@@ -1455,9 +1459,7 @@ describe('AppCard', () => {
 
       await waitFor(() => {
         expect(mockUpdateAppMutation).toHaveBeenCalled()
-        expect(toastMocks.record).not.toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'error' }),
-        )
+        expect(toastMocks.record).toHaveBeenCalledWith({ type: 'error', message: 'app.editFailed' })
       })
     })
   })

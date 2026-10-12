@@ -1,7 +1,7 @@
 import type { AfterResponseHook, BeforeRequestHook, Hooks } from 'ky'
 import type { IOtherOptions } from './base'
 import Cookies from 'js-cookie'
-import ky, { NetworkError, TimeoutError } from 'ky'
+import ky from 'ky'
 import {
   API_PREFIX,
   APP_VERSION,
@@ -14,8 +14,6 @@ import {
   WEB_APP_SHARE_CODE_HEADER_NAME,
 } from '@/config'
 import { ApiError } from './api-error'
-import { shouldSuppressAppDeletionErrorToast } from './app-deletion'
-import { clearRequestErrorToasts, notifyRequestError } from './request-error-toast'
 import { getWebAppPublicApiPath, resolveWebAppAddress } from './webapp-address'
 import { getWebAppAccessToken, getWebAppPassport } from './webapp-auth'
 
@@ -45,26 +43,8 @@ const afterResponse204: AfterResponseHook = async ({ response }) => {
   }
 }
 
-const afterResponseErrorCode = (otherOptions: IOtherOptions): AfterResponseHook => {
-  return async ({ request, response }) => {
-    if (!response.ok) {
-      const error = await ApiError.fromResponse(response)
-      const errorData = error.data
-      const shouldNotifyError =
-        response.status >= 400 &&
-        response.status !== 401 &&
-        !otherOptions.silent &&
-        !shouldSuppressAppDeletionErrorToast(request.url, response.status)
-
-      if (shouldNotifyError) notifyRequestError(request, error.message)
-
-      if (response.status === 403 && errorData?.code === 'already_setup')
-        globalThis.location.href = `${globalThis.location.origin}/signin`
-      throw error
-    } else {
-      clearRequestErrorToasts(request)
-    }
-  }
+const afterResponseErrorCode: AfterResponseHook = async ({ response }) => {
+  if (!response.ok) throw await ApiError.fromResponse(response)
 }
 
 const beforeRequestPublicWithCode: BeforeRequestHook = ({ request }) => {
@@ -162,7 +142,7 @@ async function base<T>(
         ...(baseHooks.beforeRequest || []),
         isPublicAPI && beforeRequestPublicWithCode,
       ].filter((h): h is BeforeRequestHook => Boolean(h)),
-      afterResponse: [...(baseHooks.afterResponse || []), afterResponseErrorCode(otherOptions)],
+      afterResponse: [...(baseHooks.afterResponse || []), afterResponseErrorCode],
     },
   })
 
@@ -185,10 +165,6 @@ async function base<T>(
       }
       return globalThis.fetch(resource, options)
     },
-  }).catch((error: unknown) => {
-    if (!otherOptions.silent && (error instanceof NetworkError || error instanceof TimeoutError))
-      notifyRequestError(error.request, error.message)
-    throw error
   })
 
   if (needAllResponseContent || fetchCompat) return res as T

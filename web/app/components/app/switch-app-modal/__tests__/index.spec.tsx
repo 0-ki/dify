@@ -365,7 +365,7 @@ describe('SwitchAppModal', () => {
       expect(mockPush).not.toHaveBeenCalled()
     })
 
-    it('leaves request error feedback to the transport when switch app fails', async () => {
+    it('should notify error when switch app fails', async () => {
       const user = userEvent.setup()
       // Arrange
       const { notify, onClose } = renderComponent()
@@ -376,7 +376,10 @@ describe('SwitchAppModal', () => {
 
       // Assert
       await waitFor(() => {
-        expect(notify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+        expect(notify).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'app.newApp.appCreateFailed',
+        })
       })
       expect(onClose).not.toHaveBeenCalled()
     })

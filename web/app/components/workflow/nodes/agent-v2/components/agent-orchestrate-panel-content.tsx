@@ -570,7 +570,7 @@ function WorkflowInlineAgentConfigureWorkspaceContent({
       )
       toast.success(t(($) => $['api.actionSuccess']))
     } catch {
-      // The composer request reports failures; retain the build draft for retry.
+      toast.error(t(($) => $['api.actionFailed']))
     } finally {
       setIsApplyingInlineBuildDraft(false)
     }
@@ -592,6 +592,7 @@ function WorkflowInlineAgentConfigureWorkspaceContent({
       toast.success(t(($) => $['api.actionSuccess']))
       return true
     } catch {
+      toast.error(t(($) => $['api.actionFailed']))
       return false
     }
   }, [

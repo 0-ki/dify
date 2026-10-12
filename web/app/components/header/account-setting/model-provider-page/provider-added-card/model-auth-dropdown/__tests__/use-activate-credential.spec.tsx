@@ -103,7 +103,7 @@ describe('useActivateCredential', () => {
     expect(mockUpdateModelList).toHaveBeenNthCalledWith(2, 'text-embedding')
   })
 
-  it('should reset the optimistic selection and leaves request error feedback to the transport when activation fails', () => {
+  it('should reset the optimistic selection and show an error toast when activation fails', () => {
     const { result } = renderHook(() => useActivateCredential(createProvider()))
 
     act(() => {
@@ -115,10 +115,10 @@ describe('useActivateCredential', () => {
     const [, callbacks] = (mockMutate.mock.calls[0] ?? []) as [unknown, any]
 
     act(() => {
-      callbacks.onError?.()
+      callbacks.onError()
     })
 
     expect(result.current.selectedCredentialId).toBe('cred-1')
-    expect(toastErrorSpy).not.toHaveBeenCalled()
+    expect(toastErrorSpy).toHaveBeenCalledWith('common.actionMsg.modifiedUnsuccessfully')
   })
 })

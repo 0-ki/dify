@@ -98,6 +98,9 @@ export function WebAppAccessCard({
               : agentDetail,
         )
       },
+      onError: () => {
+        toast.error(tCommon(($) => $['actionMsg.modifiedUnsuccessfully']))
+      },
     }),
   )
   const resetAccessTokenMutation = useMutation(
@@ -118,6 +121,9 @@ export function WebAppAccessCard({
             }
           },
         )
+      },
+      onError: () => {
+        toast.error(tCommon(($) => $['actionMsg.generatedUnsuccessfully']))
       },
     }),
   )
@@ -192,6 +198,7 @@ export function WebAppAccessCard({
       toast.success(tCommon(($) => $['actionMsg.modifiedSuccessfully']))
       return true
     } catch {
+      toast.error(tCommon(($) => $['actionMsg.modifiedUnsuccessfully']))
       return false
     }
   }

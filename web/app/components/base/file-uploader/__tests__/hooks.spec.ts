@@ -381,11 +381,7 @@ describe('useFile', () => {
       result.current.handleLoadFileFromLink('https://example.com/file.txt')
 
       expect(mockSetFiles).toHaveBeenCalled()
-      expect(mockUploadRemoteFileInfo).toHaveBeenCalledWith(
-        'https://example.com/file.txt',
-        false,
-        true,
-      )
+      expect(mockUploadRemoteFileInfo).toHaveBeenCalledWith('https://example.com/file.txt', false)
     })
 
     it('should upload a remote file through the configured resource-scoped endpoint', () => {
@@ -398,7 +394,6 @@ describe('useFile', () => {
       expect(mockUploadRemoteFileInfo).toHaveBeenCalledWith(
         'https://example.com/file.txt',
         false,
-        true,
         '/trial-apps/app-id/remote-files/upload',
       )
     })

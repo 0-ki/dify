@@ -187,8 +187,9 @@ function ImportSnippetDSLDialog({ isOpen, onClose }: ImportSnippetDSLDialogProps
       })
 
       handleImportResponse(response)
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError' && error.message)
+        toast.error(error.message)
     }
   }, [
     canCreateAndModifySnippet,
@@ -205,8 +206,9 @@ function ImportSnippetDSLDialog({ isOpen, onClose }: ImportSnippetDSLDialogProps
     try {
       const response = await confirmSnippetImportMutation.mutateAsync({ importId })
       handleImportResponse(response)
-    } catch {
-      // The request layer reports this failure. Keep the current UI state.
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError' && error.message)
+        toast.error(error.message)
     }
   }, [canCreateAndModifySnippet, confirmSnippetImportMutation, handleImportResponse, importId])
 

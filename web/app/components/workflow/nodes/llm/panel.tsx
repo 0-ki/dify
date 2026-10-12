@@ -142,7 +142,12 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({ id, data }) => {
             )
           handleModelChanged(model, filtered)
         } catch {
-          // The request layer reports this failure. Keep the current UI state.
+          if (
+            modelSelectionRequestGenerationRef.current !== requestGeneration ||
+            modelSelectionKeyRef.current !== baselineSelectionKey
+          )
+            return
+          toast.error(t(($) => $.error, { ns: 'common' }))
         }
       })()
     },
@@ -188,7 +193,12 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({ id, data }) => {
             )
           handleModelSelectorChange(modelSelector, filtered)
         } catch {
-          // The request layer reports this failure. Keep the current UI state.
+          if (
+            modelSelectionRequestGenerationRef.current !== requestGeneration ||
+            modelSelectionKeyRef.current !== baselineSelectionKey
+          )
+            return
+          toast.error(t(($) => $.error, { ns: 'common' }))
         }
       })()
     },

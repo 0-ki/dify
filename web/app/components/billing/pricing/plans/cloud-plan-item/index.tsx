@@ -103,13 +103,15 @@ export function CloudPlanItem({ plan, billingInterval, billing }: CloudPlanItemP
 
         await openAsyncWindow(
           async () => {
-            const { url } = await consoleClient.billing.invoices.get(undefined, {
-              context: { silent: true },
-            })
+            const { url } = await consoleClient.billing.invoices.get()
             if (url) return url
             throw new Error('Failed to open billing page')
           },
-          { onError: (error) => toast.error(error.message) },
+          {
+            onError: (err) => {
+              toast.error(err.message || String(err))
+            },
+          },
         )
         return
       }

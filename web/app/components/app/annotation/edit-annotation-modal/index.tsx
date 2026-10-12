@@ -63,15 +63,22 @@ const EditAnnotationModal: FC<Props> = ({
     let postAnswer = answer
     if (type === EditItemType.Query) postQuery = editedContent
     else postAnswer = editedContent
+    try {
+      await editAnnotation(appId, annotationId, {
+        message_id: messageId,
+        question: postQuery,
+        answer: postAnswer,
+      })
+      onEdited(postQuery, postAnswer)
 
-    await editAnnotation(appId, annotationId, {
-      message_id: messageId,
-      question: postQuery,
-      answer: postAnswer,
-    })
-    onEdited(postQuery, postAnswer)
-
-    toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }) as string)
+      toast.success(t(($) => $['api.actionSuccess'], { ns: 'common' }) as string)
+    } catch (error) {
+      const fallbackMessage = t(($) => $['api.actionFailed'], { ns: 'common' }) as string
+      const message = error instanceof Error && error.message ? error.message : fallbackMessage
+      toast.error(message)
+      // Re-throw to preserve edit mode behavior for UI components
+      throw error
+    }
   }
   const removeActionsRef = useRef<AlertDialogActions>(null)
   if (!isShow) return null

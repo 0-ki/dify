@@ -42,7 +42,8 @@ export const useSnippetPublish = ({ snippetId }: UseSnippetPublishOptions) => {
       resetWorkflowVersionHistory()
       toast.success(t(($) => $.publishSuccess))
       return true
-    } catch {
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t(($) => $.publishFailed))
       return false
     }
   }, [

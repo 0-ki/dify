@@ -78,12 +78,12 @@ export const useDatasetCardState = ({ dataset, onSuccess }: UseDatasetCardStateO
         const file = new Blob([data], { type: 'application/yaml' })
         downloadBlob({ data: file, fileName: `${name}.pipeline` })
       } catch {
-        // The request layer reports this failure. Keep the current UI state.
+        toast.error(t(($) => $.exportFailed, { ns: 'app' }))
       } finally {
         setExporting(false)
       }
     },
-    [dataset, exportPipelineConfig, exporting],
+    [dataset, exportPipelineConfig, exporting, t],
   )
 
   // Delete flow handlers
@@ -98,7 +98,6 @@ export const useDatasetCardState = ({ dataset, onSuccess }: UseDatasetCardStateO
           },
           staleTime: 0,
           retry: false,
-          context: { silent: true },
         }),
       )
       const message = isUsedByApp

@@ -22,10 +22,7 @@ export type GenerateWorkflowOptions = {
 export function generateWorkflow(body: GenerateWorkflowBody, options?: GenerateWorkflowOptions) {
   const controller = new AbortController()
   options?.getAbortController?.(controller)
-  return consoleClient.workflowGenerate.post(
-    { body },
-    { signal: controller.signal, context: { silent: true } },
-  )
+  return consoleClient.workflowGenerate.post({ body }, { signal: controller.signal })
 }
 
 export type GenerateWorkflowStreamCallbacks = {

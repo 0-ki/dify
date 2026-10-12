@@ -489,11 +489,7 @@ export function AgentSkills() {
   })
   const hasLoadedAgentSkillBindings = agentSkillBindingsQuery.data !== undefined
   const { isPending: isReplacingAgentSkillBindings, mutate: replaceAgentSkillBindings } =
-    useMutation(
-      consoleQuery.workspaces.current.agents.byAgentId.skills.put.mutationOptions({
-        context: { silent: true },
-      }),
-    )
+    useMutation(consoleQuery.workspaces.current.agents.byAgentId.skills.put.mutationOptions())
   const workspaceSkills = agentSkillBindingsQuery.data?.data ?? []
   const boundSkillIds =
     agentSkillBindingsQuery.data?.skill_ids ?? workspaceSkills.map((skill) => skill.id)

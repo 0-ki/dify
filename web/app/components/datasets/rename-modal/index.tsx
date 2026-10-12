@@ -78,7 +78,7 @@ const RenameDatasetModal = ({ show, dataset, onSuccess, onClose }: RenameDataset
       if (onSuccess) onSuccess()
       onClose()
     } catch {
-      // The request layer reports this failure. Keep the current UI state.
+      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
     } finally {
       setLoading(false)
     }

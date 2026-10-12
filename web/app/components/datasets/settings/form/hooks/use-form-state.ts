@@ -224,7 +224,7 @@ export const useFormState = () => {
         invalidDatasetList()
       }
     } catch {
-      // The request layer reports this failure. Keep the current UI state.
+      toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
     } finally {
       setLoading(false)
     }

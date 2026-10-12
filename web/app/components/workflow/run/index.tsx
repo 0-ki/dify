@@ -7,6 +7,7 @@ import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } fro
 import { useTranslation } from 'react-i18next'
 import { LoadingPlaceholder } from '@/app/components/base/loading-placeholder'
 import { WorkflowRunningStatus } from '@/app/components/workflow/types'
+import { toast } from '@/app/notifications'
 import { fetchRunDetail, fetchTracingList } from '@/service/log'
 import { useStore } from '../store'
 import OutputPanel from './output-panel'
@@ -95,8 +96,9 @@ function RunSession({
         if (!lifetime.active || request !== lifetime.detailRequest) return
         setRunDetail(res)
         if (getResultCallback) getResultCallback(res)
-      } catch {
-        // The request layer reports this failure. Keep the current UI state.
+      } catch (err) {
+        if (lifetime.active && request === lifetime.detailRequest)
+          toast.error(err instanceof Error ? err.message : String(err))
       } finally {
         if (lifetime.active && request === lifetime.detailRequest) {
           lifetime.detailSettled = true
@@ -115,8 +117,9 @@ function RunSession({
           url: tracingListUrl,
         })
         if (lifetime.active && request === lifetime.tracingRequest) setList(nodeList)
-      } catch {
-        // The request layer reports this failure. Keep the current UI state.
+      } catch (err) {
+        if (lifetime.active && request === lifetime.tracingRequest)
+          toast.error(err instanceof Error ? err.message : String(err))
       } finally {
         if (lifetime.active && request === lifetime.tracingRequest) {
           lifetime.tracingSettled = true

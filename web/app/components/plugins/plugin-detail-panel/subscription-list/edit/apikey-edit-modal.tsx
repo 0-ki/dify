@@ -210,6 +210,12 @@ export const ApiKeyEditModal = ({ onClose, subscription, pluginDetail }: Props) 
           refetch?.()
           onClose()
         },
+        onError: async (error: unknown) => {
+          const errorMessage =
+            (await parsePluginErrorMessage(error)) ||
+            t(($) => $['subscription.list.item.actions.edit.error'], { ns: 'pluginTrigger' })
+          toast.error(errorMessage)
+        },
       },
     )
   }

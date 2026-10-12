@@ -145,6 +145,9 @@ export const useChildSegmentData = (
               resetChildList()
             }
           },
+          onError: () => {
+            toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
+          },
         },
       )
     },

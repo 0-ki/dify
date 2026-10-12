@@ -368,9 +368,9 @@ describe('useOAuthClientState', () => {
       })
     })
 
-    it('leaves request error feedback to the transport with error message on failure', () => {
+    it('should show error toast with error message on failure', () => {
       mockDeleteOAuth.mockImplementation((provider, { onError }) => {
-        onError?.(new Error('Delete failed'))
+        onError(new Error('Delete failed'))
       })
 
       const { result } = renderHook(() => useOAuthClientState(defaultParams))
@@ -379,7 +379,10 @@ describe('useOAuthClientState', () => {
         result.current.handleRemove()
       })
 
-      expect(mockToastNotify).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }))
+      expect(mockToastNotify).toHaveBeenCalledWith({
+        type: 'error',
+        message: 'Delete failed',
+      })
     })
   })
 
@@ -515,7 +518,7 @@ describe('useOAuthClientState', () => {
     it('should set status to Failed and show error toast on error', () => {
       mockConfigureOAuth.mockImplementation((params, { onSuccess }) => onSuccess())
       mockInitiateOAuth.mockImplementation((provider, { onError }) => {
-        onError?.(new Error('OAuth failed'))
+        onError(new Error('OAuth failed'))
       })
 
       const { result } = renderHook(() => useOAuthClientState(defaultParams))
@@ -672,7 +675,7 @@ describe('useOAuthClientState', () => {
         })
       })
       mockVerifyBuilder.mockImplementation((params, { onError }) => {
-        onError?.(new Error('Verify failed'))
+        onError(new Error('Verify failed'))
       })
 
       const { result } = renderHook(() => useOAuthClientState(defaultParams))

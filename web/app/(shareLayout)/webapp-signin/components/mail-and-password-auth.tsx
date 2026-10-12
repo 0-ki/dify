@@ -96,10 +96,8 @@ export default function MailAndPasswordAuth({ isEmailSetup }: MailAndPasswordAut
       if (
         authenticationError.code === 'authentication_failed' &&
         typeof authenticationError.message === 'string'
-      ) {
-        const message = authenticationError.message
-        toast.error(message)
-      }
+      )
+        toast.error(authenticationError.message)
     } finally {
       setIsLoading(false)
     }

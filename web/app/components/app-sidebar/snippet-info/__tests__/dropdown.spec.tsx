@@ -200,6 +200,7 @@ describe('SnippetInfoDropdown', () => {
         },
         expect.objectContaining({
           onSuccess: expect.any(Function),
+          onError: expect.any(Function),
         }),
       )
     })
@@ -238,7 +239,7 @@ describe('SnippetInfoDropdown', () => {
       await user.click(screen.getByText('snippet.menu.exportSnippet'))
 
       await waitFor(() => {
-        expect(mockToastError).not.toHaveBeenCalled()
+        expect(mockToastError).toHaveBeenCalledWith('snippet.exportFailed')
       })
     })
   })
@@ -269,6 +270,7 @@ describe('SnippetInfoDropdown', () => {
         },
         expect.objectContaining({
           onSuccess: expect.any(Function),
+          onError: expect.any(Function),
         }),
       )
       expect(mockToastSuccess).toHaveBeenCalledWith('snippet.deleted')

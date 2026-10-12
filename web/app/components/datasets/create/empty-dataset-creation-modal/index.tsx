@@ -47,7 +47,7 @@ const EmptyDatasetCreationModal = ({ show = false, onHide }: IProps) => {
       onHide()
       router.push(`/datasets/${dataset.id}/documents`)
     } catch {
-      // The request layer reports this failure. Keep the current UI state.
+      toast.error(t(($) => $['stepOne.modal.failed'], { ns: 'datasetCreation' }))
     } finally {
       setIsSubmitting(false)
     }

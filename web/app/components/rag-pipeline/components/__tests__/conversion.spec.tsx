@@ -164,6 +164,7 @@ describe('Conversion', () => {
       'ds-123',
       expect.objectContaining({
         onSuccess: expect.any(Function),
+        onError: expect.any(Function),
       }),
     )
   })
@@ -201,7 +202,7 @@ describe('Conversion', () => {
 
   it('should handle conversion error', async () => {
     mockConvert.mockImplementation((_id: string, opts: { onError: () => void }) => {
-      opts.onError?.()
+      opts.onError()
     })
 
     render(<Conversion />)
@@ -209,6 +210,6 @@ describe('Conversion', () => {
     fireEvent.click(screen.getByText('datasetPipeline.operations.convert'))
     fireEvent.click(screen.getByRole('button', { name: 'common.operation.confirm' }))
 
-    expect(mockToast.error).not.toHaveBeenCalled()
+    expect(mockToast.error).toHaveBeenCalledWith('datasetPipeline.conversion.errorMessage')
   })
 })

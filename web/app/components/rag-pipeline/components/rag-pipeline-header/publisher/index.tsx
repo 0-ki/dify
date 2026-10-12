@@ -81,7 +81,7 @@ const Publisher = () => {
         )
         invalidCustomizedTemplateList()
       } catch {
-        // The request layer reports this failure. Keep the current UI state.
+        toast.error(t(($) => $['publishTemplate.error.message'], { ns: 'datasetPipeline' }))
       } finally {
         setIsPublishingAsCustomizedPipeline(false)
         hidePublishAsKnowledgePipelineModal()
