@@ -7100,11 +7100,27 @@ Get instruction generation template
 | 200 | Success | **application/json**: [SimpleResultOptionalDataResponse](#simpleresultoptionaldataresponse)<br> |
 
 ### [POST] /logout
+Requires an Origin matching the Console web URL or API origin. Same-host proxy scheme/port changes additionally require a signed X-CSRF-Token matching the CSRF cookie.
+
 #### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
 | 200 | Success | **application/json**: [SimpleResultResponse](#simpleresultresponse)<br> |
+| 403 | Missing or untrusted Origin |  |
+
+### [POST] /logout-all
+**Revoke refresh sessions on every device for the authenticated account**
+
+Requires an Origin matching the Console web URL or API origin. Same-host proxy scheme/port changes additionally require a signed X-CSRF-Token matching the CSRF cookie.
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Success | **application/json**: [SimpleResultResponse](#simpleresultresponse)<br> |
+| 401 | Unauthorized |  |
+| 403 | Missing or untrusted Origin |  |
 
 ### [GET] /mcp/oauth/callback
 #### Parameters
@@ -8287,12 +8303,22 @@ Update account-level Step-by-step Tour state
 | 200 | Success | **application/json**: [RagPipelineWorkflowSyncResponse](#ragpipelineworkflowsyncresponse)<br> |
 
 ### [POST] /refresh-token
+Requires an Origin matching the Console web URL or API origin. Same-host proxy scheme/port changes additionally require a signed X-CSRF-Token matching the CSRF cookie.
+
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| X-Refresh-Request-ID | header | Reuse this UUID when retrying one refresh request after a lost response. | No | string (uuid) |
+
 #### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
 | 200 | Success | **application/json**: [SimpleResultResponse](#simpleresultresponse)<br> |
+| 400 | Invalid refresh request UUID |  |
 | 401 | Unauthorized | **application/json**: [SimpleResultMessageResponse](#simpleresultmessageresponse)<br> |
+| 403 | Missing or untrusted Origin |  |
 
 ### [POST] /remote-files/upload
 #### Request Body

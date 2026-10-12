@@ -25,6 +25,7 @@ from services.entities.account_entities import (
     ForgotPasswordToken,
     ForgotPasswordVerificationToken,
 )
+from tests.unit_tests.account_domain import FakeAccountSessionRevoker
 
 
 def _account(*, email: str = "User@Example.com") -> AccountSnapshot:
@@ -189,6 +190,7 @@ class Dependencies:
     def __init__(self, account: AccountSnapshot | None = None) -> None:
         self.accounts = FakeAccounts(account)
         self.passwords = FakePasswords()
+        self.sessions = FakeAccountSessionRevoker()
         self.tokens = FakeTokens()
         self.codes = FakeCodeGenerator()
         self.notifications = FakeNotifications()
@@ -198,6 +200,7 @@ class Dependencies:
         self.service = AccountForgotPasswordService(
             accounts=cast(AccountRepository, self.accounts),
             passwords=cast(AccountPasswordHasher, self.passwords),
+            sessions=self.sessions,
             tokens=cast(ForgotPasswordTokenGateway, self.tokens),
             codes=cast(ForgotPasswordCodeGenerator, self.codes),
             notifications=cast(ForgotPasswordNotificationGateway, self.notifications),
@@ -434,6 +437,7 @@ def test_reset_claims_token_and_updates_password() -> None:
     assert dependencies.accounts.requested_emails == []
     assert dependencies.passwords.plaintext == "ValidPass123!"
     assert dependencies.accounts.updated == ("account-1", dependencies.passwords.digest)
+    assert dependencies.sessions.account_ids == ["account-1", "account-1"]
 
 
 def test_reset_rejects_password_mismatch_before_reading_token() -> None:
@@ -447,6 +451,7 @@ def test_reset_rejects_password_mismatch_before_reading_token() -> None:
         )
 
     assert dependencies.tokens.claimed_reset_tokens == []
+    assert dependencies.sessions.account_ids == []
 
 
 def test_reset_consumes_claimed_token_when_account_is_missing() -> None:
@@ -466,6 +471,7 @@ def test_reset_consumes_claimed_token_when_account_is_missing() -> None:
 
     assert "reset-token" not in dependencies.tokens.stored
     assert dependencies.accounts.updated is None
+    assert dependencies.sessions.account_ids == []
 
 
 def test_reset_consumes_claimed_token_when_password_commit_fails() -> None:
@@ -521,3 +527,19 @@ def test_reset_rejects_account_when_email_changed_after_token_issue() -> None:
         )
 
     assert dependencies.accounts.updated is None
+    assert dependencies.sessions.account_ids == []
+
+
+@pytest.mark.parametrize("fail_on_call", [1, 2])
+def test_reset_revokes_sessions_before_and_after_password_commit(fail_on_call: int) -> None:
+    dependencies = Dependencies(_account())
+    dependencies.sessions.fail_on_call = fail_on_call
+    dependencies.tokens.stored["reset-token"] = ForgotPasswordResetToken(
+        email="user@example.com", code="123456", account_id="account-1"
+    )
+
+    with pytest.raises(RuntimeError, match="Session storage unavailable"):
+        dependencies.service.reset(token="reset-token", new_password="ValidPass123!", password_confirm="ValidPass123!")
+
+    assert dependencies.sessions.account_ids == ["account-1"] * fail_on_call
+    assert (dependencies.accounts.updated is None) is (fail_on_call == 1)

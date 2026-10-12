@@ -15,13 +15,18 @@ export type SimpleResultMessageResponse = {
 
 export type PostRefreshTokenData = {
   body?: never
+  headers?: {
+    'X-Refresh-Request-ID'?: string
+  }
   path?: never
   query?: never
   url: '/refresh-token'
 }
 
 export type PostRefreshTokenErrors = {
+  400: unknown
   401: SimpleResultMessageResponse
+  403: unknown
 }
 
 export type PostRefreshTokenError = PostRefreshTokenErrors[keyof PostRefreshTokenErrors]

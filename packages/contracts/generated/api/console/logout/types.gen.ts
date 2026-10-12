@@ -15,6 +15,10 @@ export type PostLogoutData = {
   url: '/logout'
 }
 
+export type PostLogoutErrors = {
+  403: unknown
+}
+
 export type PostLogoutResponses = {
   200: SimpleResultResponse
 }
