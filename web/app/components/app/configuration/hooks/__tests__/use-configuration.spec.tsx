@@ -3,6 +3,7 @@ import Cookies from 'js-cookie'
 import CommonLayoutError from '@/app/(commonLayout)/error'
 import ErrorBoundary from '@/app/components/base/error-boundary'
 import { DETAIL_SIDEBAR_COOKIE_NAME } from '@/app/components/detail-sidebar/cookie'
+import { ApiError } from '@/service/api-error'
 import { consoleClient, consoleQuery } from '@/service/console'
 import { seedAccountProfileQuery } from '@/test/console/account-profile'
 import { createQueryClientWrapper } from '@/test/console/query-client'
@@ -308,8 +309,8 @@ describe('useConfiguration', () => {
     }
   })
 
-  it('should retain the legacy unauthorized response for the redirect loading fallback', async () => {
-    const response = new Response(null, { status: 401 })
+  it('should retain unauthorized ApiError for the redirect loading fallback', async () => {
+    const response = new ApiError(new Response(null, { status: 401 }))
     mockFetchCollectionList.mockRejectedValueOnce(response)
     const queryClient = createTestQueryClient()
     seedAccountProfileQuery(queryClient, { id: 'user-1' })
