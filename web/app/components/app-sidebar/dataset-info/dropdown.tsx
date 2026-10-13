@@ -41,7 +41,7 @@ type DropDownProps = {
   triggerClassName?: string
 }
 
-const getErrorMessage = async (error: unknown) =>
+const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : 'Unknown error'
 
 const DropDown = ({ expand, triggerClassName }: DropDownProps) => {
@@ -125,7 +125,7 @@ const DropDown = ({ expand, triggerClassName }: DropDownProps) => {
       )
       setShowConfirmDelete(true)
     } catch (e: unknown) {
-      toast.error(await getErrorMessage(e))
+      toast.error(getErrorMessage(e))
     }
   }, [dataset.id, t])
 

@@ -13,6 +13,7 @@ import { toast } from '@/app/notifications'
 import { emailRegex } from '@/config'
 import Link from '@/next/link'
 import { useRouter, useSearchParams } from '@/next/navigation'
+import { ApiError } from '@/service/api-error'
 import { login } from '@/service/common'
 import { consoleQuery } from '@/service/console'
 import { setWebAppAccessToken } from '@/service/webapp-auth'
@@ -26,12 +27,8 @@ type MailAndPasswordAuthProps = {
   isEmailSetup: boolean
 }
 
-function hasErrorCode(error: unknown, code: string) {
-  return typeof error === 'object' && error !== null && 'code' in error && error.code === code
-}
-
 export default function MailAndPasswordAuth({ isInvite, isEmailSetup }: MailAndPasswordAuthProps) {
-  const { t } = useTranslation(['login'])
+  const { t } = useTranslation(['login', 'common'])
   const router = useRouter()
   const queryClient = useQueryClient()
   const searchParams = useSearchParams()
@@ -76,8 +73,15 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup }: MailAndP
         toast.error(res.data)
       }
     } catch (error) {
-      if (hasErrorCode(error, 'authentication_failed'))
+      if (error instanceof Error && error.name === 'AbortError') return
+      if (error instanceof ApiError && error.code === 'authentication_failed')
         toast.error(t(($) => $['error.invalidEmailOrPassword'], { ns: 'login' }))
+      else
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t(($) => $['api.actionFailed'], { ns: 'common' }),
+        )
     } finally {
       setIsLoading(false)
     }
