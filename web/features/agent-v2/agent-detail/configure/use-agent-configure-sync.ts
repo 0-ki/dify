@@ -478,15 +478,7 @@ export function useAgentConfigureSync({
       })
       return { kind: published.publication_kind, draft }
     } catch (error) {
-      const errorData: unknown = error
-      toast.error(
-        errorData &&
-          typeof errorData === 'object' &&
-          'message' in errorData &&
-          typeof errorData.message === 'string'
-          ? errorData.message
-          : tCommon(($) => $['api.actionFailed']),
-      )
+      toast.error(error instanceof Error ? error.message : tCommon(($) => $['api.actionFailed']))
       throw error
     } finally {
       publishInFlightRef.current = false

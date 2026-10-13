@@ -104,13 +104,8 @@ function workflowAttemptKey(run: SourceWorkflowRun) {
   return `${run.id}:${run.executionAttempts}`
 }
 
-function responseStatus(error: unknown) {
-  if (error instanceof ApiError) return error.status
-  if (!error || typeof error !== 'object') return undefined
-  if ('status' in error && typeof error.status === 'number') return error.status
-  if ('data' in error && error.data && typeof error.data === 'object' && 'status' in error.data) {
-    return typeof error.data.status === 'number' ? error.data.status : undefined
-  }
+function responseStatus(error: unknown): number | undefined {
+  return error instanceof ApiError ? error.status : undefined
 }
 
 function isDefinitiveRequestFailure(error: unknown) {

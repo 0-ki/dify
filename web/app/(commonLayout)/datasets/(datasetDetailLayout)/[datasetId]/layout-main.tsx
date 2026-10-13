@@ -27,12 +27,7 @@ type IAppDetailLayoutProps = {
   datasetId: string
 }
 
-const getResponseStatus = (error: unknown) => {
-  if (error instanceof ApiError) return error.status
-
-  if (typeof error === 'object' && error && 'status' in error && typeof error.status === 'number')
-    return error.status
-}
+const getResponseStatus = (error: unknown) => (error instanceof ApiError ? error.status : undefined)
 
 const shouldRedirectToDatasetList = (error: unknown) => {
   const status = getResponseStatus(error)

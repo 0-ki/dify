@@ -16,7 +16,6 @@ import { cn } from '@langgenius/dify-ui/cn'
 import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
 import { toast } from '@/app/notifications'
 import { getFileIconType } from '@/features/agent-v2/file-icon'
-import { ApiError } from '@/service/api-error'
 import { consoleClient, consoleQuery } from '@/service/console'
 import {
   getSkillErrorCode,
@@ -1341,58 +1340,12 @@ function getDraftSkillName(parsedSkillMd: ParsedMarkdownContent, displayName: st
   return generatedName || undefined
 }
 
-function parseServerMessage(message: string) {
-  const trimmedMessage = message.trim()
-  if (!trimmedMessage.startsWith('{')) return trimmedMessage
-
-  try {
-    const parsed: unknown = JSON.parse(trimmedMessage)
-    if (parsed && typeof parsed === 'object') {
-      const parsedMessage = (parsed as Record<string, unknown>).message
-      if (typeof parsedMessage === 'string' && parsedMessage.trim()) return parsedMessage.trim()
-    }
-  } catch {
-    return trimmedMessage
-  }
-
-  return trimmedMessage
-}
-
-function getSkillErrorMessage(error: unknown, visited = new Set<unknown>()): string | undefined {
-  if (!error || visited.has(error)) return undefined
-  if (typeof error === 'string') return parseServerMessage(error)
-  if (typeof error !== 'object') return undefined
-
-  visited.add(error)
-  const record = error as Record<string, unknown>
-
-  for (const key of ['data', 'body', 'error', 'cause', 'response']) {
-    const nestedMessage = getSkillErrorMessage(record[key], visited)
-    if (nestedMessage) return nestedMessage
-  }
-
-  const message = record.message
-  if (typeof message === 'string' && message.trim()) return parseServerMessage(message)
-
-  return undefined
-}
-
-export async function getAsyncSkillErrorMessage(error: unknown) {
-  return getSkillErrorMessage(error)
-}
-
-export async function getAsyncSkillErrorPayload(error: unknown) {
-  if (error instanceof ApiError) return error.data
-
-  return isRecord(error) ? error : undefined
+export function getSkillErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message || undefined : undefined
 }
 
 export function showSkillErrorToast(error: unknown, fallbackMessage: string) {
-  void showSkillErrorToastAsync(error, fallbackMessage)
-}
-
-async function showSkillErrorToastAsync(error: unknown, fallbackMessage: string) {
-  toast.error((await getAsyncSkillErrorMessage(error)) ?? fallbackMessage)
+  toast.error(getSkillErrorMessage(error) ?? fallbackMessage)
 }
 
 export function getSkillCodeLanguage(file: SkillFileResponse | undefined) {

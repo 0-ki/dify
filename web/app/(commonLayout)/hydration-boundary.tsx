@@ -28,9 +28,8 @@ const redirectToAuthRefresh = async () => {
 const handleProfileError = async (error: unknown) => {
   if (!(error instanceof ApiError)) throw error
 
-  const errorData = error
-  if (errorData?.code === 'not_setup') redirect('/install')
-  if (errorData?.code === 'not_init_validated') redirect('/init')
+  if (error.code === 'not_setup') redirect('/install')
+  if (error.code === 'not_init_validated') redirect('/init')
   if (error.status === 401) await redirectToAuthRefresh()
 
   throw error

@@ -23,6 +23,7 @@ import { LICENSE_LINK } from '@/constants/link'
 import { languages } from '@/i18n/language'
 import Link from '@/next/link'
 import { useRouter, useSearchParams } from '@/next/navigation'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import { useOneMoreStep } from '@/service/use-common'
 import { replaceLoginRedirect } from '@/utils/login-redirect.client'
@@ -64,15 +65,6 @@ const TIMEZONE_OPTIONS: SelectOption[] = timezones.map((item) => ({
   name: item.name,
 }))
 
-const hasStatus = (error: unknown): error is { status: number } => {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'status' in error &&
-    typeof error.status === 'number'
-  )
-}
-
 const OneMoreStep = () => {
   const { t } = useTranslation(['common', 'login'])
   const router = useRouter()
@@ -109,7 +101,7 @@ const OneMoreStep = () => {
       await queryClient.resetQueries({ queryKey: consoleQuery.account.profile.get.key() })
       replaceLoginRedirect(resolvePostLoginRedirect(searchParams), router.replace, basePath)
     } catch (error: unknown) {
-      if (hasStatus(error) && error.status === 400)
+      if (error instanceof ApiError && error.status === 400)
         toast.error(t(($) => $.invalidInvitationCode, { ns: 'login' }))
     }
   }

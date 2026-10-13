@@ -680,7 +680,7 @@ describe('OAuthClientSettingsModal', () => {
       })
     })
 
-    it('should extract error message from object with message property', () => {
+    it('should extract error message from an Error', () => {
       const configWithCustomEnabled = createMockOAuthConfig({
         system_configured: false,
         custom_enabled: true,
@@ -688,7 +688,7 @@ describe('OAuthClientSettingsModal', () => {
       })
 
       mockDeleteOAuth.mockImplementation((provider, { onError }) => {
-        onError({ message: 'Object error message' })
+        onError(new Error('Object error message'))
       })
 
       render(<OAuthClientSettingsModal {...defaultProps} oauthConfig={configWithCustomEnabled} />)

@@ -75,7 +75,7 @@ describe('SkillDetailPage autosave', () => {
       ],
     })
 
-    const conflict = {
+    const conflict = new ApiError(new Response(null, { status: 409 }), {
       code: 'skill_conflict',
       details: {
         current_file_hash: 'hash-2',
@@ -83,7 +83,7 @@ describe('SkillDetailPage autosave', () => {
         current_file_content: latestDetail.files?.[0]?.content ?? '',
         expected_updated_at: 1784638487,
       },
-    }
+    })
     mocks.saveDraftFileMutationFn.mockRejectedValueOnce(conflict)
     renderSkillDetailPage()
 
@@ -149,14 +149,16 @@ describe('SkillDetailPage autosave', () => {
         },
       ],
     })
-    mocks.saveDraftFileMutationFn.mockRejectedValueOnce({
-      code: 'skill_conflict',
-      details: {
-        current_file_content: latestDetail.files?.[0]?.content ?? '',
-        current_updated_at: latestDetail.updated_at,
-        expected_updated_at: 1784638487,
-      },
-    })
+    mocks.saveDraftFileMutationFn.mockRejectedValueOnce(
+      new ApiError(new Response(null, { status: 409 }), {
+        code: 'skill_conflict',
+        details: {
+          current_file_content: latestDetail.files?.[0]?.content ?? '',
+          current_updated_at: latestDetail.updated_at,
+          expected_updated_at: 1784638487,
+        },
+      }),
+    )
     renderSkillDetailPage()
 
     const livePreview = await screen.findByRole('textbox', {
@@ -230,16 +232,11 @@ describe('SkillDetailPage autosave', () => {
 
   it('shows a save failure when conflict recovery cannot determine the latest timestamp', async () => {
     const user = userEvent.setup()
-    const conflict = new Error('skill has been modified by another user') as Error & {
-      code: string
-      details: {
-        current_file_hash: string
-      }
-    }
-    conflict.code = 'skill_conflict'
-    conflict.details = {
-      current_file_hash: 'hash-2',
-    }
+    const conflict = new ApiError(new Response(null, { status: 409 }), {
+      code: 'skill_conflict',
+      message: 'skill has been modified by another user',
+      details: { current_file_hash: 'hash-2' },
+    })
     mocks.saveDraftFileMutationFn.mockRejectedValueOnce(conflict)
     mocks.skillDetailGetFn.mockRejectedValueOnce(new Error('refresh failed'))
 

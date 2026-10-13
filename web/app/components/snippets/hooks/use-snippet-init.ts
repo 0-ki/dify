@@ -2,6 +2,7 @@ import type { SnippetWorkflow } from '@/types/snippet'
 import isEqual from 'fast-deep-equal'
 import { useEffect, useMemo, useState } from 'react'
 import { useWorkflowStore } from '@/app/components/workflow/store'
+import { ApiError } from '@/service/api-error'
 import {
   fetchSnippetDraftWorkflow,
   useSnippetDefaultBlockConfigs,
@@ -33,7 +34,7 @@ const normalizeNodesDefaultConfigs = (nodesDefaultConfigs: unknown) => {
 }
 
 const isNotFoundError = (error: unknown) => {
-  return !!error && typeof error === 'object' && 'status' in error && error.status === 404
+  return error instanceof ApiError && error.status === 404
 }
 
 const getComparableWorkflowData = (workflow?: SnippetWorkflow | null) => {

@@ -3,6 +3,7 @@ import type {
   LogicalDocument,
   Source,
 } from '@dify/contracts/knowledge-fs/types.gen'
+import { ORPCError } from '@orpc/client'
 import { hashKey } from '@tanstack/react-query'
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -885,7 +886,7 @@ describe('DocumentsPage', () => {
   it('distinguishes a permission failure and exposes retry for other load errors', async () => {
     const user = userEvent.setup()
     documentsQuery.data = undefined
-    documentsQuery.error = { status: 403 }
+    documentsQuery.error = new ApiError(new Response(null, { status: 403 }))
 
     const { rerender } = render(<DocumentsPage knowledgeSpaceId="space-1" />)
     expect(screen.getByRole('alert')).toHaveTextContent(
@@ -943,7 +944,7 @@ describe('DocumentsPage', () => {
 
   it('blocks cached document content when a background refresh loses permission', () => {
     documentsQuery.data = { pages: [{ items: [document()] }] }
-    documentsQuery.error = { status: 403 }
+    documentsQuery.error = new ApiError(new Response(null, { status: 403 }))
 
     render(<DocumentsPage knowledgeSpaceId="space-1" />)
 
@@ -1059,7 +1060,7 @@ describe('DocumentsPage', () => {
     )
     expect(screen.getByRole('dialog')).toBeInTheDocument()
 
-    documentsQuery.error = { status: 403 }
+    documentsQuery.error = new ApiError(new Response(null, { status: 403 }))
     rerender(<DocumentsPage knowledgeSpaceId="space-1" />)
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     const permissionAlert = screen.getByRole('alert')
@@ -1106,7 +1107,7 @@ describe('DocumentsPage', () => {
   it('does not repeat the child query that already recovered from permission denial', () => {
     documentsQuery.data = { pages: [{ items: [document()] }] }
     tasksQuery.data = { pages: [{ items: [] }] }
-    tasksQuery.error = { status: 403 }
+    tasksQuery.error = new ApiError(new Response(null, { status: 403 }))
     const rendered = render(<DocumentsPage knowledgeSpaceId="space-1" />)
 
     tasksQuery.error = null
@@ -1128,7 +1129,7 @@ describe('DocumentsPage', () => {
     await user.click(searchbox)
     expect(searchbox).toHaveFocus()
 
-    documentsQuery.error = { status: 403 }
+    documentsQuery.error = new ApiError(new Response(null, { status: 403 }))
     rerender(<DocumentsPage knowledgeSpaceId="space-1" />)
 
     await waitFor(() => expect(screen.getByRole('alert')).toHaveFocus())
@@ -1150,7 +1151,7 @@ describe('DocumentsPage', () => {
     ).getByRole('button', { name: 'dataset.newKnowledge.reindexDocuments' })
     act(() => reindex.focus())
 
-    documentsQuery.error = { status: 403 }
+    documentsQuery.error = new ApiError(new Response(null, { status: 403 }))
     rerender(<DocumentsPage knowledgeSpaceId="space-1" />)
 
     await waitFor(() => expect(screen.getByRole('alert')).toHaveFocus())
@@ -1161,7 +1162,7 @@ describe('DocumentsPage', () => {
     documentsQuery.data = {
       pages: [{ items: [document({ sourceId: 'unresolved-source' })], nextCursor: 'next' }],
     }
-    documentsQuery.error = { status: 403 }
+    documentsQuery.error = new ApiError(new Response(null, { status: 403 }))
     documentsQuery.hasNextPage = true
     tasksQuery.data = {
       pages: [{ items: [task({ state: 'failed' })], nextCursor: 'task-next' }],
@@ -2170,7 +2171,7 @@ describe('DocumentsPage', () => {
     await user.click(screen.getByRole('button', { name: 'dataset.newKnowledge.interruptTask' }))
 
     queryClient.invalidateQueries.mockClear()
-    documentsQuery.error = { status: 403 }
+    documentsQuery.error = new ApiError(new Response(null, { status: 403 }))
     rerender(<DocumentsPage knowledgeSpaceId="space-1" />)
     await act(async () => resolveCancel?.(task({ id: 'revoked-action', state: 'canceled' })))
     expect(queryClient.invalidateQueries).not.toHaveBeenCalled()
@@ -2457,7 +2458,7 @@ describe('DocumentsPage', () => {
     rerender(<DocumentsPage knowledgeSpaceId="space-1" />)
     await waitFor(() => expect(getTaskSnapshot).toHaveBeenCalledTimes(2))
 
-    documentsQuery.error = { status: 403 }
+    documentsQuery.error = new ApiError(new Response(null, { status: 403 }))
     rerender(<DocumentsPage knowledgeSpaceId="space-1" />)
     await waitFor(() => expect(signals[1]?.aborted).toBe(true))
     documentsQuery.error = null
@@ -2654,7 +2655,7 @@ describe('DocumentsPage', () => {
         event: 'progress' as const,
         id: 'lagging-denied-stream:version-2',
       }
-      throw new ApiError(new Response(null, { status: 403 }))
+      throw new ORPCError('FORBIDDEN')
     })
 
     render(<DocumentsPage knowledgeSpaceId="space-1" />)
@@ -2920,7 +2921,7 @@ describe('DocumentsPage', () => {
     })
     await user.click(retry)
 
-    documentsQuery.error = { status: 403 }
+    documentsQuery.error = new ApiError(new Response(null, { status: 403 }))
     rendered.rerender(<DocumentsPage knowledgeSpaceId="space-1" />)
 
     await waitFor(() => expect(screen.getByRole('alert')).toHaveFocus())
@@ -5265,7 +5266,7 @@ describe('DocumentsPage', () => {
   it('locks cached documents when the task query returns a permission denial', () => {
     documentsQuery.data = { pages: [{ items: [document()] }] }
     tasksQuery.data = { pages: [{ items: [task()] }] }
-    tasksQuery.error = { status: 403 }
+    tasksQuery.error = new ApiError(new Response(null, { status: 403 }))
 
     render(<DocumentsPage knowledgeSpaceId="space-1" />)
 
@@ -5368,7 +5369,7 @@ describe('DocumentsPage', () => {
       await act(async () => vi.advanceTimersByTime(5000))
       expect(getTaskSnapshot).toHaveBeenCalledOnce()
 
-      documentsQuery.error = { status: 403 }
+      documentsQuery.error = new ApiError(new Response(null, { status: 403 }))
       rendered.rerender(<DocumentsPage knowledgeSpaceId="space-1" />)
       documentsQuery.error = null
       rendered.rerender(<DocumentsPage knowledgeSpaceId="space-1" />)

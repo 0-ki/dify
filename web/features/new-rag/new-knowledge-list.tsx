@@ -11,6 +11,7 @@ import { ServiceApi } from '@/app/components/datasets/extra-info/service-api'
 import { toast } from '@/app/notifications'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import Link from '@/next/link'
+import { ApiError } from '@/service/api-error'
 import { consoleQuery } from '@/service/console'
 import { useDatasetApiBaseUrl } from '@/service/knowledge/use-dataset'
 import { hasPermission } from '@/utils/permission'
@@ -26,14 +27,7 @@ import {
 const PAGE_SIZE = 30
 
 function isUnavailableError(error: unknown) {
-  if (!error || typeof error !== 'object') return false
-  const status = 'status' in error ? error.status : undefined
-  if (status === 404 || status === 503) return true
-
-  const data = 'data' in error ? error.data : undefined
-  if (!data || typeof data !== 'object') return false
-  const dataStatus = 'status' in data ? data.status : undefined
-  return dataStatus === 404 || dataStatus === 503
+  return error instanceof ApiError && (error.status === 404 || error.status === 503)
 }
 
 function MetadataFilter({ label, onClick }: { label: string; onClick: () => void }) {

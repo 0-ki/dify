@@ -34,13 +34,8 @@ export class KnowledgeCreationError extends Error {
   }
 }
 
-function responseStatus(error: unknown) {
-  if (error instanceof ApiError) return error.status
-  if (error && typeof error === 'object' && 'status' in error) return error.status
-  if (error && typeof error === 'object' && 'data' in error) {
-    const data = error.data
-    if (data && typeof data === 'object' && 'status' in data) return data.status
-  }
+function responseStatus(error: unknown): number | undefined {
+  return error instanceof ApiError ? error.status : undefined
 }
 
 export function isDefinitiveCreationRejection(error: unknown) {

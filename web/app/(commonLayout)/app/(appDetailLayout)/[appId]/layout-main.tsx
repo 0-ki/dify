@@ -20,6 +20,7 @@ import { userProfileQueryOptions } from '@/features/account-profile/client'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import useDocumentTitle from '@/hooks/use-document-title'
 import { usePathname, useRouter } from '@/next/navigation'
+import { ApiError } from '@/service/api-error'
 import { consoleClient, consoleQuery } from '@/service/console'
 import { AppModeEnum } from '@/types/app'
 import { getRedirectionPath } from '@/utils/app-redirection'
@@ -30,8 +31,7 @@ type IAppDetailLayoutProps = {
   appId: string
 }
 
-const isNotFoundError = (error: unknown) =>
-  typeof error === 'object' && error !== null && 'status' in error && error.status === 404
+const isNotFoundError = (error: unknown) => error instanceof ApiError && error.status === 404
 
 const appDetailPageTitle = (pathname: string, t: ReturnType<typeof useTranslation>['t']) => {
   if (pathname.endsWith('/workflow') || pathname.endsWith('/configuration'))

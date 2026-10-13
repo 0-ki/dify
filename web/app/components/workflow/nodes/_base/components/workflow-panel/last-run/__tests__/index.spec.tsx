@@ -1,5 +1,6 @@
 import { act, render, screen } from '@testing-library/react'
 import { NodeRunningStatus } from '@/app/components/workflow/types'
+import { ApiError } from '@/service/api-error'
 import LastRun from '../index'
 
 const mockUseHooksStore = vi.hoisted(() => vi.fn())
@@ -113,7 +114,7 @@ describe('LastRun', () => {
     mockUseLastRun.mockReturnValue({
       data: undefined,
       isFetching: false,
-      error: { status: 404 },
+      error: new ApiError(new Response(null, { status: 404 })),
     })
 
     render(

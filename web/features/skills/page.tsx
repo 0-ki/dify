@@ -1056,10 +1056,9 @@ export default function SkillsPage() {
           invalidateSkillListQueries(queryClient)
           router.push(`/skills/${skill.id}`)
         },
-        onError: async (error) => {
-          const normalizedError = error
+        onError: (error) => {
           toast.error(
-            getSkillErrorCode(normalizedError) === 'skill_limit_exceeded'
+            getSkillErrorCode(error) === 'skill_limit_exceeded'
               ? t(($) => $['skillManagement.errors.workspaceLimit'])
               : t(($) => $['skillManagement.createFailed']),
           )
@@ -1083,13 +1082,12 @@ export default function SkillsPage() {
           invalidateSkillListQueries(queryClient)
           router.push(`/skills/${skill.id}`)
         },
-        onError: async (error) => {
-          const normalizedError = error
-          const errorCode = getSkillErrorCode(normalizedError)
+        onError: (error) => {
+          const errorCode = getSkillErrorCode(error)
           if (errorCode === 'skill_name_conflict') {
             toast.error(
               t(($) => $['skillManagement.errors.nameConflict'], {
-                name: getSkillErrorDetailString(normalizedError, 'name') ?? '',
+                name: getSkillErrorDetailString(error, 'name') ?? '',
               }),
             )
             return

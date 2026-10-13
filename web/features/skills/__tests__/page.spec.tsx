@@ -786,7 +786,9 @@ describe('SkillsPage', () => {
 
   it('explains when the workspace skill limit blocks draft creation', async () => {
     const user = userEvent.setup()
-    mocks.createSkillMutationFn.mockRejectedValueOnce({ code: 'skill_limit_exceeded' })
+    mocks.createSkillMutationFn.mockRejectedValueOnce(
+      new ApiError(new Response(null, { status: 400 }), { code: 'skill_limit_exceeded' }),
+    )
     renderSkillsPage()
 
     await user.click(await screen.findByRole('button', { name: 'skill.skillManagement.create' }))
@@ -1096,30 +1098,26 @@ describe('SkillsPage', () => {
 
   it.each([
     {
-      error: {
-        data: {
-          body: {
-            code: 'skill_name_conflict',
-            details: { name: 'refund-approval' },
-          },
-        },
-      },
+      error: new ApiError(new Response(null, { status: 409 }), {
+        code: 'skill_name_conflict',
+        details: { name: 'refund-approval' },
+      }),
       message: 'skill.skillManagement.errors.nameConflict:{"name":"refund-approval"}',
     },
     {
-      error: { code: 'skill_limit_exceeded' },
+      error: new ApiError(new Response(null, { status: 400 }), { code: 'skill_limit_exceeded' }),
       message: 'skill.skillManagement.errors.workspaceLimit',
     },
     {
-      error: { code: 'missing_skill_md' },
+      error: new ApiError(new Response(null, { status: 400 }), { code: 'missing_skill_md' }),
       message: 'skill.skillManagement.errors.missingSkillMd',
     },
     {
-      error: { message: 'Skill package must contain SKILL.md' },
+      error: new Error('Skill package must contain SKILL.md'),
       message: 'skill.skillManagement.errors.missingSkillMd',
     },
     {
-      error: { message: 'Skill name "refund-approval" already exists' },
+      error: new Error('Skill name "refund-approval" already exists'),
       message: 'skill.skillManagement.errors.nameConflict:{"name":"refund-approval"}',
     },
   ])('explains import errors for $error.code', async ({ error, message }) => {
