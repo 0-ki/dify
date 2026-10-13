@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event'
 import * as React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { TriggerCredentialType } from '@/app/components/workflow/block-selector/types'
+import { ApiError } from '@/service/api-error'
 import { OAuthClientSettingsModal } from '../oauth-client'
 
 type PluginDetail = {
@@ -680,7 +681,7 @@ describe('OAuthClientSettingsModal', () => {
       })
     })
 
-    it('should extract error message from an Error', () => {
+    it('should extract the backend message from an API error', () => {
       const configWithCustomEnabled = createMockOAuthConfig({
         system_configured: false,
         custom_enabled: true,
@@ -688,7 +689,9 @@ describe('OAuthClientSettingsModal', () => {
       })
 
       mockDeleteOAuth.mockImplementation((provider, { onError }) => {
-        onError(new Error('Object error message'))
+        onError(
+          new ApiError(new Response(null, { status: 503 }), { message: 'Object error message' }),
+        )
       })
 
       render(<OAuthClientSettingsModal {...defaultProps} oauthConfig={configWithCustomEnabled} />)
